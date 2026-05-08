@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import fetch from 'node-fetch';
 import FormData from 'form-data';
 import { createReadStream } from 'fs';
@@ -76,10 +77,10 @@ export class LingkeClient {
       model,
       prompt,
       n: options.n || 1,
-      size: options.size || '1024x1024',
-      response_format: options.response_format || 'url',
-      ...options
+      size: options.size || '1024x1024'
     };
+    if (options.quality) body.quality = options.quality;
+    if (options.style) body.style = options.style;
     delete body.image;
     delete body.mask;
 
@@ -91,12 +92,11 @@ export class LingkeClient {
       model,
       prompt,
       image,
-      response_format: options.response_format || 'url',
       size: options.size || 'adaptive',
       guidance_scale: options.guidance_scale || 5.5,
-      watermark: options.watermark || false,
-      ...options
+      watermark: options.watermark || false
     };
+    if (options.response_format) body.response_format = options.response_format;
 
     return this.request('POST', '/v1/images/generations', { body });
   }
@@ -295,7 +295,29 @@ export class LingkeClient {
     }
   }
 
-  _sleep(ms) {
+  async removeBackground(imageUrl, options = {}) {
+    const body = {
+      image_url: imageUrl,
+      model: options.model || 'bria-rmbg-1.4'
+    };
+
+    return this.request('POST', '/fal-ai/bria/rmbg-1.4', { body });
+  }
+
+  async inpaintBackground(imageUrl, maskUrl, options = {}) {
+    const body = {
+      image_url: imageUrl,
+      mask_url: maskUrl,
+      prompt: options.prompt || 'clean background, seamless fill, no objects',
+      num_inference_steps: options.num_inference_steps || 50,
+      guidance_scale: options.guidance_scale || 7.5,
+      strength: options.strength || 1.0
+    };
+
+    return this.request('POST', '/fal-ai/stable-diffusion/inpainting', { body });
+  }
+
+  async _sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 }

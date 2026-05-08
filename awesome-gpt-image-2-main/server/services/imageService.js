@@ -34,8 +34,7 @@ export class ImageService {
       n: options.n || 1,
       size: options.size || '1024x1024',
       quality: options.quality,
-      style: options.style,
-      response_format: 'url'
+      style: options.style
     });
 
     if (!result.success) return result;
@@ -87,7 +86,6 @@ export class ImageService {
 
   async _seededitEdit(model, prompt, image, options) {
     const result = await lingkeClient.syncImageEdit(model, prompt, image, {
-      response_format: 'url',
       size: 'adaptive',
       guidance_scale: options.guidance_scale || 5.5,
       watermark: false

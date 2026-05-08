@@ -24,6 +24,7 @@ export const CREDITS_RULES = {
     'detail:plan': 5,
     'detail:image:1k': 5,
     'detail:image:2k': 10,
+    'psdLayer:bria-rmbg-inpainting': 15,
     'text:generate': 1
   },
 

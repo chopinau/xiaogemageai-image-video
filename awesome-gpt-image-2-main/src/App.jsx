@@ -4,6 +4,7 @@ import { Topbar } from './components/Topbar';
 import { MainImageGen } from './pages/MainImageGen';
 import { DetailStudio } from './pages/DetailStudio';
 import { RetouchStudio } from './pages/RetouchStudio';
+import { PsdLayer } from './pages/PsdLayer';
 import { VideoGen } from './pages/VideoGen';
 import { Gallery } from './pages/Gallery';
 import { LoginPage } from './pages/auth/Login';
@@ -27,6 +28,7 @@ function AppRoutes({ language }) {
       <Route path="/" element={<MainImageGen language={language} />} />
       <Route path="/detail-studio" element={<DetailStudio language={language} />} />
       <Route path="/retouch-studio" element={<RetouchStudio language={language} />} />
+      <Route path="/psd-layer" element={<PsdLayer language={language} />} />
       <Route path="/video-gen" element={<VideoGen language={language} />} />
       <Route path="/gallery" element={<Gallery language={language} />} />
       <Route path="/pricing" element={<PricingPage language={language} />} />

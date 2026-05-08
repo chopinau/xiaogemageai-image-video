@@ -247,6 +247,21 @@ export const AI_MODELS = {
       enabled: true,
       sortOrder: 2
     }
+  },
+  psdLayer: {
+    'bria-rmbg-inpainting': {
+      id: 'bria-rmbg-inpainting',
+      name: 'PSD 智能分层',
+      provider: 'fal.ai',
+      capabilities: ['background-removal', 'inpainting', 'psd-export'],
+      maxSize: '2048x2048',
+      pricing: { perImage: 15, unit: 'credits' },
+      apiEndpoint: '/api/psd-layer/process',
+      apiType: 'async',
+      lingkeModel: 'bria-rmbg-1.4',
+      enabled: true,
+      sortOrder: 1
+    }
   }
 };
 
@@ -254,7 +269,8 @@ export const MODEL_CATEGORIES = {
   image: { label: { en: 'Image Generation', zh: '图像生成' } },
   video: { label: { en: 'Video Generation', zh: '视频生成' } },
   text: { label: { en: 'Text Generation', zh: '文本生成' } },
-  retouch: { label: { en: 'Image Retouching', zh: '图片精修' } }
+  retouch: { label: { en: 'Image Retouching', zh: '图片精修' } },
+  psdLayer: { label: { en: 'PSD Layering', zh: 'PSD分层' } }
 };
 
 export function getModelById(modelId, category) {

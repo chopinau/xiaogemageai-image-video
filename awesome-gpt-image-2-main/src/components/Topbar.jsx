@@ -55,6 +55,7 @@ export function Topbar({ language, setLanguage }) {
         <NavLink to="/" end>主图生成</NavLink>
         <NavLink to="/detail-studio">详情图</NavLink>
         <NavLink to="/retouch-studio">精修</NavLink>
+        <NavLink to="/psd-layer">PSD分层</NavLink>
         <NavLink to="/video-gen">视频</NavLink>
         <NavLink to="/gallery">画廊</NavLink>
       </nav>
@@ -125,6 +126,7 @@ export function Topbar({ language, setLanguage }) {
             <NavLink to="/" end onClick={() => setMobileMenuOpen(false)}>主图生成</NavLink>
             <NavLink to="/detail-studio" onClick={() => setMobileMenuOpen(false)}>详情图生成</NavLink>
             <NavLink to="/retouch-studio" onClick={() => setMobileMenuOpen(false)}>图片精修</NavLink>
+            <NavLink to="/psd-layer" onClick={() => setMobileMenuOpen(false)}>PSD分层</NavLink>
             <NavLink to="/video-gen" onClick={() => setMobileMenuOpen(false)}>视频生成</NavLink>
             <NavLink to="/gallery" onClick={() => setMobileMenuOpen(false)}>提示词画廊</NavLink>
             <NavLink to="/pricing" onClick={() => setMobileMenuOpen(false)}>会员方案</NavLink>

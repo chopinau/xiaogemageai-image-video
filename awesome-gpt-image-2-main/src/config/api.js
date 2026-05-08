@@ -27,6 +27,12 @@ export const API_ENDPOINTS = {
   upload: {
     image: '/upload/image'
   },
+  psdLayer: {
+    process: '/psd-layer/process',
+    taskStatus: '/psd-layer/task',
+    taskStream: '/psd-layer/task',
+    download: '/psd-layer/download'
+  },
   history: '/history',
   usage: '/usage',
   models: '/models'

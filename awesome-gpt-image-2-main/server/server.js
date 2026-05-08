@@ -8,6 +8,7 @@ import imageRoutes from './routes/imageRoutes.js';
 import videoRoutes from './routes/videoRoutes.js';
 import textRoutes from './routes/textRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
+import psdLayerRoutes from './routes/psdLayerRoutes.js';
 import { rateLimitMiddleware } from './middleware/rateLimit.js';
 import { errorHandler } from './utils/errorHandler.js';
 
@@ -28,7 +29,8 @@ app.use(rateLimitMiddleware);
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
-    message: 'AI Generation API Server running',
+    timestamp: Date.now(),
+    uptime: process.uptime(),
     version: '2.0.0',
     lingkeAPI: process.env.LINGKE_BASE_URL,
     models: {
@@ -43,6 +45,7 @@ app.use('/api/image', imageRoutes);
 app.use('/api/video', videoRoutes);
 app.use('/api/text', textRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/psd-layer', psdLayerRoutes);
 
 app.get('/api/models', (req, res) => {
   res.json({
