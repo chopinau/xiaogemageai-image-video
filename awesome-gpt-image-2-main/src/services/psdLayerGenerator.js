@@ -20,6 +20,47 @@ export const psdLayerGenerator = {
     return response.json();
   },
 
+  async splitByColors(file, options = {}) {
+    const formData = new FormData();
+    formData.append('image', file);
+    if (options.numColors) formData.append('numColors', options.numColors);
+    if (options.ignoreColor) formData.append('ignoreColor', options.ignoreColor);
+
+    const response = await fetch(`${BASE_URL}/psd-layer/split-colors`, {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  async assembleImages(files, options = {}) {
+    const formData = new FormData();
+    files.forEach(file => formData.append('images', file));
+    if (options.layerNames) formData.append('layerNames', JSON.stringify(options.layerNames));
+    if (options.firstIsBackground !== undefined) formData.append('firstIsBackground', options.firstIsBackground);
+    if (options.fit) formData.append('fit', options.fit);
+    if (options.width) formData.append('width', options.width);
+    if (options.height) formData.append('height', options.height);
+
+    const response = await fetch(`${BASE_URL}/psd-layer/assemble`, {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
+
+    return response.json();
+  },
+
   listenProgress(taskId, onProgress) {
     const url = `${BASE_URL}/psd-layer/task/${taskId}/stream`;
     const eventSource = new EventSource(url);

@@ -8,6 +8,7 @@ import { CreditsProvider } from './contexts/CreditsContext';
 import { NotificationProvider } from './contexts/NotificationContext';
 import './styles.css';
 import './styles/shared.css';
+import './styles/creative-hub.css';
 
 createRoot(document.getElementById('root')).render(
   <HashRouter>

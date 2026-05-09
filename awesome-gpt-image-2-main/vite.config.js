@@ -7,5 +7,13 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false
+  },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true
+      }
+    }
   }
 });

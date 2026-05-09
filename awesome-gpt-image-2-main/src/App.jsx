@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Topbar } from './components/Topbar';
-import { MainImageGen } from './pages/MainImageGen';
+import { CreativeHub } from './pages/CreativeHub';
 import { DetailStudio } from './pages/DetailStudio';
 import { RetouchStudio } from './pages/RetouchStudio';
 import { PsdLayer } from './pages/PsdLayer';
@@ -25,7 +25,7 @@ function AppRoutes({ language }) {
     <Routes>
       <Route path="/login" element={isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />} />
       <Route path="/register" element={isAuthenticated ? <Navigate to="/" replace /> : <RegisterPage />} />
-      <Route path="/" element={<MainImageGen language={language} />} />
+      <Route path="/" element={<CreativeHub language={language} />} />
       <Route path="/detail-studio" element={<DetailStudio language={language} />} />
       <Route path="/retouch-studio" element={<RetouchStudio language={language} />} />
       <Route path="/psd-layer" element={<PsdLayer language={language} />} />
