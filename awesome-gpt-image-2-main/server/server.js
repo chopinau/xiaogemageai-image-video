@@ -101,9 +101,9 @@ app.get('/api/history', (req, res) => {
 
 app.get('/api/pricing', async (req, res) => {
   try {
-    const apiKey = req.headers['x-api-key'] || req.query.apiKey || process.env.LINGKE_API_KEY;
-    const result = await lingkeClient.getAllModelPricings(apiKey);
-    res.json(result);
+    const pricingModule = await import('./services/pricingEngine.js');
+    const allPricing = pricingModule.getAllPricing();
+    res.json({ success: true, ...allPricing });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -112,10 +112,16 @@ app.get('/api/pricing', async (req, res) => {
 app.get('/api/pricing/:model', async (req, res) => {
   try {
     const { model } = req.params;
-    const apiKey = req.headers['x-api-key'] || req.query.apiKey;
-    const { lingkeClient } = await import('./services/lingkeClient.js');
-    const result = await lingkeClient.getModelPricing(model, apiKey);
-    res.json(result);
+    const pricingModule = await import('./services/pricingEngine.js');
+    const modelPricing = pricingModule.getModelPricing(model);
+    if (modelPricing) {
+      res.json({ success: true, model, ...modelPricing });
+    } else {
+      const apiKey = req.headers['x-api-key'] || req.query.apiKey || process.env.LINGKE_API_KEY;
+      const { lingkeClient } = await import('./services/lingkeClient.js');
+      const result = await lingkeClient.getModelPricing(model, apiKey);
+      res.json(result);
+    }
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }

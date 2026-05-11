@@ -1,6 +1,30 @@
 import { lingkeClient } from './lingkeClient.js';
 import fetch from 'node-fetch';
 
+const MODEL_ID_MAP = {
+  'gpt-image-2': 'gpt-image-2',
+  'gpt-image-2-all': 'gpt-image-2-all',
+  'gpt-image-1.5': 'gpt-image-1.5',
+  'gpt-image-1.5-all': 'gpt-image-1.5-all',
+  'doubao-seedream-5-0': 'doubao-seedream-5-0-260128',
+  'doubao-seedream-5-0-260128': 'doubao-seedream-5-0-260128',
+  'doubao-seedream-4-5': 'doubao-seedream-4-5-251128',
+  'doubao-seedream-4-5-251128': 'doubao-seedream-4-5-251128',
+  'gemini-3-pro-image': 'gemini-2.0-flash-exp',
+  'gemini-3-pro-image-preview': 'gemini-2.0-flash-exp',
+  'kling-v3-image': 'kling-image',
+  'kling-v3': 'kling-image',
+  'kling-v3-omni-image': 'kling-omni-image',
+  'kling-v3-omni': 'kling-omni-image',
+  'wan2.7-image': 'wan2.1-t2i-14b',
+  'mj_imagine': 'mj_imagine',
+  'grok-4.2-image': 'grok-4.2-image',
+};
+
+function resolveApiModelId(frontendModelId) {
+  return MODEL_ID_MAP[frontendModelId] || frontendModelId;
+}
+
 /**
  * Map system parameter names to API parameter names.
  * The frontend uses unified names (resolution, aspect_ratio), but different
@@ -9,18 +33,30 @@ import fetch from 'node-fetch';
 function mapParamsToApi(model, params) {
   const mapped = { ...params };
 
-  // kling-v3-omni and gemini image models use 'imageSize' not 'resolution'
+  if (mapped.n !== undefined) {
+    delete mapped.n;
+  }
+
+  if (mapped.aspectRatio !== undefined && !mapped.aspect_ratio) {
+    mapped.aspect_ratio = mapped.aspectRatio;
+    delete mapped.aspectRatio;
+  }
+
+  if (mapped.ratio !== undefined && !mapped.aspect_ratio) {
+    mapped.aspect_ratio = mapped.ratio;
+    delete mapped.ratio;
+  }
+
   const imageSizeModels = [
     'kling-v3-omni', 'kling-v3-omni-image',
     'gemini-3-pro-image', 'gemini-3-pro-image-preview',
-    'gemini-3.1-flash-image-preview', 'gemini-3.1-flash-image-preview'
+    'gemini-3.1-flash-image-preview'
   ];
   if (imageSizeModels.includes(model) && mapped.resolution && !mapped.imageSize) {
     mapped.imageSize = mapped.resolution;
     delete mapped.resolution;
   }
 
-  // Some models use 'aspectRatio' (camelCase) instead of 'aspect_ratio'
   const camelAspectModels = [
     'mj_imagine',
     'gemini-3-pro-image', 'gemini-3-pro-image-preview',
@@ -29,6 +65,36 @@ function mapParamsToApi(model, params) {
   if (camelAspectModels.includes(model) && mapped.aspect_ratio && !mapped.aspectRatio) {
     mapped.aspectRatio = mapped.aspect_ratio;
     delete mapped.aspect_ratio;
+  }
+
+  const sizeModels = ['gpt-image-2', 'gpt-image-1.5-all', 'gpt-image-2-guan', 'gpt-image-2-all'];
+  if (sizeModels.includes(model)) {
+    if (mapped.aspect_ratio && !mapped.size) {
+      const sizeMap = {
+        '1:1': '1024x1024', '2:3': '1024x1536', '3:2': '1536x1024'
+      };
+      if (sizeMap[mapped.aspect_ratio]) {
+        mapped.size = sizeMap[mapped.aspect_ratio];
+      }
+      delete mapped.aspect_ratio;
+    }
+    if (mapped.resolution) {
+      delete mapped.resolution;
+    }
+  }
+
+  const doubaoImageModels = ['doubao-seedream-5-0-260128', 'doubao-seedream-4-5-251128', 'doubao-seedream-5-0', 'doubao-seedream-4-5'];
+  if (doubaoImageModels.includes(model)) {
+    if (mapped.resolution) {
+      mapped.resolution = mapped.resolution;
+    }
+  }
+
+  const klingImageModels = ['kling-v3', 'kling-v3-omni', 'kling-v3-image', 'kling-v3-omni-image'];
+  if (klingImageModels.includes(model)) {
+    if (mapped.resolution) {
+      mapped.resolution = mapped.resolution.toLowerCase();
+    }
   }
 
   return mapped;
@@ -131,8 +197,10 @@ export class ImageService {
     });
 
     const apiParams = mapParamsToApi(model, params);
+    const apiModelId = resolveApiModelId(model);
+    console.log(`[ImageService] Resolved model: ${model} → ${apiModelId}`);
 
-    const submitResult = await lingkeClient.mediaGenerate(model, apiParams, apiKey);
+    const submitResult = await lingkeClient.mediaGenerate(apiModelId, apiParams, apiKey);
 
     if (!submitResult.success) {
       console.error(`[ImageService] Submit failed:`, submitResult.error);

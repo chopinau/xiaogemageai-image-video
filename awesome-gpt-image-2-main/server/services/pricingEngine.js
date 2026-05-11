@@ -295,6 +295,30 @@ function batchUpdatePrices(updates, reason = '批量调整') {
   return results;
 }
 
+function getAllPricing() {
+  const data = loadPricingData();
+  return {
+    imageModels: data.imageModels || {},
+    videoModels: data.videoModels || {},
+    editModels: data.editModels || {},
+    textModels: data.textModels || {},
+    psdServices: data.psdServices || {},
+    creditPacks: data.creditPacks || [],
+    subscriptions: data.subscriptions || {},
+    markupConfig: data.markupConfig || { defaultPercent: 15, perModel: {} }
+  };
+}
+
+function getModelPricing(modelId) {
+  const data = loadPricingData();
+  for (const category of ['imageModels', 'videoModels', 'editModels', 'textModels', 'psdServices']) {
+    if (data[category] && data[category][modelId]) {
+      return { category, ...data[category][modelId] };
+    }
+  }
+  return null;
+}
+
 export {
   calculateCost, calculateImageCost, calculateVideoCost, calculateEditCost,
   calculateTextCost, calculatePsdCost, getAllModels, getCreditPacks,
@@ -302,5 +326,5 @@ export {
   updateModelPrice, getDefaultPricing, loadPricingData,
   getPriceHistory, getPriceAlerts, recordPriceChange,
   getMarkupConfig, setMarkupConfig, setModelMarkup, getEffectiveMarkup,
-  calculateSellingPrice, batchUpdatePrices
+  calculateSellingPrice, batchUpdatePrices, getAllPricing, getModelPricing
 };

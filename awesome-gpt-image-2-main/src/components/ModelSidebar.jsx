@@ -1,4 +1,4 @@
-﻿﻿﻿﻿import React from 'react';
+﻿﻿﻿﻿﻿﻿import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { MessageSquare, Image, Video, Layers, BookOpen, Sparkles, Wand2, Film } from 'lucide-react';
 import { AI_MODELS, MODEL_CATEGORIES } from '../config/models';

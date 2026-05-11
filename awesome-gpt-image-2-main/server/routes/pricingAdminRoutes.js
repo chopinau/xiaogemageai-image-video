@@ -197,7 +197,10 @@ router.get('/live/:model', async (req, res) => {
 router.post('/live/fetch-all', requireAuth, async (req, res) => {
   try {
     const apiKey = process.env.LINGKE_API_KEY;
-    const result = await lingkeClient.getAllModelPricings(apiKey);
+    let result = await lingkeClient.getAllModelPricings(apiKey);
+    if (!result.success || !result.data || Object.keys(result.data).length === 0) {
+      result = await lingkeClient.getApiPricing(apiKey);
+    }
     res.json(result);
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });

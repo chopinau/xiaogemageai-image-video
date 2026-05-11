@@ -135,17 +135,32 @@ export class LingkeClient {
 
   async getModelPricing(modelName, apiKey) {
     const result = await this.request('GET', `/v1/skills/models/${modelName}/pricing?status=active`, { apiKey });
-    if (result.success && result.data) {
+    if (result.success && result.data && !result.data.error) {
       return { success: true, data: result.data };
     }
     const allResult = await this.request('GET', `/v1/skills/models/${modelName}/pricing`, { apiKey });
-    if (allResult.success && allResult.data) {
+    if (allResult.success && allResult.data && !allResult.data.error) {
       return { success: true, data: allResult.data };
     }
+
+    let apiPricingData = null;
+    try {
+      const pricingRes = await this.request('GET', '/api/pricing', { apiKey });
+      if (pricingRes.success && pricingRes.data?.model_info) {
+        const modelInfo = pricingRes.data.model_info[modelName];
+        if (modelInfo) {
+          apiPricingData = modelInfo;
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+
     return {
       success: true,
       data: {
         model: modelName,
+        display_name: apiPricingData?.name || modelName,
         channel_groups: [{
           group_name: 'default',
           is_active: true,
@@ -197,6 +212,28 @@ export class LingkeClient {
     }
 
     return { success: true, data: pricings };
+  }
+
+  async getApiPricing(apiKey) {
+    const result = await this.request('GET', '/api/pricing', { apiKey });
+    if (result.success && result.data?.model_info) {
+      const pricings = {};
+      for (const [modelName, modelInfo] of Object.entries(result.data.model_info)) {
+        pricings[modelName] = {
+          model: modelName,
+          display_name: modelInfo.name || modelName,
+          channel_groups: [{
+            group_name: 'default',
+            is_active: true,
+            base_price: this.getDefaultPrice(modelName),
+            success_rate_24h: 95,
+            avg_response_seconds: 10
+          }]
+        };
+      }
+      return { success: true, data: pricings };
+    }
+    return result;
   }
 
   async getModelParams(modelName, apiKey) {

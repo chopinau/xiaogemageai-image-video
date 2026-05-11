@@ -7,7 +7,7 @@ export const AI_MODELS = {
       capabilities: ['text-to-image', 'image-to-image'],
       maxSize: '3840x2160',
       pricing: { billingMethod: 'per_call', baseCredits: 6 },
-      defaultParams: { size: '1024x1024', quality: 'auto' },
+      defaultParams: { size: 'auto', quality: 'auto' },
       apiEndpoint: '/api/image/generate',
       apiType: 'sync',
       lingkeModel: 'gpt-image-2',

@@ -2,26 +2,27 @@ import { lingkeClient } from './lingkeClient.js';
 import fetch from 'node-fetch';
 
 const MODEL_ALIASES = {
-  'kling-v3-video': 'kling-v3-video',
-  'kling-v2-6': 'kling-v2-6',
+  'kling-v3-video': 'kling-video',
+  'kling-v2-6': 'kling-video',
   'doubao-seedance-1-0-pro-250528': 'doubao-seedance-1-0-pro-250528',
-  'veo3.1-lite': 'veo3.1-lite',
-  'grok-video-3-plus': 'grok-video-3-plus',
+  'veo3.1-lite': 'veo_3_1-lite',
+  'grok-video-3-plus': 'grok-video-3',
   'MiniMax-Hailuo-02': 'MiniMax-Hailuo-02',
-  'wan2.6-video': 'wan2.6-video',
-  'wan2.7-video': 'wan2.7-video',
-  'pixverse-v5.6': 'pixverse-v5.6',
-  'sora': 'sora',
+  'wan2.6-video': 'wan2.6-i2v',
+  'wan2.7-video': 'wan2.6-i2v',
+  'pixverse-v5.6': 'viduq3-turbo',
+  'sora': 'sora-2',
   'sora-2': 'sora-2',
   'veo3': 'veo3',
   'veo3.1-fast': 'veo3.1-fast',
   'veo3.1-pro': 'veo3.1-pro',
-  'kling': 'kling-v3-video',
-  'kling-v1-6': 'kling-v3-video',
+  'kling': 'kling-video',
+  'kling-v1-6': 'kling-video',
   'seedance-2.0': 'doubao-seedance-1-0-pro-250528',
   'hailuo': 'MiniMax-Hailuo-02',
-  'runway-gen3': 'runway-gen3',
-  'luma': 'luma'
+  'hailuo-2.3': 'MiniMax-Hailuo-2.3',
+  'runway-gen3': 'runwayml-gen4_turbo-10',
+  'luma': 'viduq3-turbo'
 };
 
 function resolveModel(model) {

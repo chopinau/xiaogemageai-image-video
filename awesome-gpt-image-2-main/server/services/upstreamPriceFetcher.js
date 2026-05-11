@@ -76,43 +76,184 @@ async function fetchFromProvider(provider) {
     errors: []
   };
 
+  let isSkillsApi = false;
+  let modelsArray = null;
+  let pricingModelInfo = null;
+
   try {
-    const modelsRes = await fetch(`${baseUrl}/v1/skills/models`, { headers, timeout: 30000 });
-    if (!modelsRes.ok) {
-      result.errors.push(`获取模型列表失败: HTTP ${modelsRes.status}`);
+    const skillsRes = await fetch(`${baseUrl}/v1/skills/models`, { headers, timeout: 30000 });
+    if (skillsRes.ok) {
+      const skillsData = await skillsRes.json();
+      if (!skillsData.error) {
+        isSkillsApi = true;
+        modelsArray = Array.isArray(skillsData) ? skillsData
+          : Array.isArray(skillsData?.data) ? skillsData.data
+          : Array.isArray(skillsData?.models) ? skillsData.models
+          : null;
+      }
+    }
+  } catch (e) {
+    // not a skills API
+  }
+
+  if (!isSkillsApi || !modelsArray) {
+    try {
+      const pricingRes = await fetch(`${baseUrl}/api/pricing`, { headers, timeout: 30000 });
+      if (pricingRes.ok) {
+        const pricingData = await pricingRes.json();
+        if (pricingData.data?.model_info && !pricingData.error) {
+          pricingModelInfo = pricingData.data.model_info;
+          console.log(`[UpstreamPriceFetcher] Found /api/pricing with ${Object.keys(pricingModelInfo).length} models`);
+        }
+      }
+    } catch (e) {
+      // no /api/pricing endpoint
+    }
+
+    try {
+      const openaiRes = await fetch(`${baseUrl}/v1/models`, { headers, timeout: 30000 });
+      if (openaiRes.ok) {
+        const openaiData = await openaiRes.json();
+        modelsArray = Array.isArray(openaiData) ? openaiData
+          : Array.isArray(openaiData?.data) ? openaiData.data
+          : null;
+      } else {
+        const errText = await openaiRes.text();
+        result.errors.push(`/v1/models 也无法访问: HTTP ${openaiRes.status} - ${errText.substring(0, 200)}`);
+        return result;
+      }
+    } catch (err) {
+      result.errors.push(`连接失败: ${err.message}`);
       return result;
     }
-    const modelsData = await modelsRes.json();
-    const models = modelsData?.data || modelsData || [];
+  }
 
-    for (const model of models) {
-      const modelName = model.model_name || model.name || model.id;
-      if (!modelName) continue;
+  if (!modelsArray || modelsArray.length === 0) {
+    result.errors.push('模型列表为空');
+    return result;
+  }
 
+  const KNOWN_MODEL_PRICES = {
+    'gpt-image-2': 0.15,
+    'gpt-image-2-all': 0.15,
+    'gpt-image-1.5': 0.05,
+    'gpt-image-1.5-all': 0.05,
+    'doubao-seedream-5-0-260128': 0.08,
+    'doubao-seedream-4-5-251128': 0.06,
+    'kling-image': 0.08,
+    'kling-omni-image': 0.10,
+    'kling-video': 0.10,
+    'kling-omni-video': 0.12,
+    'veo_3_1-lite': 0.08,
+    'veo3.1-fast': 0.06,
+    'veo3.1-pro': 0.15,
+    'grok-video-3': 0.08,
+    'grok-4.2-image': 0.10,
+    'MiniMax-Hailuo-02': 0.10,
+    'MiniMax-Hailuo-2.3': 0.10,
+    'wan2.6-i2v': 0.06,
+    'mj_imagine': 0.20,
+    'sora-2': 0.15,
+    'viduq3-turbo': 0.08,
+    'doubao-seedance-1-0-pro-250528': 0.15,
+  };
+
+  for (const model of modelsArray) {
+    const modelName = model.model_name || model.name || model.id;
+    if (!modelName) continue;
+
+    if (isSkillsApi) {
       try {
         const pricingRes = await fetch(`${baseUrl}/v1/skills/models/${modelName}/pricing`, { headers, timeout: 15000 });
         if (pricingRes.ok) {
           const pricingData = await pricingRes.json();
-          if (pricingData?.data) {
+          const pData = pricingData?.data || pricingData;
+          if (pData?.channel_groups || pData?.groups) {
             result.models[modelName] = {
-              display_name: pricingData.data.display_name || model.display_name || modelName,
-              type: model.type || 'unknown',
-              channel_groups: pricingData.data.channel_groups || [],
-              billing_method: pricingData.data.billing_method || 'per_call'
+              display_name: pData.display_name || model.display_name || modelName,
+              type: model.type || pData.type || 'unknown',
+              channel_groups: pData.channel_groups || pData.groups || [],
+              billing_method: pData.billing_method || pData.price_type || 'per_call'
             };
           }
         }
       } catch (e) {
         result.errors.push(`模型 ${modelName} 价格获取失败: ${e.message}`);
       }
+      await new Promise(r => setTimeout(r, 150));
+    } else {
+      const modelType = guessModelType(modelName, model);
+      const pricingInfo = extractPricingFromModel(model);
+      const knownPrice = KNOWN_MODEL_PRICES[modelName];
+      const apiPricingInfo = pricingModelInfo?.[modelName];
+      const basePrice = pricingInfo?.base_price || knownPrice || (apiPricingInfo?.price ? parseFloat(apiPricingInfo.price) : 0);
 
-      await new Promise(r => setTimeout(r, 200));
+      result.models[modelName] = {
+        display_name: apiPricingInfo?.name || model.display_name || model.description?.substring(0, 30) || modelName,
+        type: modelType,
+        channel_groups: pricingInfo ? [pricingInfo] : [{
+          group_name: 'default',
+          is_active: true,
+          base_price: basePrice,
+          success_rate_24h: 0,
+          avg_response_seconds: 0
+        }],
+        billing_method: guessBillingMethod(modelName, model),
+        openai_compatible: true
+      };
     }
-  } catch (err) {
-    result.errors.push(`连接失败: ${err.message}`);
   }
 
   return result;
+}
+
+function guessModelType(modelName, model) {
+  const n = (modelName || '').toLowerCase();
+  const t = (model?.model_type || model?.type || '').toLowerCase();
+  if (t.includes('图') || t.includes('image') || t.includes('视觉')) return 'image';
+  if (t.includes('视频') || t.includes('video') || t.includes('影')) return 'video';
+  if (t.includes('音频') || t.includes('audio') || t.includes('语音') || t.includes('tts') || t.includes('音乐') || t.includes('music')) return 'audio';
+  if (t.includes('文本') || t.includes('text') || t.includes('对话') || t.includes('chat')) return 'text';
+  if (['dall-e', 'midjourney', 'stable-diffusion', 'flux', 'sd', 'imagen', 'gpt-image', 'ideogram', 'playground', 'recraft', 'bria', 'kolors', 'cogview'].some(k => n.includes(k))) return 'image';
+  if (['sora', 'runway', 'kling', 'pika', 'hailuo', 'veo', 'luma', 'video', 'vidu', 'seedance', 'cogvideox', 'wanx'].some(k => n.includes(k))) return 'video';
+  if (['tts', 'music', 'audio', 'bark', 'elevenlabs', 'suno', 'udio'].some(k => n.includes(k))) return 'audio';
+  if (['mj_', 'midjourney'].some(k => n.includes(k))) return 'image';
+  return 'text';
+}
+
+function guessBillingMethod(modelName, model) {
+  const n = (modelName || '').toLowerCase();
+  if (guessModelType(n, model) === 'video') return 'per_second';
+  if (guessModelType(n, model) === 'image') return 'per_call';
+  if (guessModelType(n, model) === 'audio') return 'per_call';
+  return 'per_token';
+}
+
+function extractPricingFromModel(model) {
+  if (model.pricing || model.price) {
+    const p = model.pricing || model.price;
+    if (typeof p === 'object') {
+      return {
+        group_name: 'default',
+        is_active: true,
+        base_price: parseFloat(p.input || p.price || p.base_price || 0),
+        input_price: parseFloat(p.input || 0),
+        output_price: parseFloat(p.output || 0),
+        success_rate_24h: 0,
+        avg_response_seconds: 0
+      };
+    }
+    if (typeof p === 'number') {
+      return {
+        group_name: 'default',
+        is_active: true,
+        base_price: p,
+        success_rate_24h: 0,
+        avg_response_seconds: 0
+      };
+    }
+  }
+  return null;
 }
 
 function addProvider(name, url, apiKey) {

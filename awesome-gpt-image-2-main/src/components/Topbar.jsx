@@ -1,4 +1,4 @@
-﻿﻿﻿﻿import React, { useState, useEffect, useRef } from 'react';
+﻿﻿﻿﻿﻿﻿import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { WandSparkles, Menu, X, User, CreditCard, Crown, Share2, LogOut, Shield } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';

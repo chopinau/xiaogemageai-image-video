@@ -1,0 +1,10 @@
+{
+  "providers": [
+    {
+      "name": "LingkeAPI",
+      "url": "https://lingkeapi.com",
+      "apiKey": "sk-erLtW3MJopmXEh57tZjaCUUNN6C5WNIFRZxMzW9GBG5GZlaD",
+      "addedAt": "2026-05-11T21:50:00.000Z"
+    }
+  ]
+}
