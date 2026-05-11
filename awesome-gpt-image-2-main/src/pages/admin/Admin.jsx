@@ -2,14 +2,16 @@ import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import { AI_MODELS } from '../../config/models';
-import { Layout, BarChart3, Users, Cpu, ShoppingCart, Coins, Share2, Settings, FileText, Menu, X } from 'lucide-react';
+import { Layout, BarChart3, Users, Cpu, ShoppingCart, Coins, Share2, Settings, FileText, Menu, X, DollarSign } from 'lucide-react';
+import { PricingAdmin } from './PricingAdmin';
 
 const ADMIN_TABS = [
   { id: 'dashboard', label: '仪表盘', icon: BarChart3 },
   { id: 'users', label: '用户管理', icon: Users },
   { id: 'models', label: '模型管理', icon: Cpu },
+  { id: 'pricing', label: '价格管理', icon: DollarSign },
   { id: 'orders', label: '订单管理', icon: ShoppingCart },
-  { id: 'credits', label: '积分管理', icon: Coins },
+  { id: 'credits', label: '算力管理', icon: Coins },
   { id: 'distribution', label: '分销管理', icon: Share2 },
   { id: 'settings', label: '系统设置', icon: Settings },
   { id: 'logs', label: '操作日志', icon: FileText }
@@ -37,8 +39,8 @@ const MOCK_USERS = [
 const MOCK_ORDERS = [
   { id: 'ORD001', userId: 1, nickname: '设计师小王', type: 'membership', product: '专业版月付', amount: 99, status: 'paid', method: 'alipay', createdAt: '2025-05-01' },
   { id: 'ORD002', userId: 3, nickname: '摄影师老李', type: 'membership', product: '企业版年付', amount: 2988, status: 'paid', method: 'wechat', createdAt: '2025-04-28' },
-  { id: 'ORD003', userId: 2, nickname: '电商达人', type: 'credits', product: '500积分包', amount: 39.9, status: 'paid', method: 'alipay', createdAt: '2025-05-03' },
-  { id: 'ORD004', userId: 4, nickname: '新用户', type: 'credits', product: '100积分包', amount: 9.9, status: 'pending', method: 'wechat', createdAt: '2025-05-05' }
+  { id: 'ORD003', userId: 2, nickname: '电商达人', type: 'credits', product: '500算力包', amount: 39.9, status: 'paid', method: 'alipay', createdAt: '2025-05-03' },
+  { id: 'ORD004', userId: 4, nickname: '新用户', type: 'credits', product: '100算力包', amount: 9.9, status: 'pending', method: 'wechat', createdAt: '2025-05-05' }
 ];
 
 export function AdminPage() {
@@ -88,6 +90,7 @@ export function AdminPage() {
         {activeTab === 'dashboard' && <DashboardTab />}
         {activeTab === 'users' && <UsersTab />}
         {activeTab === 'models' && <ModelsTab />}
+        {activeTab === 'pricing' && <PricingAdmin />}
         {activeTab === 'orders' && <OrdersTab />}
         {activeTab === 'credits' && <CreditsAdminTab />}
         {activeTab === 'distribution' && <DistributionTab />}
@@ -121,8 +124,8 @@ function DashboardTab() {
         <StatCard label="月收入" value={d.monthlyRevenue} color="#f9ff72" prefix="¥" />
         <StatCard label="总生成量" value={d.totalGenerations} color="#9eeeff" />
         <StatCard label="今日生成" value={d.todayGenerations} color="#9eeeff" />
-        <StatCard label="积分发放" value={d.creditsIssued} color="#ff74a6" />
-        <StatCard label="积分消耗" value={d.creditsConsumed} color="#ff74a6" />
+        <StatCard label="算力发放" value={d.creditsIssued} color="#ff74a6" />
+        <StatCard label="算力消耗" value={d.creditsConsumed} color="#ff74a6" />
       </div>
     </div>
   );
@@ -155,7 +158,7 @@ function UsersTab() {
       if (u.id === userId) return { ...u, credits: u.credits + amount };
       return u;
     }));
-    notify.success(`用户 ${userId} 积分调整成功 (+${amount})`);
+    notify.success(`用户 ${userId} 算力调整成功 (+${amount})`);
   };
 
   return (
@@ -173,7 +176,7 @@ function UsersTab() {
         <table className="adminTable">
           <thead>
             <tr>
-              {['ID', '昵称', '邮箱', '会员', '积分', '状态', '注册时间', '操作'].map(h => (
+              {['ID', '昵称', '邮箱', '会员', '算力', '状态', '注册时间', '操作'].map(h => (
                 <th key={h}>{h}</th>
               ))}
             </tr>
@@ -198,7 +201,7 @@ function UsersTab() {
                 <td className="adminCellMuted">{u.createdAt}</td>
                 <td>
                   <div className="adminActionBtns">
-                    <button onClick={() => adjustCredits(u.id)} className="adminActionBtn">积分</button>
+                    <button onClick={() => adjustCredits(u.id)} className="adminActionBtn">算力</button>
                     <button onClick={() => toggleUserStatus(u.id)} className={`adminActionBtn ${u.status === 'active' ? 'danger' : 'success'}`}>
                       {u.status === 'active' ? '封禁' : '解封'}
                     </button>
@@ -257,7 +260,7 @@ function ModelsTab() {
                   <td className="adminCellMuted">{m.provider}</td>
                   <td className="adminCellMuted">{m.category}</td>
                   <td className="adminCellCredits">
-                    {m.pricing?.perImage ? `${m.pricing.perImage}积分/张` : m.pricing?.perSecond ? `${m.pricing.perSecond}积分/秒` : '-'}
+                    {m.pricing?.perImage ? `${m.pricing.perImage}算力/张` : m.pricing?.perSecond ? `${m.pricing.perSecond}算力/秒` : '-'}
                   </td>
                   <td>
                     <span style={{ color: enabled ? '#78ffb9' : '#ff6b8a' }}>
@@ -309,7 +312,7 @@ function OrdersTab() {
               <tr key={o.id}>
                 <td className="adminCellId">{o.id}</td>
                 <td>{o.nickname}</td>
-                <td className="adminCellMuted">{o.type === 'membership' ? '会员' : '积分'}</td>
+                <td className="adminCellMuted">{o.type === 'membership' ? '会员' : '算力'}</td>
                 <td className="adminCellMuted">{o.product}</td>
                 <td className="adminCellCredits">¥{o.amount}</td>
                 <td>
@@ -340,16 +343,16 @@ function CreditsAdminTab() {
       notify.error('请填写完整的发放信息');
       return;
     }
-    notify.success(`已向 ${grantForm.userIds.split(',').length} 个用户发放 ${grantForm.amount} 积分`);
+    notify.success(`已向 ${grantForm.userIds.split(',').length} 个用户发放 ${grantForm.amount} 算力`);
     setGrantForm({ userIds: '', amount: '', note: '' });
   };
 
   return (
     <div>
-      <h2 className="adminPageTitle">积分管理</h2>
+      <h2 className="adminPageTitle">算力管理</h2>
       <div className="adminGrid2">
         <div className="adminCard">
-          <h3 className="adminCardTitle">批量发放积分</h3>
+          <h3 className="adminCardTitle">批量发放算力</h3>
           <div className="adminFormField">
             <input placeholder="用户ID（多个用逗号分隔）" className="adminInput" value={grantForm.userIds} onChange={e => setGrantForm(p => ({ ...p, userIds: e.target.value }))} />
           </div>
@@ -362,14 +365,14 @@ function CreditsAdminTab() {
           <button onClick={handleGrant} className="adminPrimaryBtn">发放</button>
         </div>
         <div className="adminCard">
-          <h3 className="adminCardTitle">积分规则配置</h3>
+          <h3 className="adminCardTitle">算力规则配置</h3>
           <div className="adminRulesList">
-            <div>每日签到：<span className="adminHighlight">+2 积分</span></div>
-            <div>新用户注册：<span className="adminHighlight">+20 积分</span></div>
-            <div>邀请好友：<span className="adminHighlight">+10 积分/人</span></div>
-            <div>会员月度积分：按等级发放</div>
-            <div>购买积分包：永不过期</div>
-            <div>赠送积分：<span style={{ color: '#ff6b8a' }}>30天过期</span></div>
+            <div>每日签到：<span className="adminHighlight">+2 算力</span></div>
+            <div>新用户注册：<span className="adminHighlight">+20 算力</span></div>
+            <div>邀请好友：<span className="adminHighlight">+10 算力/人</span></div>
+            <div>会员月度算力：按等级发放</div>
+            <div>购买算力包：永不过期</div>
+            <div>赠送算力：<span style={{ color: '#ff6b8a' }}>30天过期</span></div>
           </div>
         </div>
       </div>
@@ -441,7 +444,7 @@ function LogsTab() {
   const MOCK_LOGS = [
     { id: 1, action: '用户登录', user: 'admin@example.com', ip: '192.168.1.1', time: '2025-05-07 10:30:00' },
     { id: 2, action: '模型配置更新', user: 'admin@example.com', ip: '192.168.1.1', time: '2025-05-07 10:25:00' },
-    { id: 3, action: '积分批量发放', user: 'admin@example.com', ip: '192.168.1.1', time: '2025-05-07 09:15:00' },
+    { id: 3, action: '算力批量发放', user: 'admin@example.com', ip: '192.168.1.1', time: '2025-05-07 09:15:00' },
     { id: 4, action: '用户封禁', user: 'admin@example.com', ip: '192.168.1.1', time: '2025-05-06 16:40:00' }
   ];
 

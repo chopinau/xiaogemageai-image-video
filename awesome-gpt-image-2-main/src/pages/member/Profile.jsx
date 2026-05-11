@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useMember } from '../../contexts/MemberContext';
 import { useNotification } from '../../contexts/NotificationContext';
@@ -84,7 +84,7 @@ export function ProfilePage({ language }) {
             color: '#eef5ff', textDecoration: 'none', fontSize: '14px', fontWeight: 700,
             display: 'flex', alignItems: 'center', gap: '10px'
           }}>
-            <CreditCard size={18} style={{ color: '#42e6ff' }} /> 积分中心
+            <CreditCard size={18} style={{ color: '#42e6ff' }} /> 算力中心
           </Link>
 
           {membership.planId !== 'free' && isActive && !cancelAtPeriodEnd && (

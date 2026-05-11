@@ -1,4 +1,4 @@
-import React from 'react';
+﻿﻿﻿﻿import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { MessageSquare, Image, Video, Layers, BookOpen, Sparkles, Wand2, Film } from 'lucide-react';
 import { AI_MODELS, MODEL_CATEGORIES } from '../config/models';
@@ -84,7 +84,7 @@ export function ModelSidebar({ currentModel, onModelChange, currentCategory, onC
                           <span className="modelProviderTag" style={{ color: getModelColor(model.provider) }}>
                             {model.provider}
                           </span>
-                          <span className="modelPriceTag">{model.pricing.perImage || model.pricing.perSecond || 1} 积分</span>
+                          <span className="modelPriceTag">{model.pricing.perImage || model.pricing.perSecond || 1} 算力</span>
                         </div>
                       </div>
                       {isSelected && (

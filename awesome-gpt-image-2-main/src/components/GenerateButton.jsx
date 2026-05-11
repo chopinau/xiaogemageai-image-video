@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Loader2 } from 'lucide-react';
 
 export function GenerateButton({ onClick, disabled, loading, label, credits, loadingLabel }) {
@@ -16,7 +16,7 @@ export function GenerateButton({ onClick, disabled, loading, label, credits, loa
           </>
         ) : label}
       </button>
-      {credits && <div className="creditsHint">单次消耗 <strong>{credits}</strong> 积分</div>}
+      {credits && <div className="creditsHint">单次消耗 <strong>{credits}</strong> 算力</div>}
     </div>
   );
 }

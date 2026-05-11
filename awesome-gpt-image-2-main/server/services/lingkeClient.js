@@ -1,21 +1,25 @@
-import 'dotenv/config';
 import fetch from 'node-fetch';
 import FormData from 'form-data';
-import { createReadStream } from 'fs';
 
 export class LingkeClient {
   constructor() {
-    this.apiKey = process.env.LINGKE_API_KEY;
     this.baseURL = process.env.LINGKE_BASE_URL || 'https://lingkeapi.com';
-    this.uploadURL = process.env.UPLOAD_BASE_URL || 'https://imageproxy.zhongzhuan.chat/api/upload';
+    this._apiKey = null; // Lazy load to ensure .env is loaded
     this.maxRetries = 3;
     this.retryDelay = 1000;
+  }
+
+  get apiKey() {
+    if (!this._apiKey) {
+      this._apiKey = process.env.LINGKE_API_KEY;
+    }
+    return this._apiKey;
   }
 
   async request(method, endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`;
     const headers = {
-      'Authorization': `Bearer ${this.apiKey}`,
+      'Authorization': `Bearer ${options.apiKey || this.apiKey}`,
       ...options.headers
     };
 
@@ -25,7 +29,7 @@ export class LingkeClient {
         const fetchOptions = {
           method,
           headers,
-          timeout: options.timeout || 60000
+          timeout: options.timeout || 120000
         };
 
         if (options.body && method !== 'GET') {
@@ -40,15 +44,19 @@ export class LingkeClient {
           }
         }
 
+        console.log(`[LingkeClient] ${method} ${endpoint}`, options.body ? JSON.stringify(options.body).substring(0, 200) : '');
+
         const response = await fetch(url, fetchOptions);
 
         if (response.status === 429) {
           const retryAfter = response.headers.get('retry-after') || 5;
+          console.log(`[LingkeClient] Rate limited, retrying in ${retryAfter}s...`);
           await this._sleep(retryAfter * 1000);
           continue;
         }
 
         if (response.status >= 500 && attempt < this.maxRetries) {
+          console.log(`[LingkeClient] Server error ${response.status}, retry ${attempt + 1}...`);
           await this._sleep(this.retryDelay * (attempt + 1));
           continue;
         }
@@ -56,13 +64,16 @@ export class LingkeClient {
         const data = await response.json();
 
         if (!response.ok) {
-          const errorMsg = data.error?.message || data.message || `HTTP ${response.status}`;
+          const errorMsg = data.error?.message || data.msg || data.message || `HTTP ${response.status}`;
+          console.error(`[LingkeClient] Error: ${errorMsg}`);
           return { success: false, error: errorMsg, status: response.status };
         }
 
+        console.log(`[LingkeClient] Response:`, JSON.stringify(data).substring(0, 300));
         return { success: true, data };
       } catch (err) {
         lastError = err;
+        console.error(`[LingkeClient] Request error (attempt ${attempt + 1}):`, err.message);
         if (attempt < this.maxRetries) {
           await this._sleep(this.retryDelay * (attempt + 1));
         }
@@ -72,32 +83,135 @@ export class LingkeClient {
     return { success: false, error: lastError?.message || 'Request failed after retries' };
   }
 
-  async syncImageGenerate(model, prompt, options = {}) {
-    const body = {
-      model,
-      prompt,
-      n: options.n || 1,
-      size: options.size || '1024x1024'
+  async mediaGenerate(model, params, apiKey) {
+    const body = { model, ...params };
+    return this.request('POST', '/v1/images/generations', { body, apiKey });
+  }
+
+  async getTaskStatus(taskId, apiKey) {
+    return this.request('GET', `/v1/skills/task-status?task_id=${taskId}`, { apiKey });
+  }
+
+  async pollUntilFinal(taskId, onProgress, maxWait = 300000, apiKey) {
+    const startTime = Date.now();
+    const pollInterval = 5000;
+
+    while (Date.now() - startTime < maxWait) {
+      const result = await this.getTaskStatus(taskId, apiKey);
+
+      if (!result.success) {
+        if (result.status === 404) {
+          await this._sleep(pollInterval);
+          continue;
+        }
+        return result;
+      }
+
+      const taskData = result.data;
+      const isFinal = taskData.is_final;
+      const progress = taskData.progress;
+      const status = taskData.status;
+
+      console.log(`[LingkeClient] Poll ${taskId}: status=${status}, progress=${progress}, is_final=${isFinal}`);
+
+      if (onProgress) onProgress(progress, status);
+
+      if (isFinal || status === 'completed' || status === 'failed') {
+        if (status === 'failed') {
+          return {
+            success: false,
+            error: taskData.error || taskData.msg || 'Generation failed',
+            data: taskData
+          };
+        }
+        return { success: true, data: taskData };
+      }
+
+      await this._sleep(pollInterval);
+    }
+
+    return { success: false, error: 'Task timed out after ' + Math.round(maxWait / 1000) + 's' };
+  }
+
+  async getModelPricing(modelName, apiKey) {
+    const result = await this.request('GET', `/v1/skills/models/${modelName}/pricing?status=active`, { apiKey });
+    if (result.success && result.data) {
+      return { success: true, data: result.data };
+    }
+    const allResult = await this.request('GET', `/v1/skills/models/${modelName}/pricing`, { apiKey });
+    if (allResult.success && allResult.data) {
+      return { success: true, data: allResult.data };
+    }
+    return {
+      success: true,
+      data: {
+        model: modelName,
+        channel_groups: [{
+          group_name: 'default',
+          is_active: true,
+          base_price: this.getDefaultPrice(modelName),
+          success_rate_24h: 95,
+          avg_response_seconds: 10
+        }]
+      }
     };
-    if (options.quality) body.quality = options.quality;
-    if (options.style) body.style = options.style;
+  }
+
+  getDefaultPrice(modelName) {
+    const priceMap = {
+      'gpt-image-2': 0.15,
+      'gpt-image-1.5-all': 0.05,
+      'doubao-seedream-5-0-260128': 0.08,
+      'doubao-seedream-4-5-251128': 0.06,
+      'gemini-3-pro-image-preview': 0.12,
+      'gemini-3.1-flash-image-preview': 0.08,
+      'kling-v3-omni': 0.10,
+      'kling-v3': 0.08,
+      'mj_imagine': 0.20,
+      'grok-4.2-image': 0.10,
+      'wan2.7-image': 0.06,
+      'wan2.6-image': 0.05,
+    };
+    return priceMap[modelName] || 0.10;
+  }
+
+  async getModelsList(type, apiKey) {
+    const endpoint = type ? `/v1/skills/models?type=${type}` : '/v1/skills/models';
+    return this.request('GET', endpoint, { apiKey });
+  }
+
+  async getAllModelPricings(apiKey) {
+    const modelsResult = await this.getModelsList(null, apiKey);
+    if (!modelsResult.success) return modelsResult;
+
+    const models = modelsResult.data?.data || modelsResult.data || [];
+    const pricings = {};
+
+    for (const model of models) {
+      const modelName = model.model_name || model.name || model.id;
+      if (!modelName) continue;
+      const pricingResult = await this.getModelPricing(modelName, apiKey);
+      if (pricingResult.success && pricingResult.data) {
+        pricings[modelName] = pricingResult.data;
+      }
+    }
+
+    return { success: true, data: pricings };
+  }
+
+  async getModelParams(modelName, apiKey) {
+    return this.request('GET', `/v1/skills/models/${modelName}`, { apiKey });
+  }
+
+  async syncImageGenerate(model, prompt, options = {}) {
+    const body = { model, prompt, ...options };
     delete body.image;
     delete body.mask;
-
     return this.request('POST', '/v1/images/generations', { body });
   }
 
   async syncImageEdit(model, prompt, image, options = {}) {
-    const body = {
-      model,
-      prompt,
-      image,
-      size: options.size || 'adaptive',
-      guidance_scale: options.guidance_scale || 5.5,
-      watermark: options.watermark || false
-    };
-    if (options.response_format) body.response_format = options.response_format;
-
+    const body = { model, prompt, image, ...options };
     return this.request('POST', '/v1/images/generations', { body });
   }
 
@@ -111,148 +225,10 @@ export class LingkeClient {
     if (options.mask) {
       formData.append('mask', options.mask, { filename: 'mask.png', contentType: 'image/png' });
     }
-    if (options.n) formData.append('n', String(options.n));
-    if (options.aspect_ratio) formData.append('aspect_ratio', options.aspect_ratio);
-    if (options.background) formData.append('background', options.background);
-
+    Object.entries(options).forEach(([key, value]) => {
+      if (key !== 'mask') formData.append(key, String(value));
+    });
     return this.request('POST', '/v1/images/edits', { body: formData });
-  }
-
-  async fluxTextToImage(prompt, options = {}) {
-    const body = {
-      prompt,
-      guidance_scale: options.guidance_scale || 3.5,
-      num_images: options.num_images || 1,
-      output_format: options.output_format || 'jpeg',
-      safety_tolerance: options.safety_tolerance || '2',
-      aspect_ratio: options.aspect_ratio || '1:1'
-    };
-
-    return this.request('POST', '/fal-ai/flux-pro/kontext/text-to-image', { body });
-  }
-
-  async fluxImageEdit(prompt, imageUrls, options = {}) {
-    const body = {
-      prompt,
-      image_urls: imageUrls,
-      num_images: options.num_images || 1
-    };
-
-    return this.request('POST', '/fal-ai/nano-banana/edit', { body });
-  }
-
-  async queryFluxTask(modelName, requestId) {
-    return this.request('GET', `/fal-ai/${modelName}/requests/${requestId}`);
-  }
-
-  async createVeoVideo(model, prompt, options = {}) {
-    const body = {
-      model,
-      prompt,
-      enable_upsample: options.enable_upsample !== false,
-      enhance_prompt: options.enhance_prompt !== false
-    };
-    if (options.images) body.images = options.images;
-    if (options.aspect_ratio) body.aspect_ratio = options.aspect_ratio;
-
-    return this.request('POST', '/v1/video/create', { body });
-  }
-
-  async createSoraVideo(model, prompt, options = {}) {
-    const body = {
-      model: model || 'sora-2',
-      prompt,
-      orientation: options.orientation || 'landscape',
-      size: options.size || 'small',
-      duration: String(options.duration || 10),
-      images: options.images || [],
-      watermark: String(options.watermark || 'false')
-    };
-
-    return this.request('POST', '/v1/video/create', { body });
-  }
-
-  async queryVideoTask(taskId) {
-    return this.request('GET', `/v1/video/query?id=${encodeURIComponent(taskId)}`);
-  }
-
-  async createKlingVideo(modelName, prompt, options = {}) {
-    const body = {
-      model_name: modelName || 'kling-v1-6',
-      prompt,
-      duration: options.duration || 5,
-      mode: options.mode || 'std',
-      aspect_ratio: options.aspect_ratio || '16:9',
-      cfg_scale: options.cfg_scale || 0.5
-    };
-    if (options.negative_prompt) body.negative_prompt = options.negative_prompt;
-
-    return this.request('POST', '/kling/v1/videos/text2video', { body });
-  }
-
-  async createKlingImage2Video(modelName, prompt, imageUrl, options = {}) {
-    const body = {
-      model_name: modelName || 'kling-v1-6',
-      prompt,
-      image: imageUrl,
-      duration: options.duration || 5,
-      mode: options.mode || 'std'
-    };
-
-    return this.request('POST', '/kling/v1/videos/image2video', { body });
-  }
-
-  async queryKlingTask(action, action2, taskId) {
-    return this.request('GET', `/kling/v1/${action}/${action2}/${taskId}`);
-  }
-
-  async createRunwayVideo(promptImage, promptText, options = {}) {
-    const body = {
-      promptImage,
-      model: options.model || 'gen4_turbo',
-      promptText: promptText || '',
-      duration: options.duration || 5,
-      ratio: options.ratio || '1280:768'
-    };
-
-    return this.request('POST', '/runwayml/v1/image_to_video', { body });
-  }
-
-  async queryLumaTask(taskId) {
-    return this.request('GET', `/luma/generations/${taskId}`);
-  }
-
-  async createSeedanceVideo(model, prompt, options = {}) {
-    const content = [{ type: 'text', text: prompt }];
-    if (options.imageUrl) {
-      content.push({
-        type: 'image_url',
-        image_url: { url: options.imageUrl },
-        role: options.imageRole || 'first_frame'
-      });
-    }
-
-    const body = { model, content };
-
-    return this.request('POST', '/volc/v1/contents/generations/tasks', { body });
-  }
-
-  async querySeedanceTask(taskId) {
-    return this.request('GET', `/volc/v1/contents/generations/tasks/${taskId}`);
-  }
-
-  async createHailuoVideo(prompt, options = {}) {
-    const body = {
-      model: 'MiniMax-Hailuo-02',
-      prompt,
-      duration: options.duration || 6
-    };
-
-    return this.request('POST', '/minimax/v1/video_generation', { body });
-  }
-
-  async queryHailuoTask(taskId) {
-    return this.request('GET', `/minimax/v1/video_generation/query?task_id=${taskId}`);
   }
 
   async chatCompletion(model, messages, options = {}) {
@@ -263,58 +239,7 @@ export class LingkeClient {
       max_tokens: options.max_tokens || 2000,
       stream: false
     };
-
     return this.request('POST', '/v1/chat/completions', { body });
-  }
-
-  async uploadImage(fileBuffer, filename, mimetype) {
-    const formData = new FormData();
-    formData.append('file', fileBuffer, { filename, contentType: mimetype });
-
-    const url = this.uploadURL;
-    const headers = {
-      'Authorization': `Bearer ${this.apiKey}`,
-      ...formData.getHeaders()
-    };
-
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers,
-        body: formData,
-        timeout: 30000
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        return { success: false, error: data.error?.message || 'Upload failed' };
-      }
-      return { success: true, data };
-    } catch (err) {
-      return { success: false, error: err.message };
-    }
-  }
-
-  async removeBackground(imageUrl, options = {}) {
-    const body = {
-      image_url: imageUrl,
-      model: options.model || 'bria-rmbg-1.4'
-    };
-
-    return this.request('POST', '/fal-ai/bria/rmbg-1.4', { body });
-  }
-
-  async inpaintBackground(imageUrl, maskUrl, options = {}) {
-    const body = {
-      image_url: imageUrl,
-      mask_url: maskUrl,
-      prompt: options.prompt || 'clean background, seamless fill, no objects',
-      num_inference_steps: options.num_inference_steps || 50,
-      guidance_scale: options.guidance_scale || 7.5,
-      strength: options.strength || 1.0
-    };
-
-    return this.request('POST', '/fal-ai/stable-diffusion/inpainting', { body });
   }
 
   async _sleep(ms) {

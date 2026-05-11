@@ -1,4 +1,4 @@
-export const ASPECT_RATIOS = {
+﻿export const ASPECT_RATIOS = {
   mainImage: [
     { value: '1:1', label: '1:1（正方形）' },
     { value: '3:4', label: '3:4（竖版）' },
@@ -72,12 +72,12 @@ export const BACKGROUND_OPTIONS = [
 ];
 
 export const CREDITS = {
-  mainImage: { perImage: 10, label: '10 积分/张' },
-  detailPlan: { perPlan: 5, label: '5 积分/次规划' },
-  detailImage: { perImage: 8, label: '5-10 积分/张' },
-  retouch: { perImage: 6, label: '6 积分/张' },
-  videoAnalyze: { perAnalyze: 3, label: '3 积分/次分析' },
-  videoGenerate: { perSecond: 2, label: '2 积分/秒' }
+  mainImage: { perImage: 10, label: '10 算力/张' },
+  detailPlan: { perPlan: 5, label: '5 算力/次规划' },
+  detailImage: { perImage: 8, label: '5-10 算力/张' },
+  retouch: { perImage: 6, label: '6 算力/张' },
+  videoAnalyze: { perAnalyze: 3, label: '3 算力/次分析' },
+  videoGenerate: { perSecond: 2, label: '2 算力/秒' }
 };
 
 export const DETAIL_PAGE_MODULES = [
@@ -105,7 +105,7 @@ export const PROMOTION_EXAMPLES = [
   '限时特惠：满200减50，活动截止12月31日',
   '新品首发：前100名下单享8折优惠',
   '买一赠一：购买指定款赠送同款小样',
-  '会员专享：积分兑换，双重积分日每周三'
+  '会员专享：算力兑换，双重算力日每周三'
 ];
 
 export const VIDEO_TABS = [

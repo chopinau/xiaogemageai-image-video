@@ -4,18 +4,21 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+// Load .env from server directory
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.join(__dirname, '.env') });
+
 import imageRoutes from './routes/imageRoutes.js';
 import videoRoutes from './routes/videoRoutes.js';
 import textRoutes from './routes/textRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import psdLayerRoutes from './routes/psdLayerRoutes.js';
+import paymentRoutes from './routes/paymentRoutes.js';
+import pricingAdminRoutes from './routes/pricingAdminRoutes.js';
 import { rateLimitMiddleware } from './middleware/rateLimit.js';
 import { errorHandler } from './utils/errorHandler.js';
-
-dotenv.config();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import apiProtection from './services/apiProtectionService.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -33,6 +36,7 @@ app.get('/api/health', (req, res) => {
     uptime: process.uptime(),
     version: '2.0.0',
     lingkeAPI: process.env.LINGKE_BASE_URL,
+    protection: apiProtection.getProtectionStatus(),
     models: {
       image: ['gpt-image-2', 'dall-e-3', 'flux-pro', 'doubao-seedream', 'doubao-seededit', 'stable-diffusion-xl'],
       video: ['kling', 'veo3', 'sora', 'seedance-2.0', 'runway-gen3', 'hailuo', 'luma'],
@@ -46,6 +50,8 @@ app.use('/api/video', videoRoutes);
 app.use('/api/text', textRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/psd-layer', psdLayerRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/pricing-admin', pricingAdminRoutes);
 
 app.get('/api/models', (req, res) => {
   res.json({
@@ -93,10 +99,33 @@ app.get('/api/history', (req, res) => {
   res.json({ success: true, history: [] });
 });
 
+app.get('/api/pricing', async (req, res) => {
+  try {
+    const apiKey = req.headers['x-api-key'] || req.query.apiKey || process.env.LINGKE_API_KEY;
+    const result = await lingkeClient.getAllModelPricings(apiKey);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.get('/api/pricing/:model', async (req, res) => {
+  try {
+    const { model } = req.params;
+    const apiKey = req.headers['x-api-key'] || req.query.apiKey;
+    const { lingkeClient } = await import('./services/lingkeClient.js');
+    const result = await lingkeClient.getModelPricing(model, apiKey);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`🚀 AI Generation API Server v2.0 running on http://localhost:${PORT}`);
   console.log(`📡 LingkeAPI: ${process.env.LINGKE_BASE_URL}`);
+  console.log(`💰 Payment routes mounted at /api/payments`);
   console.log(`📚 API docs: http://localhost:${PORT}/api/health`);
 });

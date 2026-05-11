@@ -2,23 +2,24 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { HashRouter } from 'react-router-dom';
 import { App } from './App';
-import { AuthProvider } from './contexts/AuthContext';
-import { MemberProvider } from './contexts/MemberContext';
-import { CreditsProvider } from './contexts/CreditsContext';
 import { NotificationProvider } from './contexts/NotificationContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { CreditsProvider } from './contexts/CreditsContext';
+import { MemberProvider } from './contexts/MemberContext';
 import './styles.css';
 import './styles/shared.css';
 import './styles/creative-hub.css';
+import './styles/user-dashboard.css';
 
 createRoot(document.getElementById('root')).render(
   <HashRouter>
     <NotificationProvider>
       <AuthProvider>
-        <MemberProvider>
-          <CreditsProvider>
+        <CreditsProvider>
+          <MemberProvider>
             <App />
-          </CreditsProvider>
-        </MemberProvider>
+          </MemberProvider>
+        </CreditsProvider>
       </AuthProvider>
     </NotificationProvider>
   </HashRouter>

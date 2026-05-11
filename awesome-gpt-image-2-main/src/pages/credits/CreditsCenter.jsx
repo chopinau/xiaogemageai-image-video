@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useCredits } from '../../contexts/CreditsContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import { CREDITS_RULES } from '../../config/credits';
@@ -15,7 +15,7 @@ export function CreditsCenter({ language }) {
   const handleCheckIn = async () => {
     const result = await checkIn();
     if (result.success) {
-      notify.success(`签到成功！获得 ${result.earned} 积分`);
+      notify.success(`签到成功！获得 ${result.earned} 算力`);
     } else {
       notify.error(result.error || '签到失败');
     }
@@ -30,7 +30,7 @@ export function CreditsCenter({ language }) {
     setProcessing(true);
     const result = await recharge(paymentModal.id, selectedMethod);
     if (result.success) {
-      notify.success(`购买成功！获得 ${paymentModal.credits + paymentModal.bonus} 积分`);
+      notify.success(`购买成功！获得 ${paymentModal.credits + paymentModal.bonus} 算力`);
       setPaymentModal(null);
     } else {
       notify.error(result.error || '购买失败');
@@ -41,8 +41,8 @@ export function CreditsCenter({ language }) {
   return (
     <div className="sharedSection">
       <div className="pageHeader">
-        <h1>积分中心</h1>
-        <p className="subtitle">管理你的 AI 创作积分</p>
+        <h1>算力中心</h1>
+        <p className="subtitle">管理你的 AI 创作算力</p>
       </div>
 
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
@@ -51,7 +51,7 @@ export function CreditsCenter({ language }) {
           border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(9,15,32,0.68)',
           marginBottom: '20px', textAlign: 'center'
         }}>
-          <div style={{ fontSize: '14px', color: '#73859f', marginBottom: '8px' }}>当前积分余额</div>
+          <div style={{ fontSize: '14px', color: '#73859f', marginBottom: '8px' }}>当前算力余额</div>
           <div style={{ fontSize: '48px', fontWeight: 800, color: '#f9ff72' }}>{balance}</div>
           <button
             onClick={handleCheckIn}
@@ -65,12 +65,12 @@ export function CreditsCenter({ language }) {
               fontFamily: 'inherit'
             }}
           >
-            {checkedInToday ? <><CheckCircle size={16} style={{ verticalAlign: 'middle' }} /> 已签到</> : '每日签到 +2 积分'}
+            {checkedInToday ? <><CheckCircle size={16} style={{ verticalAlign: 'middle' }} /> 已签到</> : '每日签到 +2 算力'}
           </button>
         </div>
 
         <div style={{ marginBottom: '20px' }}>
-          <h3 style={{ color: '#eef5ff', marginBottom: '12px' }}><Gift size={18} style={{ verticalAlign: 'middle' }} /> 购买积分包</h3>
+          <h3 style={{ color: '#eef5ff', marginBottom: '12px' }}><Gift size={18} style={{ verticalAlign: 'middle' }} /> 购买算力包</h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px' }}>
             {CREDITS_RULES.packs.map((pack) => (
               <div key={pack.id} style={{
@@ -79,7 +79,7 @@ export function CreditsCenter({ language }) {
                 textAlign: 'center', cursor: 'pointer', transition: 'border-color 0.2s'
               }} onClick={() => handleBuyPack(pack)}>
                 <div style={{ fontSize: '24px', fontWeight: 800, color: '#9eeeff' }}>{pack.credits}</div>
-                <div style={{ fontSize: '12px', color: '#73859f' }}>积分</div>
+                <div style={{ fontSize: '12px', color: '#73859f' }}>算力</div>
                 {pack.bonus > 0 && <div style={{ fontSize: '12px', color: '#78ffb9', marginTop: '4px' }}>赠送 {pack.bonus}</div>}
                 <div style={{ fontSize: '20px', fontWeight: 800, color: '#eef5ff', marginTop: '8px' }}>¥{pack.price}</div>
                 <button style={{
@@ -93,13 +93,13 @@ export function CreditsCenter({ language }) {
         </div>
 
         <div>
-          <h3 style={{ color: '#eef5ff', marginBottom: '12px' }}><History size={18} style={{ verticalAlign: 'middle' }} /> 积分记录</h3>
+          <h3 style={{ color: '#eef5ff', marginBottom: '12px' }}><History size={18} style={{ verticalAlign: 'middle' }} /> 算力记录</h3>
           <div style={{
             borderRadius: '12px', border: '1px solid rgba(255,255,255,0.12)',
             background: 'rgba(9,15,32,0.5)', overflow: 'hidden'
           }}>
             {history.length === 0 ? (
-              <div style={{ padding: '40px', textAlign: 'center', color: '#5a6a80' }}>暂无积分记录，签到或购买积分包后将显示记录</div>
+              <div style={{ padding: '40px', textAlign: 'center', color: '#5a6a80' }}>暂无算力记录，签到或购买算力包后将显示记录</div>
             ) : (
               history.map((tx, i) => (
                 <div key={tx.id || i} style={{
@@ -139,7 +139,7 @@ export function CreditsCenter({ language }) {
             <div style={{ padding: '16px', borderRadius: '10px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: '20px', textAlign: 'center' }}>
               <div style={{ fontSize: '14px', color: '#73859f' }}>{paymentModal.label}</div>
               <div style={{ fontSize: '32px', fontWeight: 800, color: '#f9ff72', marginTop: '8px' }}>¥{paymentModal.price}</div>
-              {paymentModal.bonus > 0 && <div style={{ fontSize: '13px', color: '#78ffb9', marginTop: '4px' }}>含赠送 {paymentModal.bonus} 积分</div>}
+              {paymentModal.bonus > 0 && <div style={{ fontSize: '13px', color: '#78ffb9', marginTop: '4px' }}>含赠送 {paymentModal.bonus} 算力</div>}
             </div>
 
             <div style={{ marginBottom: '20px' }}>

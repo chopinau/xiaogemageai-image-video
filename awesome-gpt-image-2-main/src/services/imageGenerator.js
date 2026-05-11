@@ -1,6 +1,42 @@
 import { API_CONFIG, API_ENDPOINTS, createAPIHeaders, buildURL } from '../config/api';
 import { getModelById } from '../config/models';
 
+function normalizeImageUrl(img) {
+  if (typeof img === 'string') {
+    if (img.startsWith('data:') || img.startsWith('http')) return img;
+    return `data:image/png;base64,${img}`;
+  }
+  if (img.url) {
+    if (img.url.startsWith('data:') || img.url.startsWith('http')) return img.url;
+    return `data:image/png;base64,${img.url}`;
+  }
+  if (img.b64_json) {
+    if (img.b64_json.startsWith('data:') || img.b64_json.startsWith('http')) return img.b64_json;
+    return `data:image/${img.mime_type || 'png'};base64,${img.b64_json}`;
+  }
+  return null;
+}
+
+function parseResponseImages(result) {
+  if (!result) return [];
+  if (result.images && result.images.length > 0) {
+    return result.images.map(img => ({ url: normalizeImageUrl(img) })).filter(img => img.url);
+  }
+  if (result.data && result.data.images) {
+    return result.data.images.map(img => ({ url: normalizeImageUrl(img) })).filter(img => img.url);
+  }
+  if (result.data && Array.isArray(result.data)) {
+    return result.data.map(img => ({ url: normalizeImageUrl(img) })).filter(img => img.url);
+  }
+  if (result.output && result.output.data) {
+    return result.output.data.map(img => ({ url: normalizeImageUrl(img) })).filter(img => img.url);
+  }
+  if (result.output && result.output.url) {
+    return [{ url: normalizeImageUrl(result.output) }];
+  }
+  return [];
+}
+
 export class ImageGenerator {
   constructor(apiKey, modelId = 'gpt-image-2') {
     this.apiKey = apiKey;
@@ -42,9 +78,11 @@ export class ImageGenerator {
         return await this._pollAsyncTask(result.taskId, prompt);
       }
 
+      const images = parseResponseImages(result);
+
       return {
         success: true,
-        images: result.images || [],
+        images,
         prompt: result.prompt || prompt,
         model: this.modelId,
         timestamp: Date.now()
@@ -100,9 +138,11 @@ export class ImageGenerator {
         return await this._pollAsyncTask(result.taskId, prompt);
       }
 
+      const images = parseResponseImages(result);
+
       return {
         success: true,
-        images: result.images || [],
+        images,
         prompt: result.prompt || prompt,
         model: this.modelId,
         timestamp: Date.now()
@@ -138,9 +178,10 @@ export class ImageGenerator {
       }
 
       const result = await response.json();
+      const images = parseResponseImages(result);
       return {
         success: true,
-        images: result.images || [],
+        images,
         prompt: result.prompt || prompt,
         model: this.modelId,
         timestamp: Date.now()
@@ -168,9 +209,10 @@ export class ImageGenerator {
       const result = await response.json();
 
       if (result.status === 'completed') {
+        const images = parseResponseImages(result);
         return {
           success: true,
-          images: result.images || [],
+          images,
           prompt: prompt,
           model: this.modelId,
           timestamp: Date.now()

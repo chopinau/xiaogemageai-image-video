@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
+﻿﻿﻿﻿import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
 import { useAuth } from './AuthContext';
 import { calculateCreditsCost, CREDITS_RULES } from '../config/credits';
 
@@ -30,11 +30,16 @@ function isCheckedInToday() {
   } catch { return false; }
 }
 
+function roundToCents(amount) {
+  return Math.round(amount * 100) / 100;
+}
+
 export function CreditsProvider({ children }) {
   const { user, isAuthenticated, getAuthHeaders } = useAuth();
   const [balance, setBalance] = useState(() => {
     try {
-      return Number(localStorage.getItem('credits_balance')) || 0;
+      const stored = localStorage.getItem('credits_balance');
+      return stored ? roundToCents(Number(stored)) : 0;
     } catch { return 0; }
   });
   const [history, setHistory] = useState(() => loadHistory());
@@ -42,17 +47,19 @@ export function CreditsProvider({ children }) {
   const [checkedInToday, setCheckedInToday] = useState(() => isCheckedInToday());
 
   const updateBalance = useCallback((newBalance) => {
-    setBalance(newBalance);
-    localStorage.setItem('credits_balance', String(newBalance));
+    const rounded = roundToCents(newBalance);
+    setBalance(rounded);
+    localStorage.setItem('credits_balance', String(rounded));
   }, []);
 
-  const addHistory = useCallback((amount, description) => {
+  const addHistory = useCallback((amount, description, metadata = {}) => {
     const tx = {
       id: Date.now() + Math.random(),
-      amount,
+      amount: roundToCents(amount),
       description,
       createdAt: new Date().toISOString(),
-      type: amount > 0 ? 'earn' : 'spend'
+      type: amount > 0 ? 'earn' : 'spend',
+      ...metadata
     };
     setHistory((prev) => {
       const updated = [tx, ...prev];
@@ -63,8 +70,9 @@ export function CreditsProvider({ children }) {
 
   const fetchBalance = useCallback(async () => {
     if (IS_DEMO && isAuthenticated) {
-      const stored = Number(localStorage.getItem('credits_balance')) || 0;
-      setBalance(stored);
+      const stored = localStorage.getItem('credits_balance');
+      const balanceVal = stored ? roundToCents(Number(stored)) : 0;
+      setBalance(balanceVal);
       return;
     }
     try {
@@ -77,21 +85,22 @@ export function CreditsProvider({ children }) {
   }, [getAuthHeaders, updateBalance, isAuthenticated]);
 
   const deduct = useCallback(async (amount, description, referenceType, referenceId) => {
-    if (balance < amount) {
-      return { success: false, error: '积分不足', needRecharge: true };
+    const deductAmount = roundToCents(amount);
+    if (balance < deductAmount) {
+      return { success: false, error: '算力不足', needRecharge: true };
     }
     try {
       if (IS_DEMO) {
         await new Promise(r => setTimeout(r, 300));
-        const newBalance = balance - amount;
+        const newBalance = roundToCents(balance - deductAmount);
         updateBalance(newBalance);
-        addHistory(-amount, description || '积分消费');
+        addHistory(-deductAmount, description || '算力消费', { referenceType, referenceId });
         return { success: true, balance: newBalance };
       }
       const response = await fetch('/api/credits/deduct', {
         method: 'POST',
         headers: getAuthHeaders(),
-        body: JSON.stringify({ amount, description, referenceType, referenceId })
+        body: JSON.stringify({ amount: deductAmount, description, referenceType, referenceId })
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || '扣减失败');
@@ -105,22 +114,25 @@ export function CreditsProvider({ children }) {
   const checkAndDeduct = useCallback(async (type, model, resolution, options = {}) => {
     const cost = calculateCreditsCost(type, model, resolution, options);
     if (balance < cost) {
-      return { success: false, error: `积分不足，需要 ${cost} 积分，当前余额 ${balance} 积分`, needRecharge: true, cost };
+      return { success: false, error: `算力不足，需要 ${cost.toFixed(2)} 算力，当前余额 ${balance.toFixed(2)} 算力`, needRecharge: true, cost };
     }
     return { success: true, cost, canDeduct: true };
   }, [balance]);
 
-  const recharge = useCallback(async (packId, paymentMethod) => {
+  const recharge = useCallback(async (packId, paymentMethod = 'wechat') => {
     try {
       if (IS_DEMO) {
         await new Promise(r => setTimeout(r, 800));
         const pack = CREDITS_RULES.packs.find(p => p.id === packId);
-        if (!pack) throw new Error('积分包不存在');
-        const totalCredits = pack.credits + pack.bonus;
-        const newBalance = balance + totalCredits;
+        if (!pack) throw new Error('算力包不存在');
+        if (pack.price !== pack.credits) {
+          console.warn('算力包价格与算力不是1:1比例', pack);
+        }
+        const totalCredits = roundToCents(pack.credits + pack.bonus);
+        const newBalance = roundToCents(balance + totalCredits);
         updateBalance(newBalance);
-        addHistory(totalCredits, `购买${pack.label}${pack.bonus > 0 ? `（含赠送${pack.bonus}）` : ''}`);
-        return { success: true, data: { balance: newBalance, credits: totalCredits } };
+        addHistory(totalCredits, `购买${pack.label}${pack.bonus > 0 ? `（含赠送${pack.bonus.toFixed(2)}）` : ''}`, { paymentMethod, packId, price: pack.price });
+        return { success: true, data: { balance: newBalance, credits: totalCredits, price: pack.price } };
       }
       const response = await fetch('/api/credits/recharge', {
         method: 'POST',
@@ -143,8 +155,8 @@ export function CreditsProvider({ children }) {
     try {
       if (IS_DEMO) {
         await new Promise(r => setTimeout(r, 500));
-        const earned = 2;
-        const newBalance = balance + earned;
+        const earned = CREDITS_RULES.earning.dailyCheckIn;
+        const newBalance = roundToCents(balance + earned);
         updateBalance(newBalance);
         addHistory(earned, '每日签到');
         const now = new Date().toISOString();
@@ -167,9 +179,10 @@ export function CreditsProvider({ children }) {
   }, [balance, checkedInToday, getAuthHeaders, updateBalance, addHistory]);
 
   const grantCredits = useCallback((amount, description) => {
-    const newBalance = balance + amount;
+    const roundedAmount = roundToCents(amount);
+    const newBalance = roundToCents(balance + roundedAmount);
     updateBalance(newBalance);
-    addHistory(amount, description);
+    addHistory(roundedAmount, description);
     return { success: true, balance: newBalance };
   }, [balance, updateBalance, addHistory]);
 
@@ -204,7 +217,8 @@ export function CreditsProvider({ children }) {
     checkIn,
     grantCredits,
     fetchHistory,
-    hasEnough: (amount) => balance >= amount
+    hasEnough: (amount) => balance >= roundToCents(amount),
+    formatBalance: (amount = balance) => amount.toFixed(2)
   };
 
   return (

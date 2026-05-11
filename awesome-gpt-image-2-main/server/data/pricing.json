@@ -1,0 +1,78 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-05-09T00:00:00.000Z",
+  "currency": "CNY",
+  "creditToRmbRatio": 1,
+  "imageModels": {
+    "gpt-image-2": {
+      "displayName": "GPT Image 2",
+      "provider": "openai",
+      "prices": { "1k": 0.05, "2k": 0.10, "4k": 0.20 },
+      "defaultResolution": "1k",
+      "enabled": true
+    },
+    "dall-e-3": {
+      "displayName": "DALL-E 3",
+      "provider": "openai",
+      "prices": { "1k": 0.10, "2k": 0.20 },
+      "defaultResolution": "1k",
+      "enabled": true
+    },
+    "flux-pro": {
+      "displayName": "Flux Pro",
+      "provider": "black-forest-labs",
+      "prices": { "1k": 0.08, "2k": 0.16 },
+      "defaultResolution": "1k",
+      "enabled": true
+    },
+    "doubao-seedream": {
+      "displayName": "豆包 Seedream 4.0",
+      "provider": "bytedance",
+      "prices": { "1k": 0.03, "2k": 0.06 },
+      "defaultResolution": "1k",
+      "enabled": true
+    },
+    "stable-diffusion-xl": {
+      "displayName": "Stable Diffusion XL",
+      "provider": "stability-ai",
+      "prices": { "1k": 0.03, "2k": 0.06 },
+      "defaultResolution": "1k",
+      "enabled": true
+    }
+  },
+  "videoModels": {
+    "kling": { "displayName": "可灵 V1.6", "provider": "kuaishou", "pricePerSecond": 0.02, "minDuration": 1, "maxDuration": 30, "enabled": true },
+    "veo3": { "displayName": "Veo 3.1", "provider": "google", "pricePerSecond": 0.03, "minDuration": 1, "maxDuration": 60, "enabled": true },
+    "sora": { "displayName": "Sora 2", "provider": "openai", "pricePerSecond": 0.03, "minDuration": 1, "maxDuration": 60, "enabled": true },
+    "seedance-2.0": { "displayName": "Seedance 2.0", "provider": "bytedance", "pricePerSecond": 0.02, "minDuration": 1, "maxDuration": 30, "enabled": true },
+    "runway-gen3": { "displayName": "Runway Gen4", "provider": "runway", "pricePerSecond": 0.02, "minDuration": 1, "maxDuration": 30, "enabled": true },
+    "hailuo": { "displayName": "海螺视频", "provider": "minimax", "pricePerSecond": 0.02, "minDuration": 1, "maxDuration": 30, "enabled": true },
+    "luma": { "displayName": "Luma Dream Machine", "provider": "luma", "pricePerSecond": 0.02, "minDuration": 1, "maxDuration": 10, "enabled": true }
+  },
+  "editModels": {
+    "doubao-seededit": { "displayName": "豆包 SeedEdit 3.0", "prices": { "1k": 0.04, "2k": 0.08 }, "enabled": true },
+    "flux-kontext-pro": { "displayName": "Flux Kontext Pro", "prices": { "1k": 0.06, "2k": 0.12 }, "enabled": true },
+    "gpt-image-1-all": { "displayName": "GPT Image 1", "prices": { "1k": 0.05, "2k": 0.10 }, "enabled": true }
+  },
+  "textModels": {
+    "gpt-4o": { "displayName": "GPT-4o", "provider": "openai", "pricePerToken": { "input": 0.000025, "output": 0.00005 }, "enabled": true },
+    "deepseek": { "displayName": "DeepSeek", "provider": "deepseek", "pricePerToken": { "input": 0.00001, "output": 0.00002 }, "enabled": true }
+  },
+  "psdServices": {
+    "bria-rmbg-inpainting": { "displayName": "PSD 智能拆层", "pricePerRequest": 0.15, "enabled": true },
+    "color-splitting": { "displayName": "PSD 颜色拆层", "pricePerRequest": 0.10, "enabled": true },
+    "image-assembly": { "displayName": "PSD 多图组装", "pricePerRequest": 0.12, "enabled": true }
+  },
+  "creditPacks": [
+    { "id": "pack-10", "credits": 10, "price": 10.00, "label": "10 积分", "bonus": 0, "popular": false },
+    { "id": "pack-50", "credits": 50, "price": 50.00, "label": "50 积分", "bonus": 2, "popular": true },
+    { "id": "pack-200", "credits": 200, "price": 200.00, "label": "200 积分", "bonus": 10, "popular": false },
+    { "id": "pack-500", "credits": 500, "price": 500.00, "label": "500 积分", "bonus": 30, "popular": false }
+  ],
+  "subscriptions": {
+    "free": { "name": "免费版", "monthlyCredits": 0, "price": 0 },
+    "basic": { "name": "基础版", "monthlyCredits": 20, "price": 29 },
+    "pro": { "name": "专业版", "monthlyCredits": 80, "price": 99 },
+    "enterprise": { "name": "企业版", "monthlyCredits": 300, "price": 299 }
+  }
+}

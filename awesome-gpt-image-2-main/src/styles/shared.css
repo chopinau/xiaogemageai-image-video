@@ -1150,3 +1150,350 @@
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   }
 }
+
+.pricingAdminTabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 20px;
+  padding: 4px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 10px;
+  overflow-x: auto;
+}
+
+.pricingAdminTab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #73859f;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.pricingAdminTab:hover {
+  color: #eef5ff;
+  background: rgba(255,255,255,0.04);
+}
+
+.pricingAdminTab.active {
+  color: #06101a;
+  background: linear-gradient(135deg, #42e6ff, #78ffb9);
+}
+
+.pricingAdminContent {
+  min-height: 400px;
+}
+
+.pricingAdminToolbar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.pricingAdminSearch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 200px;
+  padding: 0 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.04);
+  color: #73859f;
+}
+
+.pricingAdminSearch input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: #eef5ff;
+  font-size: 14px;
+  outline: none;
+  padding: 8px 0;
+  font-family: inherit;
+}
+
+.pricingAdminMarkupBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.04);
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+
+.pricingAdminMarkupLabel {
+  color: #73859f;
+}
+
+.pricingAdminMarkupValue {
+  color: #f9ff72;
+  font-weight: 700;
+}
+
+.pricingAdminMarkupHint {
+  color: #5a6a80;
+  font-size: 12px;
+}
+
+.pricingModelCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pricingModelName {
+  color: #eef5ff;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.pricingModelId {
+  color: #5a6a80;
+  font-size: 11px;
+}
+
+.pricingMarkupBadge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.pricingGroupCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: rgba(66,230,255,0.15);
+  color: #42e6ff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.pricingExpandedRow td {
+  padding: 0 !important;
+  border-bottom: 1px solid rgba(255,255,255,0.12) !important;
+}
+
+.pricingGroupDetail {
+  padding: 16px 20px;
+  background: rgba(0,0,0,0.2);
+}
+
+.pricingGroupDetailHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #eef5ff;
+}
+
+.pricingGroupDetailCount {
+  font-size: 12px;
+  color: #73859f;
+  font-weight: 400;
+}
+
+.pricingGroupCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+}
+
+.pricingGroupCard {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(9,15,32,0.6);
+  transition: border-color 0.15s;
+}
+
+.pricingGroupCard:hover {
+  border-color: rgba(66,230,255,0.3);
+}
+
+.pricingGroupCard.inactive {
+  opacity: 0.5;
+}
+
+.pricingGroupCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.pricingGroupCardName {
+  font-size: 13px;
+  font-weight: 700;
+  color: #eef5ff;
+}
+
+.pricingGroupCardStats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 12px;
+  font-size: 12px;
+  color: #aebcd0;
+}
+
+.pricingGroupCardStats strong {
+  color: #eef5ff;
+}
+
+.pricingGroupOptions {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.pricingGroupOption {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #73859f;
+  padding: 2px 0;
+}
+
+.pricingPagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.pricingPageInfo {
+  font-size: 13px;
+  color: #73859f;
+}
+
+.pricingTable th:nth-child(1),
+.pricingTable td:nth-child(1) {
+  min-width: 160px;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+.cgpRefreshBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  color: #9eeeff;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.cgpRefreshBtn:hover {
+  border-color: rgba(66,230,255,0.4);
+  background: rgba(66,230,255,0.08);
+}
+
+.cgpHeaderActions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.cgpGroupHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cgpGroupHeaderRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cgpGroupTypeBadge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.cgpExpandIcon {
+  color: #73859f;
+  cursor: pointer;
+}
+
+.cgpOptionList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cgpOptionItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.03);
+  font-size: 12px;
+}
+
+.cgpOptionName {
+  color: #aebcd0;
+  flex: 1;
+}
+
+.cgpOptionImpact {
+  color: #f9ff72;
+  font-weight: 600;
+}
+
+.cgpOptionFinal {
+  color: #78ffb9;
+  font-weight: 700;
+}
+
+.cgpLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 40px;
+  color: #73859f;
+}
+
+.adminActionBtn.active {
+  background: rgba(66,230,255,0.15);
+  border-color: rgba(66,230,255,0.4);
+  color: #42e6ff;
+}

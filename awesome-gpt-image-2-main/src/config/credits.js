@@ -1,45 +1,45 @@
-export const CREDITS_RULES = {
+﻿﻿﻿﻿export const CREDITS_RULES = {
   consumption: {
-    'image:gpt-image-2:1k': 5,
-    'image:gpt-image-2:2k': 10,
-    'image:gpt-image-2:4k': 20,
-    'image:dall-e-3:1k': 10,
-    'image:dall-e-3:2k': 20,
-    'image:midjourney-v6:1k': 12,
-    'image:midjourney-v6:2k': 24,
-    'image:midjourney-v6:4k': 48,
-    'image:stable-diffusion-xl:1k': 3,
-    'image:stable-diffusion-xl:2k': 6,
-    'image:flux-pro:1k': 8,
-    'image:flux-pro:2k': 16,
-    'retouch:gpt-image-2-retouch:1k': 6,
-    'retouch:gpt-image-2-retouch:2k': 12,
-    'retouch:stable-diffusion-retouch:1k': 4,
-    'retouch:stable-diffusion-retouch:2k': 8,
-    'video:seedance-2.0': 2,
-    'video:sora': 3,
-    'video:runway-gen3': 2,
-    'video:pika-labs': 1,
-    'video:kling': 2,
-    'detail:plan': 5,
-    'detail:image:1k': 5,
-    'detail:image:2k': 10,
-    'psdLayer:bria-rmbg-inpainting': 15,
-    'text:generate': 1
+    'image:gpt-image-2:1k': 0.05,
+    'image:gpt-image-2:2k': 0.10,
+    'image:gpt-image-2:4k': 0.20,
+    'image:dall-e-3:1k': 0.10,
+    'image:dall-e-3:2k': 0.20,
+    'image:midjourney-v6:1k': 0.12,
+    'image:midjourney-v6:2k': 0.24,
+    'image:midjourney-v6:4k': 0.48,
+    'image:stable-diffusion-xl:1k': 0.03,
+    'image:stable-diffusion-xl:2k': 0.06,
+    'image:flux-pro:1k': 0.08,
+    'image:flux-pro:2k': 0.16,
+    'retouch:gpt-image-2-retouch:1k': 0.06,
+    'retouch:gpt-image-2-retouch:2k': 0.12,
+    'retouch:stable-diffusion-retouch:1k': 0.04,
+    'retouch:stable-diffusion-retouch:2k': 0.08,
+    'video:seedance-2.0': 0.02,
+    'video:sora': 0.03,
+    'video:runway-gen3': 0.02,
+    'video:pika-labs': 0.01,
+    'video:kling': 0.02,
+    'detail:plan': 0.05,
+    'detail:image:1k': 0.05,
+    'detail:image:2k': 0.10,
+    'psdLayer:bria-rmbg-inpainting': 0.15,
+    'text:generate': 0.01
   },
 
   earning: {
-    dailyCheckIn: 2,
-    newRegister: 20,
-    referralRegister: 10,
-    monthlyFree: { free: 0, basic: 200, pro: 800, enterprise: 3000 }
+    dailyCheckIn: 0.02,
+    newRegister: 2.00,
+    referralRegister: 1.00,
+    monthlyFree: { free: 0, basic: 20.00, pro: 80.00, enterprise: 300.00 }
   },
 
   packs: [
-    { id: 'pack-100', credits: 100, price: 9.9, label: '100 积分', bonus: 0 },
-    { id: 'pack-500', credits: 500, price: 39.9, label: '500 积分', bonus: 20 },
-    { id: 'pack-2000', credits: 2000, price: 129, label: '2000 积分', bonus: 100 },
-    { id: 'pack-5000', credits: 5000, price: 269, label: '5000 积分', bonus: 300 }
+    { id: 'pack-10', credits: 10, price: 10, label: '10 算力', bonus: 0 },
+    { id: 'pack-50', credits: 50, price: 50, label: '50 算力', bonus: 2 },
+    { id: 'pack-200', credits: 200, price: 200, label: '200 算力', bonus: 10 },
+    { id: 'pack-500', credits: 500, price: 500, label: '500 算力', bonus: 30 }
   ],
 
   expiry: {
@@ -54,8 +54,8 @@ export function calculateCreditsCost(type, model, resolution, options = {}) {
 
   if (type === 'video') {
     const key = `video:${model}`;
-    const perSecond = CREDITS_RULES.consumption[key] || 2;
-    return perSecond * duration;
+    const perSecond = CREDITS_RULES.consumption[key] || 0.02;
+    return roundToCents(perSecond * duration);
   }
 
   if (type === 'detail' && model === 'plan') {
@@ -64,18 +64,22 @@ export function calculateCreditsCost(type, model, resolution, options = {}) {
 
   if (type === 'detail') {
     const key = `detail:image:${resolution}`;
-    return (CREDITS_RULES.consumption[key] || 5) * count;
+    return roundToCents((CREDITS_RULES.consumption[key] || 0.05) * count);
   }
 
   if (type === 'text') {
-    return CREDITS_RULES.consumption['text:generate'] || 1;
+    return CREDITS_RULES.consumption['text:generate'] || 0.01;
   }
 
   const key = `${type}:${model}:${resolution}`;
-  const perImage = CREDITS_RULES.consumption[key] || 5;
-  return perImage * count;
+  const perImage = CREDITS_RULES.consumption[key] || 0.05;
+  return roundToCents(perImage * count);
 }
 
 export function getCreditsPackById(packId) {
   return CREDITS_RULES.packs.find(p => p.id === packId);
+}
+
+function roundToCents(amount) {
+  return Math.round(amount * 100) / 100;
 }

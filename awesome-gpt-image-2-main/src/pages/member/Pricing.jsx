@@ -104,12 +104,12 @@ export function PricingPage({ language }) {
                 </div>
                 {plan.monthlyCredits > 0 && (
                   <div style={{ fontSize: '14px', color: '#f9ff72', marginTop: '4px' }}>
-                    每月 {plan.monthlyCredits} 积分
+                    每月 {plan.monthlyCredits} 算力
                   </div>
                 )}
                 {plan.dailyCredits > 0 && (
                   <div style={{ fontSize: '14px', color: '#9eeeff', marginTop: '4px' }}>
-                    每日 {plan.dailyCredits} 免费积分
+                    每日 {plan.dailyCredits} 免费算力
                   </div>
                 )}
               </div>
@@ -177,7 +177,7 @@ export function PricingPage({ language }) {
                 </div>
               )}
               {paymentModal.monthlyCredits > 0 && (
-                <div style={{ fontSize: '13px', color: '#78ffb9', marginTop: '4px' }}>含每月 {paymentModal.monthlyCredits} 积分</div>
+                <div style={{ fontSize: '13px', color: '#78ffb9', marginTop: '4px' }}>含每月 {paymentModal.monthlyCredits} 算力</div>
               )}
             </div>
 

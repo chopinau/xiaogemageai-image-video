@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿﻿﻿﻿import React, { useState } from 'react';
 import { ModelLogo } from './ModelLogo';
 import { getModelsByCategory } from '../config/models';
 
@@ -19,6 +19,7 @@ export function ModelCapsuleGroup({ category, currentModel, onModelChange }) {
           .map(c => CAP_LABELS[c])
           .filter(Boolean)
           .join(' · ');
+        const successRate = model.successRate || 0;
 
         return (
           <button
@@ -31,11 +32,27 @@ export function ModelCapsuleGroup({ category, currentModel, onModelChange }) {
           >
             <ModelLogo provider={model.provider} size={22} />
             <span className="capsuleName">{model.name}</span>
+            
+            {/* 成功率徽章 */}
+            <span 
+              className="successRateBadge"
+              style={{
+                color: successRate >= 90 ? '#10b981' : successRate >= 80 ? '#f59e0b' : '#ef4444',
+                background: successRate >= 90 
+                  ? 'rgba(16, 185, 129, 0.12)' 
+                  : successRate >= 80 
+                    ? 'rgba(245, 158, 11, 0.12)' 
+                    : 'rgba(239, 68, 68, 0.12)'
+              }}
+            >
+              {successRate}%
+            </span>
+            
             <span className="capsulePrice">
               {model.pricing.perImage
-                ? `${model.pricing.perImage}积分`
+                ? `${model.pricing.perImage}算力`
                 : model.pricing.perSecond
-                  ? `${model.pricing.perSecond}积分/秒`
+                  ? `${model.pricing.perSecond}算力/秒`
                   : ''}
             </span>
             {isHovered && !isSelected && capLabels && (

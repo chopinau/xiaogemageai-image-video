@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
@@ -52,7 +52,7 @@ export function RegisterPage() {
 
     if (result.success) {
       grantCredits(20, '新用户注册赠送');
-      notify.success('注册成功！赠送 20 积分');
+      notify.success('注册成功！赠送 20 算力');
       navigate('/');
     } else {
       notify.error(result.error || '注册失败');

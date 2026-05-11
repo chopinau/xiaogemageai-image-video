@@ -1,4 +1,4 @@
-import React from 'react';
+﻿﻿﻿﻿import React from 'react';
 import { Image, Video, Wand2, Layers } from 'lucide-react';
 import { ModelLogo } from './ModelLogo';
 import { getModelsByCategory, getModelById } from '../config/models';
@@ -114,9 +114,9 @@ export function HeroShowcase({ onSelectFeature, onQuickPrompt }) {
             const model = getModelById(rec.id, rec.category);
             if (!model) return null;
             const price = model.pricing.perImage
-              ? `${model.pricing.perImage}积分/张`
+              ? `${model.pricing.perImage}算力/张`
               : model.pricing.perSecond
-                ? `${model.pricing.perSecond}积分/秒`
+                ? `${model.pricing.perSecond}算力/秒`
                 : '';
             return (
               <div

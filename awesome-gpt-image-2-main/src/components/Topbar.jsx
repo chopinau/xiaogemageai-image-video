@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿﻿﻿﻿import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { WandSparkles, Menu, X, User, CreditCard, Crown, Share2, LogOut, Shield } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -52,13 +52,17 @@ export function Topbar({ language, setLanguage }) {
       </NavLink>
 
       <nav className="topbarNav">
+        <NavLink to="/" end className="topbarNavItem">创作</NavLink>
+        <NavLink to="/gallery" className="topbarNavItem">画廊</NavLink>
+        <NavLink to="/dashboard" className="topbarNavItem">我的</NavLink>
+        <NavLink to="/pricing" className="topbarNavItem">会员</NavLink>
       </nav>
 
       <div className="topbarRight">
         {isAuthenticated && (
           <div className="topbarCredits" onClick={() => navigate('/credits')} style={{ cursor: 'pointer' }}>
             <CreditCard size={14} />
-            <span>{balance} 积分</span>
+            <span>{balance} 算力</span>
           </div>
         )}
 
@@ -88,7 +92,7 @@ export function Topbar({ language, setLanguage }) {
                   </div>
                 </div>
                 <NavLink to="/profile" onClick={() => setUserMenuOpen(false)} className="userMenuItem"><User size={14} /> 个人中心</NavLink>
-                <NavLink to="/credits" onClick={() => setUserMenuOpen(false)} className="userMenuItem"><CreditCard size={14} /> 积分中心</NavLink>
+                <NavLink to="/credits" onClick={() => setUserMenuOpen(false)} className="userMenuItem"><CreditCard size={14} /> 算力中心</NavLink>
                 <NavLink to="/affiliate" onClick={() => setUserMenuOpen(false)} className="userMenuItem"><Share2 size={14} /> 推广中心</NavLink>
                 <NavLink to="/pricing" onClick={() => setUserMenuOpen(false)} className="userMenuItem"><Crown size={14} /> 升级会员</NavLink>
                 {user?.role === 'admin' && (
@@ -123,7 +127,7 @@ export function Topbar({ language, setLanguage }) {
             {isAuthenticated && (
               <>
                 <NavLink to="/profile" onClick={() => setMobileMenuOpen(false)}>个人中心</NavLink>
-                <NavLink to="/credits" onClick={() => setMobileMenuOpen(false)}>积分中心</NavLink>
+                <NavLink to="/credits" onClick={() => setMobileMenuOpen(false)}>算力中心</NavLink>
                 <NavLink to="/affiliate" onClick={() => setMobileMenuOpen(false)}>推广中心</NavLink>
               </>
             )}

@@ -6,9 +6,21 @@ const TOKEN_KEY = 'auth_token';
 const REFRESH_TOKEN_KEY = 'auth_refresh_token';
 const USER_KEY = 'auth_user';
 
-const DEMO_USERS = {
-  admin: { id: 1, email: 'admin@aiplatform.com', nickname: '管理员', role: 'admin', avatar: null },
-  user: { id: 2, email: 'demo@example.com', nickname: '演示用户', role: 'user', avatar: null }
+const DEMO_ACCOUNTS = {
+  'admin@ai.com': {
+    password: 'admin123',
+    user: { id: 1, email: 'admin@ai.com', nickname: '管理员', role: 'admin', avatar: null, phone: '138****8888', registeredAt: '2024-01-01' }
+  },
+  'test@ai.com': {
+    password: 'test123',
+    user: { id: 2, email: 'test@ai.com', nickname: '测试用户', role: 'user', avatar: null, phone: '139****6666', registeredAt: '2024-03-15' },
+    initialCredits: 100.00
+  },
+  'demo@ai.com': {
+    password: 'demo123',
+    user: { id: 3, email: 'demo@ai.com', nickname: '演示体验用户', role: 'user', avatar: null, phone: '137****1234', registeredAt: '2024-05-01' },
+    initialCredits: 50.00
+  }
 };
 
 const IS_DEMO = !import.meta.env.VITE_API_URL;
@@ -57,11 +69,32 @@ export function AuthProvider({ children }) {
     try {
       if (IS_DEMO) {
         await new Promise(r => setTimeout(r, 600));
-        const isAdmin = email.includes('admin');
-        const userData = isAdmin ? DEMO_USERS.admin : DEMO_USERS.user;
-        const demoToken = 'demo_token_' + Date.now();
-        saveAuth(userData, demoToken, 'demo_refresh_' + Date.now());
-        return { success: true, user: userData };
+
+        const demoAccount = DEMO_ACCOUNTS[email.toLowerCase()];
+        if (demoAccount) {
+          if (demoAccount.password !== password) {
+            throw new Error('密码错误');
+          }
+          const demoToken = 'demo_token_' + Date.now();
+          saveAuth(demoAccount.user, demoToken, 'demo_refresh_' + Date.now());
+
+          const hasCredits = localStorage.getItem('credits_balance');
+          if (!hasCredits && demoAccount.initialCredits) {
+            localStorage.setItem('credits_balance', String(demoAccount.initialCredits));
+          }
+
+          return { success: true, user: demoAccount.user };
+        }
+
+        if (email && password.length >= 4) {
+          const newUser = { id: Date.now(), email, nickname: email.split('@')[0], role: 'user', avatar: null, registeredAt: new Date().toISOString().split('T')[0] };
+          const demoToken = 'demo_token_' + Date.now();
+          saveAuth(newUser, demoToken, 'demo_refresh_' + Date.now());
+          localStorage.setItem('credits_balance', '2.00');
+          return { success: true, user: newUser };
+        }
+
+        throw new Error('邮箱或密码错误');
       }
       const response = await fetch('/api/auth/login', {
         method: 'POST',
@@ -91,12 +124,15 @@ export function AuthProvider({ children }) {
         const newUser = {
           id: Date.now(),
           email: userData.email,
-          nickname: userData.nickname,
+          nickname: userData.nickname || userData.email.split('@')[0],
+          phone: userData.phone,
           role: 'user',
-          avatar: null
+          avatar: null,
+          registeredAt: new Date().toISOString().split('T')[0]
         };
         const demoToken = 'demo_token_' + Date.now();
         saveAuth(newUser, demoToken, 'demo_refresh_' + Date.now());
+        localStorage.setItem('credits_balance', '2.00');
         return { success: true, user: newUser };
       }
       const response = await fetch('/api/auth/register', {
@@ -181,7 +217,8 @@ export function AuthProvider({ children }) {
     updateProfile,
     getAuthHeaders,
     clearError: () => setError(null),
-    isDemo: IS_DEMO
+    isDemo: IS_DEMO,
+    demoAccounts: DEMO_ACCOUNTS
   };
 
   return (

@@ -1,0 +1,41 @@
+﻿{
+    "channel_groups":  [
+                           {
+                               "group_name":  "BR-1K",
+                               "is_active":  true,
+                               "billing_method":  "按次",
+                               "base_price":  0.0576,
+                               "input_token_price":  0,
+                               "output_token_price":  0,
+                               "success_rate_24h":  93.38,
+                               "avg_response_seconds":  39.77,
+                               "sample_count_1h":  14822,
+                               "total_success":  635732,
+                               "total_fail":  52682,
+                               "option_prices":  [
+
+                                                 ]
+                           },
+                           {
+                               "group_name":  "MC-OpenAI特价",
+                               "is_active":  true,
+                               "billing_method":  "按次",
+                               "base_price":  0.1728,
+                               "input_token_price":  0,
+                               "output_token_price":  0,
+                               "success_rate_24h":  44.83,
+                               "avg_response_seconds":  123.84,
+                               "sample_count_1h":  600,
+                               "total_success":  667,
+                               "total_fail":  867,
+                               "option_prices":  [
+
+                                                 ]
+                           }
+                       ],
+    "display_name":  "GPT Image 2",
+    "filter":  "active",
+    "name":  "gpt-image-2",
+    "pricing_note":  "默认返回所有渠道分组（含已关闭的），加 ?status=active 仅返回当前启用的分组。实际调用时不需要指定渠道分组（请求体 channel_group 字段、请求头 X-Channel-Group 均被忽略），系统根据 API Key 的渠道策略自动选择。三种策略说明参见 GET /v1/skills/guide 的 channel_strategy 部分。is_active 状态会随上游可用性实时切换，某次任务实际命中的分组是任务创建瞬间 is_active=1 且符合策略排序的分组，事后查询可能看到该分组已 is_active=false；扣费金额匹配任务瞬间命中分组的价格，不一定能在当前 is_active=true 的列表里找到对应档位。若某参数选项未出现在 option_prices 中，表示该选项使用分组的基础价格（base_price），无额外加价。",
+    "type":  "image"
+}

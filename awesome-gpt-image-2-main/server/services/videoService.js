@@ -1,276 +1,235 @@
 import { lingkeClient } from './lingkeClient.js';
-import { taskManager } from '../utils/taskManager.js';
+import fetch from 'node-fetch';
+
+const MODEL_ALIASES = {
+  'kling-v3-video': 'kling-v3-video',
+  'kling-v2-6': 'kling-v2-6',
+  'doubao-seedance-1-0-pro-250528': 'doubao-seedance-1-0-pro-250528',
+  'veo3.1-lite': 'veo3.1-lite',
+  'grok-video-3-plus': 'grok-video-3-plus',
+  'MiniMax-Hailuo-02': 'MiniMax-Hailuo-02',
+  'wan2.6-video': 'wan2.6-video',
+  'wan2.7-video': 'wan2.7-video',
+  'pixverse-v5.6': 'pixverse-v5.6',
+  'sora': 'sora',
+  'sora-2': 'sora-2',
+  'veo3': 'veo3',
+  'veo3.1-fast': 'veo3.1-fast',
+  'veo3.1-pro': 'veo3.1-pro',
+  'kling': 'kling-v3-video',
+  'kling-v1-6': 'kling-v3-video',
+  'seedance-2.0': 'doubao-seedance-1-0-pro-250528',
+  'hailuo': 'MiniMax-Hailuo-02',
+  'runway-gen3': 'runway-gen3',
+  'luma': 'luma'
+};
+
+function resolveModel(model) {
+  return MODEL_ALIASES[model] || model;
+}
+
+function extractVideosFromResult(resultData) {
+  if (!resultData) return [];
+
+  const videos = [];
+
+  if (resultData.videos && Array.isArray(resultData.videos)) {
+    for (const v of resultData.videos) {
+      if (v.url) videos.push({ url: v.url, duration: v.duration });
+    }
+  }
+
+  if (resultData.data && Array.isArray(resultData.data)) {
+    for (const v of resultData.data) {
+      const url = v.url || v.video_url;
+      if (url) videos.push({ url, duration: v.duration });
+    }
+  }
+
+  if (resultData.output && resultData.output.data) {
+    const outputData = Array.isArray(resultData.output.data) ? resultData.output.data : [resultData.output.data];
+    for (const v of outputData) {
+      const url = v.url || v.video_url;
+      if (url && !videos.some(e => e.url === url)) videos.push({ url, duration: v.duration });
+    }
+  }
+
+  if (resultData.output && resultData.output.url) {
+    const url = resultData.output.url || resultData.output.video_url;
+    if (url && !videos.some(e => e.url === url)) videos.push({ url });
+  }
+
+  if (resultData.result_url) {
+    if (typeof resultData.result_url === 'string') {
+      videos.push({ url: resultData.result_url });
+    } else if (Array.isArray(resultData.result_url)) {
+      for (const u of resultData.result_url) {
+        const url = typeof u === 'string' ? u : (u.url || u.video_url);
+        if (url && !videos.some(e => e.url === url)) videos.push({ url });
+      }
+    }
+  }
+
+  if (videos.length === 0 && (resultData.url || resultData.video_url)) {
+    videos.push({ url: resultData.url || resultData.video_url });
+  }
+
+  return videos;
+}
+
+async function fetchResultFromUrl(resultUrl) {
+  try {
+    console.log(`[VideoService] Fetching result from: ${resultUrl}`);
+    const response = await fetch(resultUrl, { timeout: 30000 });
+    if (!response.ok) return null;
+    return await response.json();
+  } catch (err) {
+    console.error(`[VideoService] Error fetching result:`, err.message);
+    return null;
+  }
+}
 
 export class VideoService {
-  async generate(model, prompt, options = {}) {
-    const modelMapping = {
-      'sora': () => this._createSoraVideo(prompt, options),
-      'sora-2': () => this._createSoraVideo(prompt, options),
-      'veo3': () => this._createVeoVideo('veo3.1-fast', prompt, options),
-      'veo3.1-fast': () => this._createVeoVideo('veo3.1-fast', prompt, options),
-      'veo3.1-pro': () => this._createVeoVideo('veo3.1-pro', prompt, options),
-      'veo2': () => this._createVeoVideo('veo2', prompt, options),
-      'veo2-fast': () => this._createVeoVideo('veo2-fast', prompt, options),
-      'kling': () => this._createKlingVideo(prompt, options),
-      'kling-v1-6': () => this._createKlingVideo(prompt, options),
-      'runway-gen3': () => this._createRunwayVideo(prompt, options),
-      'seedance-2.0': () => this._createSeedanceVideo(prompt, options),
-      'luma': () => this._createLumaVideo(prompt, options),
-      'hailuo': () => this._createHailuoVideo(prompt, options)
-    };
+  async generate(model, prompt, options = {}, apiKey) {
+    const resolvedModel = resolveModel(model);
+    console.log(`[VideoService] generate: model=${model}→${resolvedModel}, prompt="${prompt.substring(0, 50)}..."`);
 
-    const createFn = modelMapping[model];
-    if (!createFn) {
-      return { success: false, error: `不支持的视频模型: ${model}` };
+    const params = { prompt };
+    if (options.duration) params.duration = String(options.duration);
+    if (options.aspect_ratio || options.aspectRatio) params.aspect_ratio = options.aspect_ratio || options.aspectRatio;
+    if (options.resolution) params.resolution = options.resolution;
+    if (options.mode || options.quality) params.mode = options.mode || options.quality;
+    if (options.enhance_prompt !== undefined) params.enhance_prompt = options.enhance_prompt;
+    if (options.prompt_extend !== undefined) params.prompt_extend = options.prompt_extend;
+
+    Object.entries(options).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '' && !params[key]) {
+        params[key] = value;
+      }
+    });
+
+    const submitResult = await lingkeClient.mediaGenerate(resolvedModel, params, apiKey);
+
+    if (!submitResult.success) {
+      console.error(`[VideoService] Submit failed:`, submitResult.error);
+      return submitResult;
     }
 
-    return createFn();
-  }
-
-  async fromImage(model, imageUrl, prompt, options = {}) {
-    const modelMapping = {
-      'kling': () => this._createKlingImage2Video(imageUrl, prompt, options),
-      'kling-v1-6': () => this._createKlingImage2Video(imageUrl, prompt, options),
-      'runway-gen3': () => this._createRunwayImage2Video(imageUrl, prompt, options),
-      'veo3': () => this._createVeoVideo('veo3.1-fast', prompt, { ...options, images: [imageUrl] }),
-      'seedance-2.0': () => this._createSeedanceVideo(prompt, { ...options, imageUrl, imageRole: 'first_frame' }),
-      'sora': () => this._createSoraVideo(prompt, { ...options, images: [imageUrl] }),
-      'luma': () => this._createLumaVideo(prompt, { ...options, imageUrl })
-    };
-
-    const createFn = modelMapping[model];
-    if (!createFn) {
-      return { success: false, error: `不支持的图生视频模型: ${model}` };
+    const taskId = submitResult.data?.task_id || submitResult.data?.data?.task_id || submitResult.data?.id;
+    if (!taskId) {
+      const directVideos = extractVideosFromResult(submitResult.data);
+      if (directVideos.length > 0) {
+        return { success: true, videos: directVideos, model: resolvedModel, timestamp: Date.now() };
+      }
+      return { success: false, error: 'No task_id returned and no videos in response', data: submitResult.data };
     }
 
-    return createFn();
-  }
+    console.log(`[VideoService] Task submitted: ${taskId}, polling...`);
 
-  async _createSoraVideo(prompt, options) {
-    const result = await lingkeClient.createSoraVideo('sora-2', prompt, {
-      orientation: options.orientation || 'landscape',
-      size: options.size || 'small',
-      duration: options.duration || 10,
-      images: options.images || []
-    });
+    const pollResult = await lingkeClient.pollUntilFinal(taskId, (progress, status) => {
+      console.log(`[VideoService] Progress: ${progress}%, status: ${status}`);
+    }, 600000, apiKey);
 
-    if (!result.success) return result;
+    if (!pollResult.success) {
+      console.error(`[VideoService] Poll failed:`, pollResult.error);
+      return pollResult;
+    }
 
-    const taskId = result.data?.id;
-    if (!taskId) return { success: false, error: 'No task ID returned' };
+    const taskData = pollResult.data;
+    let videos = [];
 
-    const internalTaskId = `sora_${taskId}`;
-    taskManager.createTask(internalTaskId, async () => {
-      return lingkeClient.queryVideoTask(taskId);
-    });
+    if (taskData.result_url) {
+      const resultData = await fetchResultFromUrl(taskData.result_url);
+      if (resultData) videos = extractVideosFromResult(resultData);
+    }
+
+    if (videos.length === 0) {
+      videos = extractVideosFromResult(taskData);
+    }
+
+    console.log(`[VideoService] Extracted ${videos.length} videos`);
 
     return {
       success: true,
-      taskId: internalTaskId,
-      externalTaskId: taskId,
-      status: 'pending',
-      model: 'sora-2',
+      videos,
+      model: resolvedModel,
+      taskId,
       timestamp: Date.now()
     };
   }
 
-  async _createVeoVideo(model, prompt, options) {
-    const result = await lingkeClient.createVeoVideo(model, prompt, {
-      images: options.images,
-      aspect_ratio: options.aspect_ratio || '16:9'
+  async fromImage(model, imageUrl, prompt, options = {}, apiKey) {
+    const resolvedModel = resolveModel(model);
+    console.log(`[VideoService] fromImage: model=${model}→${resolvedModel}`);
+
+    const params = { prompt };
+    if (imageUrl) {
+      params.image_url = imageUrl;
+      params.image_role = 'first_frame';
+    }
+    if (options.duration) params.duration = String(options.duration);
+    if (options.aspect_ratio || options.aspectRatio) params.aspect_ratio = options.aspect_ratio || options.aspectRatio;
+    if (options.resolution) params.resolution = options.resolution;
+    if (options.mode || options.quality) params.mode = options.mode || options.quality;
+
+    Object.entries(options).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '' && !params[key]) {
+        params[key] = value;
+      }
     });
 
+    const submitResult = await lingkeClient.mediaGenerate(resolvedModel, params, apiKey);
+
+    if (!submitResult.success) return submitResult;
+
+    const taskId = submitResult.data?.task_id || submitResult.data?.data?.task_id || submitResult.data?.id;
+    if (!taskId) {
+      const directVideos = extractVideosFromResult(submitResult.data);
+      if (directVideos.length > 0) {
+        return { success: true, videos: directVideos, model: resolvedModel, timestamp: Date.now() };
+      }
+      return { success: false, error: 'No task_id returned', data: submitResult.data };
+    }
+
+    const pollResult = await lingkeClient.pollUntilFinal(taskId, (progress, status) => {
+      console.log(`[VideoService] fromImage Progress: ${progress}%, status: ${status}`);
+    }, 600000, apiKey);
+
+    if (!pollResult.success) return pollResult;
+
+    const taskData = pollResult.data;
+    let videos = [];
+
+    if (taskData.result_url) {
+      const resultData = await fetchResultFromUrl(taskData.result_url);
+      if (resultData) videos = extractVideosFromResult(resultData);
+    }
+    if (videos.length === 0) videos = extractVideosFromResult(taskData);
+
+    return { success: true, videos, model: resolvedModel, taskId, timestamp: Date.now() };
+  }
+
+  async getTaskResult(taskId, apiKey) {
+    const result = await lingkeClient.getTaskStatus(taskId, apiKey);
     if (!result.success) return result;
 
-    const taskId = result.data?.id;
-    if (!taskId) return { success: false, error: 'No task ID returned' };
+    const taskData = result.data;
+    if (!taskData.is_final) {
+      return { success: true, status: 'pending', progress: taskData.progress };
+    }
 
-    const internalTaskId = `veo_${taskId}`;
-    taskManager.createTask(internalTaskId, async () => {
-      return lingkeClient.queryVideoTask(taskId);
-    });
+    let videos = [];
+    if (taskData.result_url) {
+      const resultData = await fetchResultFromUrl(taskData.result_url);
+      if (resultData) videos = extractVideosFromResult(resultData);
+    }
+    if (videos.length === 0) videos = extractVideosFromResult(taskData);
 
-    return {
-      success: true,
-      taskId: internalTaskId,
-      externalTaskId: taskId,
-      status: 'pending',
-      model,
-      timestamp: Date.now()
-    };
+    return { success: true, status: 'completed', videos, model: taskData.model };
   }
 
-  async _createKlingVideo(prompt, options) {
-    const result = await lingkeClient.createKlingVideo('kling-v1-6', prompt, {
-      duration: options.duration || 5,
-      mode: options.mode || 'std',
-      aspect_ratio: options.aspect_ratio || '16:9'
-    });
-
-    if (!result.success) return result;
-
-    const taskId = result.data?.data?.task_id;
-    if (!taskId) return { success: false, error: 'No task ID returned' };
-
-    const internalTaskId = `kling_${taskId}`;
-    taskManager.createTask(internalTaskId, async () => {
-      return lingkeClient.queryKlingTask('videos', 'text2video', taskId);
-    });
-
-    return {
-      success: true,
-      taskId: internalTaskId,
-      externalTaskId: taskId,
-      status: 'pending',
-      model: 'kling-v1-6',
-      timestamp: Date.now()
-    };
-  }
-
-  async _createKlingImage2Video(imageUrl, prompt, options) {
-    const result = await lingkeClient.createKlingImage2Video('kling-v1-6', prompt, imageUrl, {
-      duration: options.duration || 5,
-      mode: options.mode || 'std'
-    });
-
-    if (!result.success) return result;
-
-    const taskId = result.data?.data?.task_id;
-    if (!taskId) return { success: false, error: 'No task ID returned' };
-
-    const internalTaskId = `kling_i2v_${taskId}`;
-    taskManager.createTask(internalTaskId, async () => {
-      return lingkeClient.queryKlingTask('videos', 'image2video', taskId);
-    });
-
-    return {
-      success: true,
-      taskId: internalTaskId,
-      externalTaskId: taskId,
-      status: 'pending',
-      model: 'kling-v1-6',
-      timestamp: Date.now()
-    };
-  }
-
-  async _createRunwayVideo(prompt, options) {
-    const result = await lingkeClient.createRunwayVideo(
-      options.promptImage || '',
-      prompt,
-      { model: 'gen4_turbo', duration: options.duration || 5, ratio: options.ratio || '1280:768' }
-    );
-
-    if (!result.success) return result;
-
-    const taskId = result.data?.id;
-    if (!taskId) return { success: false, error: 'No task ID returned' };
-
-    const internalTaskId = `runway_${taskId}`;
-    taskManager.createTask(internalTaskId, async () => {
-      return lingkeClient.queryLumaTask(taskId);
-    });
-
-    return {
-      success: true,
-      taskId: internalTaskId,
-      externalTaskId: taskId,
-      status: 'pending',
-      model: 'runway-gen4',
-      timestamp: Date.now()
-    };
-  }
-
-  async _createRunwayImage2Video(imageUrl, prompt, options) {
-    return this._createRunwayVideo(prompt, { ...options, promptImage: imageUrl });
-  }
-
-  async _createSeedanceVideo(prompt, options) {
-    const model = options.imageUrl
-      ? 'doubao-seedance-1-0-lite-i2v-250428'
-      : 'doubao-seedance-1-0-pro-250528';
-
-    const result = await lingkeClient.createSeedanceVideo(model, prompt, {
-      imageUrl: options.imageUrl,
-      imageRole: options.imageRole
-    });
-
-    if (!result.success) return result;
-
-    const taskId = result.data?.id;
-    if (!taskId) return { success: false, error: 'No task ID returned' };
-
-    const internalTaskId = `seedance_${taskId}`;
-    taskManager.createTask(internalTaskId, async () => {
-      return lingkeClient.querySeedanceTask(taskId);
-    });
-
-    return {
-      success: true,
-      taskId: internalTaskId,
-      externalTaskId: taskId,
-      status: 'pending',
-      model,
-      timestamp: Date.now()
-    };
-  }
-
-  async _createLumaVideo(prompt, options) {
-    const body = { prompt };
-    if (options.imageUrl) body.image_url = options.imageUrl;
-    if (options.expand_prompt !== undefined) body.expand_prompt = options.expand_prompt;
-
-    const result = await lingkeClient.request('POST', '/luma/generations', { body });
-    if (!result.success) return result;
-
-    const taskId = result.data?.id;
-    if (!taskId) return { success: false, error: 'No task ID returned' };
-
-    const internalTaskId = `luma_${taskId}`;
-    taskManager.createTask(internalTaskId, async () => {
-      return lingkeClient.queryLumaTask(taskId);
-    });
-
-    return {
-      success: true,
-      taskId: internalTaskId,
-      externalTaskId: taskId,
-      status: 'pending',
-      model: 'luma',
-      timestamp: Date.now()
-    };
-  }
-
-  async _createHailuoVideo(prompt, options) {
-    const result = await lingkeClient.createHailuoVideo(prompt, {
-      duration: options.duration || 6
-    });
-
-    if (!result.success) return result;
-
-    const taskId = result.data?.task_id;
-    if (!taskId) return { success: false, error: 'No task ID returned' };
-
-    const internalTaskId = `hailuo_${taskId}`;
-    taskManager.createTask(internalTaskId, async () => {
-      return lingkeClient.queryHailuoTask(taskId);
-    });
-
-    return {
-      success: true,
-      taskId: internalTaskId,
-      externalTaskId: taskId,
-      status: 'pending',
-      model: 'MiniMax-Hailuo-02',
-      timestamp: Date.now()
-    };
-  }
-
-  getTaskStatus(taskId) {
-    return taskManager.getTaskStatus(taskId);
-  }
-
-  addSSEClient(taskId, res) {
-    return taskManager.addSSEClient(taskId, res);
+  async getPricing(modelName, apiKey) {
+    return lingkeClient.getModelPricing(modelName, apiKey);
   }
 }
 

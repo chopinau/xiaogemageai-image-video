@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+﻿﻿﻿﻿import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
-import { WandSparkles, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { WandSparkles, Mail, Lock, Eye, EyeOff, Copy, Check } from 'lucide-react';
 
 export function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const { login, isLoading, error, clearError, isDemo } = useAuth();
+  const [copiedField, setCopiedField] = useState(null);
+  const { login, isLoading, error, clearError, isDemo, demoAccounts } = useAuth();
   const notify = useNotification();
   const navigate = useNavigate();
   const location = useLocation();
@@ -26,13 +27,26 @@ export function LoginPage() {
     }
   };
 
-  const handleDemoLogin = async (type) => {
+  const handleDemoLogin = async (accountEmail) => {
     clearError();
-    const demoEmail = type === 'admin' ? 'admin@aiplatform.com' : 'demo@example.com';
-    const result = await login(demoEmail, 'demo');
+    const account = demoAccounts[accountEmail];
+    if (!account) return;
+    setEmail(accountEmail);
+    setPassword(account.password);
+    const result = await login(accountEmail, account.password);
     if (result.success) {
-      notify.success(`${type === 'admin' ? '管理员' : '用户'}登录成功！`);
+      notify.success(`欢迎，${account.user.nickname}！`);
       navigate(from, { replace: true });
+    }
+  };
+
+  const handleCopy = async (text, field) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedField(field);
+      setTimeout(() => setCopiedField(null), 1500);
+    } catch {
+      notify.error('复制失败');
     }
   };
 
@@ -60,7 +74,7 @@ export function LoginPage() {
     }}>
       <div style={{
         width: '100%',
-        maxWidth: '420px',
+        maxWidth: '480px',
         padding: '40px',
         border: '1px solid rgba(255,255,255,0.12)',
         borderRadius: '16px',
@@ -75,40 +89,80 @@ export function LoginPage() {
 
         {isDemo && (
           <div style={{
-            padding: '12px 16px',
-            marginBottom: '16px',
-            borderRadius: '10px',
-            background: 'rgba(66,230,255,0.08)',
-            border: '1px solid rgba(66,230,255,0.2)',
-            fontSize: '13px',
-            color: '#9eeeff'
+            padding: '16px',
+            marginBottom: '20px',
+            borderRadius: '12px',
+            background: 'rgba(66,230,255,0.06)',
+            border: '1px solid rgba(66,230,255,0.18)',
+            fontSize: '13px'
           }}>
-            <div style={{ fontWeight: 700, marginBottom: '8px' }}>🎮 Demo 模式</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <button
-                onClick={() => handleDemoLogin('admin')}
-                disabled={isLoading}
-                style={{
-                  padding: '8px 14px', borderRadius: '6px', border: 'none',
-                  background: 'rgba(249,255,114,0.12)', color: '#f9ff72',
-                  fontSize: '12px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
-                  textAlign: 'left'
-                }}
-              >
-                👑 管理员登录 (admin@aiplatform.com)
-              </button>
-              <button
-                onClick={() => handleDemoLogin('user')}
-                disabled={isLoading}
-                style={{
-                  padding: '8px 14px', borderRadius: '6px', border: 'none',
-                  background: 'rgba(120,255,185,0.12)', color: '#78ffb9',
-                  fontSize: '12px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
-                  textAlign: 'left'
-                }}
-              >
-                👤 普通用户登录 (demo@example.com)
-              </button>
+            <div style={{ fontWeight: 700, color: '#9eeeff', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              🎮 Demo 模式 - 快速体验账户
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {Object.entries(demoAccounts).map(([accountEmail, account]) => (
+                <div key={accountEmail} style={{
+                  background: 'rgba(0,0,0,0.3)',
+                  borderRadius: '10px',
+                  padding: '12px',
+                  border: '1px solid rgba(255,255,255,0.06)'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <span style={{ color: '#eef5ff', fontWeight: 700, fontSize: '13px' }}>
+                      {account.user.role === 'admin' ? '👑 ' : '👤 '}
+                      {account.user.nickname}
+                    </span>
+                    <button
+                      onClick={() => handleDemoLogin(accountEmail)}
+                      disabled={isLoading}
+                      style={{
+                        padding: '6px 12px', borderRadius: '6px', border: 'none',
+                        background: 'rgba(66,230,255,0.15)', color: '#42e6ff',
+                        fontSize: '12px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit'
+                      }}
+                    >
+                      一键登录
+                    </button>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ color: '#73859f', fontSize: '12px', minWidth: '60px' }}>邮箱</span>
+                      <code style={{
+                        color: '#78ffb9', fontSize: '12px', padding: '4px 8px',
+                        background: 'rgba(0,0,0,0.3)', borderRadius: '4px', flex: 1
+                      }}>
+                        {accountEmail}
+                      </code>
+                      <button onClick={() => handleCopy(accountEmail, 'email')} style={{
+                        background: 'rgba(255,255,255,0.06)', border: 'none', padding: '4px',
+                        borderRadius: '4px', cursor: 'pointer', color: '#73859f'
+                      }}>
+                        {copiedField === 'email' ? <Check size={14} style={{ color: '#10b981' }} /> : <Copy size={14} />}
+                      </button>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ color: '#73859f', fontSize: '12px', minWidth: '60px' }}>密码</span>
+                      <code style={{
+                        color: '#ffcc99', fontSize: '12px', padding: '4px 8px',
+                        background: 'rgba(0,0,0,0.3)', borderRadius: '4px', flex: 1
+                      }}>
+                        {account.password}
+                      </code>
+                      <button onClick={() => handleCopy(account.password, 'pwd')} style={{
+                        background: 'rgba(255,255,255,0.06)', border: 'none', padding: '4px',
+                        borderRadius: '4px', cursor: 'pointer', color: '#73859f'
+                      }}>
+                        {copiedField === 'pwd' ? <Check size={14} style={{ color: '#10b981' }} /> : <Copy size={14} />}
+                      </button>
+                    </div>
+                    {account.initialCredits && (
+                      <div style={{ color: '#a78bfa', fontSize: '12px', marginTop: '4px' }}>
+                        🎁 初始算力: <strong>{account.initialCredits.toFixed(2)} 算力</strong>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}

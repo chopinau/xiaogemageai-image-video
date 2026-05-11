@@ -1,9 +1,12 @@
 import React from 'react';
 
 const IMAGE_SIZES = [
-  { value: '1024x1024', label: '1:1' },
-  { value: '1536x1024', label: '16:9' },
-  { value: '1024x1536', label: '9:16' }
+  { value: '1024x1024', label: '1:1', detail: '1024×1024' },
+  { value: '1536x1024', label: '16:9', detail: '1536×1024' },
+  { value: '1024x1536', label: '9:16', detail: '1024×1536' },
+  { value: '1344x768', label: '16:9 HD', detail: '1344×768' },
+  { value: '768x1344', label: '9:16 HD', detail: '768×1344' },
+  { value: '2048x2048', label: '1:1 4K', detail: '2048×2048' }
 ];
 
 const IMAGE_COUNTS = [
@@ -19,7 +22,14 @@ const VIDEO_DURATIONS = [
 
 const VIDEO_RATIOS = [
   { value: '16:9', label: '16:9' },
-  { value: '9:16', label: '9:16' }
+  { value: '9:16', label: '9:16' },
+  { value: '1:1', label: '1:1' }
+];
+
+const QUALITY_LEVELS = [
+  { value: 'standard', label: '标准', icon: '⚡', multiplier: 1 },
+  { value: 'hd', label: '高清', icon: '✨', multiplier: 1.5 },
+  { value: 'ultra', label: '超清', icon: '💎', multiplier: 2 }
 ];
 
 const PSD_COLOR_COUNTS = [
@@ -40,6 +50,7 @@ export function ParamCapsuleGroup({
   size, onSizeChange,
   count, onCountChange,
   duration, onDurationChange,
+  qualityLevel, onQualityLevelChange,
   psdMode, onPsdModeChange,
   psdNumColors, onPsdNumColorsChange,
   psdIgnoreColor, onPsdIgnoreColorChange
@@ -120,16 +131,42 @@ export function ParamCapsuleGroup({
         <>
           <div className="paramGroup">
             <span className="paramLabel">比例</span>
-            {IMAGE_SIZES.map(s => (
-              <button
-                key={s.value}
-                className={`paramCapsule ${size === s.value ? 'selected' : ''}`}
-                onClick={() => onSizeChange?.(s.value)}
-              >
-                {s.label}
-              </button>
-            ))}
+            <div className="sizeOptionsGrid">
+              {IMAGE_SIZES.map(s => (
+                <button
+                  key={s.value}
+                  className={`paramCapsule sizeOption ${size === s.value ? 'selected' : ''}`}
+                  onClick={() => onSizeChange?.(s.value)}
+                  title={s.detail}
+                >
+                  <span className="sizeOptionLabel">{s.label}</span>
+                  <span className="sizeOptionDetail">{s.detail}</span>
+                </button>
+              ))}
+            </div>
           </div>
+          
+          {/* 画质选择器 */}
+          <div className="paramGroup">
+            <span className="paramLabel">画质</span>
+            <div className="qualitySelector">
+              {QUALITY_LEVELS.map(q => (
+                <button
+                  key={q.value}
+                  className={`qualityOption ${qualityLevel === q.value ? 'selected' : ''}`}
+                  onClick={() => onQualityLevelChange?.(q.value)}
+                  title={`${q.label} (价格 ×${q.multiplier})`}
+                >
+                  <span className="qualityIcon">{q.icon}</span>
+                  <span className="qualityLabel">{q.label}</span>
+                  {q.multiplier > 1 && (
+                    <span className="qualityMultiplier">×{q.multiplier}</span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="paramGroup">
             <span className="paramLabel">数量</span>
             {IMAGE_COUNTS.map(c => (
