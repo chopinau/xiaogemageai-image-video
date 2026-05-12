@@ -187,6 +187,15 @@ router.get('/orders/:userId', authMiddleware, async (req, res) => {
   } catch (error) { res.status(500).json({ success: false, error: error.message }); }
 });
 
+router.get('/orders/me', authMiddleware, async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const result = await OrderService.getUserOrders(req.user.id, page, limit);
+    res.json({ success: true, data: result });
+  } catch (error) { res.status(500).json({ success: false, error: error.message }); }
+});
+
 router.get('/pricing', async (req, res) => {
   try {
     const { type, model, resolution, duration, count } = req.query;

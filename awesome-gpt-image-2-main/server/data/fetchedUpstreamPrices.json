@@ -1,658 +1,13 @@
 {
-  "lastFetch": "2026-05-12T08:07:05.813Z",
+  "lastFetch": "2026-05-12T14:06:36.532Z",
   "providers": {
     "LingkeAPI": {
       "providerName": "LingkeAPI",
       "providerUrl": "https://lingkeapi.com",
-      "fetchTime": "2026-05-12T08:07:02.245Z",
+      "fetchTime": "2026-05-12T14:06:32.173Z",
       "models": {
-        "glm-4-airx": {
-          "display_name": "glm-4-airx",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-4-32k-0613": {
-          "display_name": "gpt-4-32k-0613",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-oss-120b": {
-          "display_name": "gpt-oss-120b",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "o4-mini-2025-04-16": {
-          "display_name": "o4-mini-2025-04-16",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-4-turbo-2024-04-09": {
-          "display_name": "gpt-4-turbo-2024-04-09 ",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-4.1-2025-04-14": {
-          "display_name": "gpt-4.1-2025-04-14",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-5.4-pro-2026-03-05": {
-          "display_name": "GPT-5.4pro使用更多计算资源来更深入地思考并提供始终",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-5.1-chat-latest": {
-          "display_name": "GPT-5.1-chat-latest 适用于自然语言交互和",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "codex-mini-2025-05-16": {
-          "display_name": "codex-mini-2025-05-16 是一款专为代码生",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "whisper-1": {
-          "display_name": "whisper-1",
-          "type": "video",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_second",
-          "openai_compatible": true
-        },
         "gpt-4-1106-preview": {
           "display_name": "gpt-4-1106-preview",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-4o-mini-realtime-preview": {
-          "display_name": "gpt-4o-mini-realtime-preview",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "o1-mini": {
-          "display_name": "o1-mini",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-4o-2024-11-20": {
-          "display_name": "gpt-4o-2024-11-20",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "tts-1-hd-1106": {
-          "display_name": "tts-1-hd-1106",
-          "type": "video",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_second",
-          "openai_compatible": true
-        },
-        "grok-4-fast-non-reasoning": {
-          "display_name": "Grok 4 Fast (Non-Reasoning) 是由",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-4o-mini-audio-preview": {
-          "display_name": "Audio API 可让开发者构建语音转文本和文本转语音功能",
-          "type": "video",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_second",
-          "openai_compatible": true
-        },
-        "grok-4-20-reasoning": {
-          "display_name": "Grok 4.20 是xai最新的旗舰型号，具备行业领先的速",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "glm-4.5-air": {
-          "display_name": "glm-4.5-air",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-5.3-chat-latest": {
-          "display_name": "GPT-5.3-chat-latest 是 OpenAI 优",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "kimi-k2-0905": {
-          "display_name": "Kimi K2是一个突破性的混合专家模型，专为前沿知识、推理",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-image-1-2025-04-15": {
-          "display_name": "gpt-image-1-2025-04-15",
-          "type": "image",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_call",
-          "openai_compatible": true
-        },
-        "gpt-5.4-mini-2026-03-17": {
-          "display_name": "GPT-5.4mini将GPT-5.4的优势融入到一个更快、",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-5-nano": {
-          "display_name": "GPT-5 Nano 是由 openai 提供的人工智能模型",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "mai-ds-r1": {
-          "display_name": "mai-ds-r1",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-4-0613": {
-          "display_name": "gpt-4-0613",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "kimi-k2": {
-          "display_name": "kimi-k2",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-audio-2025-08-28": {
-          "display_name": "gpt-audio-2025-08-28",
-          "type": "video",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_second",
-          "openai_compatible": true
-        },
-        "gpt-4.1": {
-          "display_name": "GPT-4.1 是由 openai 提供的人工智能模型。",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-5-codex-mini": {
-          "display_name": "gpt-5-codex-mini",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-5-chat-latest": {
-          "display_name": "gpt-5-chat-latest",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-image-2": {
-          "display_name": "GPT Image 2 是我们最先进的图像生成模型，支持快速",
-          "type": "image",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0.15,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_call",
-          "openai_compatible": true
-        },
-        "gpt-4.1-nano": {
-          "display_name": "GPT-4.1 nano 是由 openai 提供的人工智能",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "grok-4-fast-reasoning": {
-          "display_name": "grok-4-fast-reasoning",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-5-mini": {
-          "display_name": "GPT-5 Mini 是由 openai 提供的人工智能模型",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "o1-mini-2024-09-12": {
-          "display_name": "o1-mini-2024-09-12",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "tts-1-1106": {
-          "display_name": "tts-1-1106",
-          "type": "video",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_second",
-          "openai_compatible": true
-        },
-        "tts-1": {
-          "display_name": "tts-1",
-          "type": "video",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_second",
-          "openai_compatible": true
-        },
-        "gpt-5-chat-2025-10-03": {
-          "display_name": "gpt-5-chat-2025-10-03",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "kimi-k2-0711-preview": {
-          "display_name": "kimi-k2-0711-preview",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "o3-pro-2025-06-10": {
-          "display_name": "o3-pro-2025-06-10",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "qwen3-coder-plus": {
-          "display_name": "qwen3-coder-plus",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "deepseek-r1-250120": {
-          "display_name": "deepseek-r1 是由深度求索推出的深度思考模型。在后",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "qwen3-30b-a3b": {
-          "display_name": "qwen3-30b-a3b",
           "type": "text",
           "channel_groups": [
             {
@@ -681,1343 +36,8 @@
           "billing_method": "per_token",
           "openai_compatible": true
         },
-        "deepseek-v3-1-250821": {
-          "display_name": "deepseek-v3-1-250821",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "grok-4-1-fast-non-reasoning": {
-          "display_name": "grok-4-1-fast-non-reasoning是xA",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-4o-realtime-preview": {
-          "display_name": "gpt-4o-realtime-preview",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-4o-audio-preview": {
-          "display_name": "gpt-4o-audio-preview",
-          "type": "video",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_second",
-          "openai_compatible": true
-        },
-        "grok-3-mini": {
-          "display_name": "grok-3-mini",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "deepseek-r1-0528": {
-          "display_name": "DeepSeek 最新模型。该模型在推理、代码生成等能力上相",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "glm-4-flash": {
-          "display_name": "glm-4-flash",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "grok-4-1-fast-reasoning": {
-          "display_name": "Grok 4.1 Fast 是xAI旗下的一款顶尖工具调用模",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-5.4-2026-03-05": {
-          "display_name": "gpt-5.4-2026-03-05",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-5.2-chat-latest": {
-          "display_name": "GPT-5.2-chat-latest 适用于自然流畅对话和",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-5.2": {
-          "display_name": "GPT-5.2适用于各行各业的编码和智能任务的最佳模型",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "o3-pro": {
-          "display_name": "o3-pro",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-4o-mini-realtime-preview-2024-12-17": {
-          "display_name": "gpt-4o-mini-realtime-preview-2024-12-17",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-4o-mini-audio-preview-2024-12-17": {
-          "display_name": "Audio API 可让开发者构建语音转文本和文本转语音功能",
-          "type": "video",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_second",
-          "openai_compatible": true
-        },
-        "o3-mini-2025-01-31": {
-          "display_name": "o3-mini-2025-01-31",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "o3": {
-          "display_name": "o3",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "qwen-max-latest": {
-          "display_name": "qwen-max-latest",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "qwen-plus-latest": {
-          "display_name": "qwen-plus-latest",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "text-embedding-ada-002": {
-          "display_name": "text-embedding-ada-002",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-5-mini-2025-08-07": {
-          "display_name": "gpt-5-mini-2025-08-07",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-4.1-mini-2025-04-14": {
-          "display_name": "gpt-4.1-mini-2025-04-14",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-5-2025-08-07": {
-          "display_name": "gpt-5-2025-08-07",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "qwen-turbo": {
-          "display_name": "qwen-turbo",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "qwen-plus": {
-          "display_name": "qwen-plus",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "deepseek-v3.1": {
-          "display_name": "deepseek-v3.1",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "text-embedding-3-small": {
-          "display_name": "text-embedding-3-small",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "MAI-DS-R1": {
-          "display_name": "MAI-DS-R1 是一个 DeepSeek-R1 推理模型",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-4o-audio-preview-2024-12-17": {
-          "display_name": "gpt-4o-audio-preview-2024-12-17",
-          "type": "video",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_second",
-          "openai_compatible": true
-        },
-        "qwq-72b-preview": {
-          "display_name": "qwq-72b-preview",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "o1-2024-12-17": {
-          "display_name": "o1-2024-12-17",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "qwen3-30b-a3b-think": {
-          "display_name": "qwen3-30b-a3b-think",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "glm-4-long": {
-          "display_name": "glm-4-long",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-5.4-mini": {
-          "display_name": "GPT-5.4mini将GPT-5.4的优势融入到一个更快、",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "deepseek-r1": {
-          "display_name": "deepseek-r1",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-4-32k": {
-          "display_name": "gpt-4-32k",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-5.1-chat": {
-          "display_name": "GPT-5.1-chat 适用于自然语言交互和即时通讯场景的",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-5.4-nano": {
-          "display_name": "GPT‑5.4 nano 是 GPT‑5.4 最轻量、最快速",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-oss-20b": {
-          "display_name": "gpt-oss-20b",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "o1-preview": {
-          "display_name": "o1-preview",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-4o-mini": {
-          "display_name": "gpt-4o-mini",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "glm-4.6": {
-          "display_name": "glm-4.6",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "o4-mini": {
-          "display_name": "o4-mini",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "qwen3-next-80b-a3b-instruct": {
-          "display_name": "qwen3-next-80b-a3b-instruct",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "tts-1-hd": {
-          "display_name": "tts-1-hd",
-          "type": "video",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_second",
-          "openai_compatible": true
-        },
-        "gpt-5.4": {
-          "display_name": "GPT-5.4是我们用于复杂专业工作的前沿模型。",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-4o-mini-2024-07-18": {
-          "display_name": "gpt-4o-mini-2024-07-18",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "text-embedding-3-large": {
-          "display_name": "text-embedding-3-large",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-5.1-2025-11-13": {
-          "display_name": "GPT-5.1-2025-11-13：更智能、更具对话性的聊",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-5.2-pro": {
-          "display_name": "GPT-5.2 pro 仅在 Responses API 中",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "qwen3-max": {
-          "display_name": "qwen3-max",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "grok-3": {
-          "display_name": "grok-3",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "qwq-plus-2025-03-05": {
-          "display_name": "qwq-plus-2025-03-05",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "deepseek-r1-250528": {
-          "display_name": "deepseek-r1-250528",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "glm-4.5": {
-          "display_name": "glm-4.5",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-5.4-pro": {
-          "display_name": "GPT-5.4pro使用更多计算资源来更深入地思考并提供始终",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-4o-mini-transcribe": {
-          "display_name": "gpt-4o-mini-transcribe",
-          "type": "video",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_second",
-          "openai_compatible": true
-        },
-        "gpt-5-codex": {
-          "display_name": "gpt-5-codex",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-4.1-nano-2025-04-14": {
-          "display_name": "gpt-4.1-nano-2025-04-14",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-4-vision-preview": {
-          "display_name": "gpt-4-vision-preview",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "qwen3-32b": {
-          "display_name": "qwen3-32b",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "glm-4": {
-          "display_name": "glm-4",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-5.1-chat-2025-11-13": {
-          "display_name": "gpt-5.1-chat-2025-11-13",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "grok-4-20-non-reasoning": {
-          "display_name": "Grok 4.20 是xai最新的旗舰型号，具备行业领先的速",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-4o": {
-          "display_name": "gpt-4o",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "o3-mini": {
-          "display_name": "o3-mini",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-4o-realtime-preview-2024-12-17": {
-          "display_name": "gpt-4o-realtime-preview-2024-12-17",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "qwen3-vl-plus": {
-          "display_name": "qwen3-vl-plus",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-image-1-mini": {
-          "display_name": "gpt-image-1-mini 是我们的轻量级图像生成模型",
-          "type": "image",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_call",
-          "openai_compatible": true
-        },
-        "qwen2.5-32b-instruct": {
-          "display_name": "qwen2.5-32b-instruct",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-4o-realtime-preview-2024-10-01": {
-          "display_name": "gpt-4o-realtime-preview-2024-10-01",
-          "type": "video",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_second",
-          "openai_compatible": true
-        },
-        "gpt-4o-2024-05-13": {
-          "display_name": "gpt-4o-2024-05-13",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "Kimi-K2-Instruct": {
-          "display_name": "Kimi-K2-Instruct",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-image-1.5-all": {
-          "display_name": "gpt-image-1.5的逆向",
-          "type": "image",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0.05,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_call",
-          "openai_compatible": true
-        },
-        "gpt-5.3-chat": {
-          "display_name": "gpt-5.3-chat",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-5.4-nano-2026-03-17": {
-          "display_name": "GPT‑5.4 nano 是 GPT‑5.4 最轻量、最快速",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-5.2-chat": {
-          "display_name": "GPT-5.2-chat 适用于自然流畅对话和动态交互体验的",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-realtime": {
-          "display_name": "gpt-realtime",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "qwq-plus": {
-          "display_name": "qwq-plus",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "qwen2.5-72b-instruct": {
-          "display_name": "qwen2.5-72b-instruct",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-4": {
-          "display_name": "gpt-4",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-5.3-chat-2026-03-03": {
-          "display_name": "gpt-5.3-chat-2026-03-03",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "qwq-32b": {
-          "display_name": "qwq-32b",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-image-1": {
-          "display_name": "gpt-image-1",
-          "type": "image",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_call",
-          "openai_compatible": true
-        },
-        "qwen-vl-max": {
-          "display_name": "qwen-vl-max",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "o1-preview-2024-09-12": {
-          "display_name": "o1-preview-2024-09-12",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-5-chat-2025-08-07": {
-          "display_name": "gpt-5-chat-2025-08-07",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "deepseek-reasoner": {
-          "display_name": "deepseek-reasoner",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "dall-e-3": {
-          "display_name": "dall-e-3 ",
-          "type": "image",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_call",
-          "openai_compatible": true
-        },
-        "gpt-5-pro": {
-          "display_name": "gpt-5-pro",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-4-0125-preview": {
-          "display_name": "gpt-4-0125-preview",
+        "gpt-5-mini": {
+          "display_name": "GPT-5 Mini 是由 openai 提供的人工智能模型",
           "type": "text",
           "channel_groups": [
             {
@@ -2046,8 +66,8 @@
           "billing_method": "per_token",
           "openai_compatible": true
         },
-        "gpt-5.2-2025-12-11": {
-          "display_name": "GPT-5.2适用于各行各业的编码和智能任务的最佳模型",
+        "codex-mini-2025-05-16": {
+          "display_name": "codex-mini-2025-05-16 是一款专为代码生",
           "type": "text",
           "channel_groups": [
             {
@@ -2061,8 +81,8 @@
           "billing_method": "per_token",
           "openai_compatible": true
         },
-        "deepseek-v3-1": {
-          "display_name": "深度求索全新推出的混合推理模型，支持思考与非思考2种推理模式",
+        "gpt-4o-realtime-preview-2024-12-17": {
+          "display_name": "gpt-4o-realtime-preview-2024-12-17",
           "type": "text",
           "channel_groups": [
             {
@@ -2076,23 +96,8 @@
           "billing_method": "per_token",
           "openai_compatible": true
         },
-        "gpt-4.1-mini": {
-          "display_name": "GPT-4.1 mini 是由 openai 提供的人工智能",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-4o-transcribe": {
-          "display_name": "gpt-4o-transcribe",
+        "gpt-4o-audio-preview-2024-12-17": {
+          "display_name": "gpt-4o-audio-preview-2024-12-17",
           "type": "video",
           "channel_groups": [
             {
@@ -2106,8 +111,23 @@
           "billing_method": "per_second",
           "openai_compatible": true
         },
-        "gpt-4o-realtime-preview-2025-06-03": {
-          "display_name": "gpt-4o-realtime-preview-2025-06-03",
+        "o3-mini-2025-01-31": {
+          "display_name": "o3-mini-2025-01-31",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-4o-mini-transcribe": {
+          "display_name": "gpt-4o-mini-transcribe",
           "type": "video",
           "channel_groups": [
             {
@@ -2121,8 +141,8 @@
           "billing_method": "per_second",
           "openai_compatible": true
         },
-        "grok-4": {
-          "display_name": "grok-4",
+        "qwen3-30b-a3b-think": {
+          "display_name": "qwen3-30b-a3b-think",
           "type": "text",
           "channel_groups": [
             {
@@ -2136,8 +156,8 @@
           "billing_method": "per_token",
           "openai_compatible": true
         },
-        "gpt-5.1": {
-          "display_name": "GPT-5.1：更智能、更具对话性的聊天GPT,最常用的型号",
+        "deepseek-r1-2025-01-20": {
+          "display_name": "deepseek-r1-2025-01-20",
           "type": "text",
           "channel_groups": [
             {
@@ -2151,8 +171,23 @@
           "billing_method": "per_token",
           "openai_compatible": true
         },
-        "gpt-realtime-1.5": {
-          "display_name": "gpt-realtime-1.5",
+        "gpt-5-chat-2025-08-07": {
+          "display_name": "gpt-5-chat-2025-08-07",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-5.4-mini": {
+          "display_name": "GPT-5.4mini将GPT-5.4的优势融入到一个更快、",
           "type": "text",
           "channel_groups": [
             {
@@ -2181,8 +216,8 @@
           "billing_method": "per_token",
           "openai_compatible": true
         },
-        "gpt-5-nano-2025-08-07": {
-          "display_name": "gpt-5-nano-2025-08-07",
+        "gpt-5-codex-mini": {
+          "display_name": "gpt-5-codex-mini",
           "type": "text",
           "channel_groups": [
             {
@@ -2196,8 +231,8 @@
           "billing_method": "per_token",
           "openai_compatible": true
         },
-        "gpt-4-turbo": {
-          "display_name": "gpt-4-turbo",
+        "gpt-4-0613": {
+          "display_name": "gpt-4-0613",
           "type": "text",
           "channel_groups": [
             {
@@ -2211,38 +246,8 @@
           "billing_method": "per_token",
           "openai_compatible": true
         },
-        "gpt-image-1.5": {
-          "display_name": "GPT Image 1.5是我们最新的图像生成模型，拥有更好",
-          "type": "image",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0.05,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_call",
-          "openai_compatible": true
-        },
-        "gpt-4o-mini-tts": {
-          "display_name": "gpt-4o-mini-tts",
-          "type": "video",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_second",
-          "openai_compatible": true
-        },
-        "deepseek-r1-2025-01-20": {
-          "display_name": "deepseek-r1-2025-01-20",
+        "qwen-turbo": {
+          "display_name": "qwen-turbo",
           "type": "text",
           "channel_groups": [
             {
@@ -2256,113 +261,8 @@
           "billing_method": "per_token",
           "openai_compatible": true
         },
-        "gpt-5": {
-          "display_name": "GPT-5 是我们面向跨领域编码、推理和智能体任务的旗舰模型",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-5-pro-2025-10-06": {
-          "display_name": "gpt-5-pro-2025-10-06",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "qwen3-max-preview-n": {
-          "display_name": "qwen3-max-preview-n",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-4o-2024-08-06": {
-          "display_name": "gpt-4o-2024-08-06",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-5.1-codex-max-2025-12-04": {
-          "display_name": "gpt-5.1-codex-max-2025-12-04",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "qwen3-235b-a22b": {
-          "display_name": "qwen3-235b-a22b",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "gpt-5.2-pro-2025-12-11": {
-          "display_name": "GPT-5.2 pro 仅在 Responses API 中",
-          "type": "text",
-          "channel_groups": [
-            {
-              "group_name": "default",
-              "is_active": true,
-              "base_price": 0,
-              "success_rate_24h": 0,
-              "avg_response_seconds": 0
-            }
-          ],
-          "billing_method": "per_token",
-          "openai_compatible": true
-        },
-        "o1": {
-          "display_name": "o1",
+        "grok-4-1-fast-non-reasoning": {
+          "display_name": "grok-4-1-fast-non-reasoning是xA",
           "type": "text",
           "channel_groups": [
             {
@@ -2391,8 +291,1988 @@
           "billing_method": "per_token",
           "openai_compatible": true
         },
+        "glm-4-flash": {
+          "display_name": "glm-4-flash",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-5-pro": {
+          "display_name": "gpt-5-pro",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-5-pro-2025-10-06": {
+          "display_name": "gpt-5-pro-2025-10-06",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-4o-realtime-preview": {
+          "display_name": "gpt-4o-realtime-preview",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "qwen3-max-preview-n": {
+          "display_name": "qwen3-max-preview-n",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-4o": {
+          "display_name": "gpt-4o",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "grok-4-20-non-reasoning": {
+          "display_name": "Grok 4.20 是xai最新的旗舰型号，具备行业领先的速",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-image-2": {
+          "display_name": "GPT Image 2 是我们最先进的图像生成模型，支持快速",
+          "type": "image",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0.15,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_call",
+          "openai_compatible": true
+        },
+        "glm-4.6": {
+          "display_name": "glm-4.6",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-5.2-chat-latest": {
+          "display_name": "GPT-5.2-chat-latest 适用于自然流畅对话和",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "grok-3-mini": {
+          "display_name": "grok-3-mini",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "deepseek-v3-1": {
+          "display_name": "深度求索全新推出的混合推理模型，支持思考与非思考2种推理模式",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "whisper-1": {
+          "display_name": "whisper-1",
+          "type": "video",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_second",
+          "openai_compatible": true
+        },
+        "qwen2.5-72b-instruct": {
+          "display_name": "qwen2.5-72b-instruct",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-4o-mini-audio-preview": {
+          "display_name": "Audio API 可让开发者构建语音转文本和文本转语音功能",
+          "type": "video",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_second",
+          "openai_compatible": true
+        },
+        "qwq-72b-preview": {
+          "display_name": "qwq-72b-preview",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "Kimi-K2-Instruct": {
+          "display_name": "Kimi-K2-Instruct",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "tts-1-hd": {
+          "display_name": "tts-1-hd",
+          "type": "video",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_second",
+          "openai_compatible": true
+        },
+        "qwen3-32b": {
+          "display_name": "qwen3-32b",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "tts-1-1106": {
+          "display_name": "tts-1-1106",
+          "type": "video",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_second",
+          "openai_compatible": true
+        },
+        "glm-4-long": {
+          "display_name": "glm-4-long",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "text-embedding-ada-002": {
+          "display_name": "text-embedding-ada-002",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-5.4-mini-2026-03-17": {
+          "display_name": "GPT-5.4mini将GPT-5.4的优势融入到一个更快、",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-5": {
+          "display_name": "GPT-5 是我们面向跨领域编码、推理和智能体任务的旗舰模型",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "MAI-DS-R1": {
+          "display_name": "MAI-DS-R1 是一个 DeepSeek-R1 推理模型",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-5-nano-2025-08-07": {
+          "display_name": "gpt-5-nano-2025-08-07",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "mai-ds-r1": {
+          "display_name": "mai-ds-r1",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-5.4": {
+          "display_name": "GPT-5.4是我们用于复杂专业工作的前沿模型。",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "text-embedding-3-small": {
+          "display_name": "text-embedding-3-small",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-4": {
+          "display_name": "gpt-4",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-image-1.5-all": {
+          "display_name": "gpt-image-1.5的逆向",
+          "type": "image",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0.05,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_call",
+          "openai_compatible": true
+        },
+        "gpt-5.4-2026-03-05": {
+          "display_name": "gpt-5.4-2026-03-05",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "qwen2.5-32b-instruct": {
+          "display_name": "qwen2.5-32b-instruct",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "glm-4": {
+          "display_name": "glm-4",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-4o-2024-11-20": {
+          "display_name": "gpt-4o-2024-11-20",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-5.4-pro-2026-03-05": {
+          "display_name": "GPT-5.4pro使用更多计算资源来更深入地思考并提供始终",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-4-32k-0613": {
+          "display_name": "gpt-4-32k-0613",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "o3-pro": {
+          "display_name": "o3-pro",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "dall-e-3": {
+          "display_name": "dall-e-3 ",
+          "type": "image",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_call",
+          "openai_compatible": true
+        },
+        "o1-preview": {
+          "display_name": "o1-preview",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "grok-4": {
+          "display_name": "grok-4",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "qwen3-coder-plus": {
+          "display_name": "qwen3-coder-plus",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-4.1-2025-04-14": {
+          "display_name": "gpt-4.1-2025-04-14",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "glm-4.5": {
+          "display_name": "glm-4.5",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "o4-mini-2025-04-16": {
+          "display_name": "o4-mini-2025-04-16",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-5-chat-latest": {
+          "display_name": "gpt-5-chat-latest",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-image-1": {
+          "display_name": "gpt-image-1",
+          "type": "image",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_call",
+          "openai_compatible": true
+        },
+        "gpt-4o-2024-05-13": {
+          "display_name": "gpt-4o-2024-05-13",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-4o-2024-08-06": {
+          "display_name": "gpt-4o-2024-08-06",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-oss-20b": {
+          "display_name": "gpt-oss-20b",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-4-0125-preview": {
+          "display_name": "gpt-4-0125-preview",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-4.1-nano": {
+          "display_name": "GPT-4.1 nano 是由 openai 提供的人工智能",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-5.2-2025-12-11": {
+          "display_name": "GPT-5.2适用于各行各业的编码和智能任务的最佳模型",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "tts-1-hd-1106": {
+          "display_name": "tts-1-hd-1106",
+          "type": "video",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_second",
+          "openai_compatible": true
+        },
+        "gpt-5-2025-08-07": {
+          "display_name": "gpt-5-2025-08-07",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-5.3-chat-2026-03-03": {
+          "display_name": "gpt-5.3-chat-2026-03-03",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "qwen3-vl-plus": {
+          "display_name": "qwen3-vl-plus",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-5.1-codex-max-2025-12-04": {
+          "display_name": "gpt-5.1-codex-max-2025-12-04",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "deepseek-v3-1-250821": {
+          "display_name": "deepseek-v3-1-250821",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-4o-mini-audio-preview-2024-12-17": {
+          "display_name": "Audio API 可让开发者构建语音转文本和文本转语音功能",
+          "type": "video",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_second",
+          "openai_compatible": true
+        },
+        "qwq-plus": {
+          "display_name": "qwq-plus",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-4-vision-preview": {
+          "display_name": "gpt-4-vision-preview",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "qwen-plus": {
+          "display_name": "qwen-plus",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "qwen-max-latest": {
+          "display_name": "qwen-max-latest",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-4o-mini-2024-07-18": {
+          "display_name": "gpt-4o-mini-2024-07-18",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "o1-2024-12-17": {
+          "display_name": "o1-2024-12-17",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "qwq-32b": {
+          "display_name": "qwq-32b",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "grok-4-fast-non-reasoning": {
+          "display_name": "Grok 4 Fast (Non-Reasoning) 是由",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "qwen-plus-latest": {
+          "display_name": "qwen-plus-latest",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "deepseek-v3.1": {
+          "display_name": "deepseek-v3.1",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-4.1-nano-2025-04-14": {
+          "display_name": "gpt-4.1-nano-2025-04-14",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "qwen3-235b-a22b": {
+          "display_name": "qwen3-235b-a22b",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "qwen3-next-80b-a3b-instruct": {
+          "display_name": "qwen3-next-80b-a3b-instruct",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-5.1-2025-11-13": {
+          "display_name": "GPT-5.1-2025-11-13：更智能、更具对话性的聊",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "kimi-k2": {
+          "display_name": "kimi-k2",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-5.4-nano": {
+          "display_name": "GPT‑5.4 nano 是 GPT‑5.4 最轻量、最快速",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "deepseek-r1-250120": {
+          "display_name": "deepseek-r1 是由深度求索推出的深度思考模型。在后",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
         "gpt-4-turbo-preview": {
           "display_name": "gpt-4-turbo-preview",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-5-mini-2025-08-07": {
+          "display_name": "gpt-5-mini-2025-08-07",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "o1": {
+          "display_name": "o1",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-oss-120b": {
+          "display_name": "gpt-oss-120b",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-4.1-mini-2025-04-14": {
+          "display_name": "gpt-4.1-mini-2025-04-14",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-4o-realtime-preview-2024-10-01": {
+          "display_name": "gpt-4o-realtime-preview-2024-10-01",
+          "type": "video",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_second",
+          "openai_compatible": true
+        },
+        "qwen3-max": {
+          "display_name": "qwen3-max",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-4o-transcribe": {
+          "display_name": "gpt-4o-transcribe",
+          "type": "video",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_second",
+          "openai_compatible": true
+        },
+        "gpt-4-turbo": {
+          "display_name": "gpt-4-turbo",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-5-nano": {
+          "display_name": "GPT-5 Nano 是由 openai 提供的人工智能模型",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "grok-3": {
+          "display_name": "grok-3",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "deepseek-r1-0528": {
+          "display_name": "DeepSeek 最新模型。该模型在推理、代码生成等能力上相",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "deepseek-r1": {
+          "display_name": "deepseek-r1",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "o4-mini": {
+          "display_name": "o4-mini",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-4-turbo-2024-04-09": {
+          "display_name": "gpt-4-turbo-2024-04-09 ",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "glm-4-airx": {
+          "display_name": "glm-4-airx",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "grok-4-fast-reasoning": {
+          "display_name": "grok-4-fast-reasoning",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-5.1-chat-2025-11-13": {
+          "display_name": "gpt-5.1-chat-2025-11-13",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-audio-2025-08-28": {
+          "display_name": "gpt-audio-2025-08-28",
+          "type": "video",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_second",
+          "openai_compatible": true
+        },
+        "gpt-4o-realtime-preview-2025-06-03": {
+          "display_name": "gpt-4o-realtime-preview-2025-06-03",
+          "type": "video",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_second",
+          "openai_compatible": true
+        },
+        "glm-4.5-air": {
+          "display_name": "glm-4.5-air",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "deepseek-r1-250528": {
+          "display_name": "deepseek-r1-250528",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-4o-mini": {
+          "display_name": "gpt-4o-mini",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "o3-pro-2025-06-10": {
+          "display_name": "o3-pro-2025-06-10",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-4o-audio-preview": {
+          "display_name": "gpt-4o-audio-preview",
+          "type": "video",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_second",
+          "openai_compatible": true
+        },
+        "grok-4-20-reasoning": {
+          "display_name": "Grok 4.20 是xai最新的旗舰型号，具备行业领先的速",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-5-chat-2025-10-03": {
+          "display_name": "gpt-5-chat-2025-10-03",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-5.2": {
+          "display_name": "GPT-5.2适用于各行各业的编码和智能任务的最佳模型",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "o1-mini": {
+          "display_name": "o1-mini",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "o1-mini-2024-09-12": {
+          "display_name": "o1-mini-2024-09-12",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-5.1-chat-latest": {
+          "display_name": "GPT-5.1-chat-latest 适用于自然语言交互和",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-5.3-chat-latest": {
+          "display_name": "GPT-5.3-chat-latest 是 OpenAI 优",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-5-codex": {
+          "display_name": "gpt-5-codex",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-5.1-chat": {
+          "display_name": "GPT-5.1-chat 适用于自然语言交互和即时通讯场景的",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-4-32k": {
+          "display_name": "gpt-4-32k",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-4.1": {
+          "display_name": "GPT-4.1 是由 openai 提供的人工智能模型。",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-5.4-nano-2026-03-17": {
+          "display_name": "GPT‑5.4 nano 是 GPT‑5.4 最轻量、最快速",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "tts-1": {
+          "display_name": "tts-1",
+          "type": "video",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_second",
+          "openai_compatible": true
+        },
+        "gpt-4o-mini-tts": {
+          "display_name": "gpt-4o-mini-tts",
+          "type": "video",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_second",
+          "openai_compatible": true
+        },
+        "qwq-plus-2025-03-05": {
+          "display_name": "qwq-plus-2025-03-05",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "o1-preview-2024-09-12": {
+          "display_name": "o1-preview-2024-09-12",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "deepseek-reasoner": {
+          "display_name": "deepseek-reasoner",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-5.1": {
+          "display_name": "GPT-5.1：更智能、更具对话性的聊天GPT,最常用的型号",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "grok-4-1-fast-reasoning": {
+          "display_name": "Grok 4.1 Fast 是xAI旗下的一款顶尖工具调用模",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "qwen-vl-max": {
+          "display_name": "qwen-vl-max",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "o3-mini": {
+          "display_name": "o3-mini",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-5.4-pro": {
+          "display_name": "GPT-5.4pro使用更多计算资源来更深入地思考并提供始终",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "o3": {
+          "display_name": "o3",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "qwen3-30b-a3b": {
+          "display_name": "qwen3-30b-a3b",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-4o-mini-realtime-preview-2024-12-17": {
+          "display_name": "gpt-4o-mini-realtime-preview-2024-12-17",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "kimi-k2-0711-preview": {
+          "display_name": "kimi-k2-0711-preview",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-5.2-chat": {
+          "display_name": "GPT-5.2-chat 适用于自然流畅对话和动态交互体验的",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "kimi-k2-0905": {
+          "display_name": "Kimi K2是一个突破性的混合专家模型，专为前沿知识、推理",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-4.1-mini": {
+          "display_name": "GPT-4.1 mini 是由 openai 提供的人工智能",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "text-embedding-3-large": {
+          "display_name": "text-embedding-3-large",
+          "type": "text",
+          "channel_groups": [
+            {
+              "group_name": "default",
+              "is_active": true,
+              "base_price": 0,
+              "success_rate_24h": 0,
+              "avg_response_seconds": 0
+            }
+          ],
+          "billing_method": "per_token",
+          "openai_compatible": true
+        },
+        "gpt-4o-mini-realtime-preview": {
+          "display_name": "gpt-4o-mini-realtime-preview",
           "type": "text",
           "channel_groups": [
             {
@@ -2412,7 +2292,7 @@
     "apiqik": {
       "providerName": "apiqik",
       "providerUrl": "https://value.apiqik.online",
-      "fetchTime": "2026-05-12T08:07:04.135Z",
+      "fetchTime": "2026-05-12T14:06:33.891Z",
       "models": {
         "gpt-image-2-flatfee": {
           "display_name": "gpt-image-2-flatfee",

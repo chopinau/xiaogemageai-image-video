@@ -19,6 +19,9 @@ import pricingAdminRoutes from './routes/pricingAdminRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import creditsRoutes from './routes/creditsRoutes.js';
 import usageRoutes from './routes/usageRoutes.js';
+import ticketRoutes from './routes/ticketRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
+import paymentConfigRoutes from './routes/paymentConfigRoutes.js';
 import { rateLimitMiddleware } from './middleware/rateLimit.js';
 import { errorHandler } from './utils/errorHandler.js';
 import apiProtection from './services/apiProtectionService.js';
@@ -59,6 +62,9 @@ app.use('/api/pricing-admin', pricingAdminRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/credits', creditsRoutes);
 app.use('/api/usage', usageRoutes);
+app.use('/api/tickets', ticketRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/payment-config', paymentConfigRoutes);
 
 app.get('/api/models', (req, res) => {
   res.json({

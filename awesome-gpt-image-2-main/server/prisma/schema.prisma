@@ -18,6 +18,7 @@ model User {
   membershipExpire DateTime?
   credits         Float     @default(0)
   totalSpent      Float     @default(0)
+  apiKey          String?   @unique
   referralCode    String?   @unique
   referredBy      String?
   status          String    @default("active")
@@ -29,6 +30,8 @@ model User {
   transactions  Transaction[]
   usageRecords  UsageRecord[]
   checkIns      CheckIn[]
+  tickets       Ticket[]
+  notificationReads NotificationRead[]
 }
 
 model Order {
@@ -97,4 +100,66 @@ model PriceConfig {
   markupPercent Float     @default(15)
   active        Boolean   @default(true)
   updatedAt     DateTime  @updatedAt
+}
+
+model Ticket {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  category    String
+  title       String
+  status      String    @default("open")
+  priority    String    @default("normal")
+  assignedTo  Int?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  closedAt    DateTime?
+
+  user        User      @relation(fields: [userId], references: [id])
+  messages    TicketMessage[]
+}
+
+model TicketMessage {
+  id          Int       @id @default(autoincrement())
+  ticketId    Int
+  senderId    Int?
+  senderType  String    @default("user")
+  content     String
+  attachments String?
+  isRead      Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+
+  ticket      Ticket    @relation(fields: [ticketId], references: [id])
+}
+
+model Notification {
+  id         Int       @id @default(autoincrement())
+  title      String
+  content    String
+  type       String    @default("system")
+  senderId   Int?
+  targetRole String?
+  createdAt  DateTime  @default(now())
+
+  readStatus NotificationRead[]
+}
+
+model NotificationRead {
+  id             Int       @id @default(autoincrement())
+  notificationId Int
+  userId         Int
+  isRead         Boolean   @default(false)
+  readAt         DateTime?
+
+  notification   Notification @relation(fields: [notificationId], references: [id])
+  user           User         @relation(fields: [userId], references: [id])
+
+  @@unique([notificationId, userId])
+}
+
+model PaymentConfig {
+  id          Int       @id @default(autoincrement())
+  key         String    @unique
+  value       String
+  description String?
+  updatedAt   DateTime  @updatedAt
 }

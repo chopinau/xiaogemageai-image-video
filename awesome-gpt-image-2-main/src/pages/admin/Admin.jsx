@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import { AI_MODELS } from '../../config/models';
-import { Layout, BarChart3, Users, Cpu, ShoppingCart, Coins, Share2, Settings, FileText, Menu, X, DollarSign, AlertTriangle, Activity, TrendingUp, Zap } from 'lucide-react';
+import { Layout, BarChart3, Users, Cpu, ShoppingCart, Coins, Share2, Settings, FileText, Menu, X, DollarSign, AlertTriangle, Activity, TrendingUp, Zap, Headphones, Bell, Send } from 'lucide-react';
 import { PricingAdmin } from './PricingAdmin';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
@@ -20,6 +20,8 @@ const ADMIN_TABS = [
   { id: 'pricing', label: '价格管理', icon: DollarSign },
   { id: 'orders', label: '订单管理', icon: ShoppingCart },
   { id: 'credits', label: '算力管理', icon: Coins },
+  { id: 'tickets', label: '客服管理', icon: Headphones },
+  { id: 'notifications', label: '通知管理', icon: Bell },
   { id: 'distribution', label: '分销管理', icon: Share2 },
   { id: 'settings', label: '系统设置', icon: Settings },
   { id: 'logs', label: '操作日志', icon: FileText }
@@ -101,6 +103,8 @@ export function AdminPage() {
         {activeTab === 'pricing' && <PricingAdmin />}
         {activeTab === 'orders' && <OrdersTab />}
         {activeTab === 'credits' && <CreditsAdminTab />}
+        {activeTab === 'tickets' && <TicketsAdminTab />}
+        {activeTab === 'notifications' && <NotificationsAdminTab />}
         {activeTab === 'distribution' && <DistributionTab />}
         {activeTab === 'settings' && <SettingsTab />}
         {activeTab === 'logs' && <LogsTab />}
@@ -643,6 +647,280 @@ function LogsTab() {
             ))}
           </tbody>
         </table>
+      </div>
+    </div>
+  );
+}
+
+function TicketsAdminTab() {
+  const notify = useNotification();
+  const { getAuthHeaders } = useAuth();
+  const [tickets, setTickets] = useState([]);
+  const [stats, setStats] = useState({ open: 0, inProgress: 0, resolved: 0, closed: 0, total: 0 });
+  const [loading, setLoading] = useState(true);
+  const [selectedTicket, setSelectedTicket] = useState(null);
+  const [replyText, setReplyText] = useState('');
+  const [sending, setSending] = useState(false);
+
+  useEffect(() => { loadTickets(); loadStats(); }, []);
+
+  async function loadTickets() {
+    setLoading(true);
+    try {
+      const res = await apiCall('/tickets/admin/all');
+      const data = await res.json();
+      if (data.success) setTickets(data.data?.tickets || []);
+    } catch {}
+    setLoading(false);
+  }
+
+  async function loadStats() {
+    try {
+      const res = await apiCall('/tickets/admin/stats');
+      const data = await res.json();
+      if (data.success) setStats(data.data);
+    } catch {}
+  }
+
+  async function loadTicketDetail(id) {
+    try {
+      const res = await apiCall(`/tickets/admin/${id}`);
+      const data = await res.json();
+      if (data.success) setSelectedTicket(data.data);
+    } catch {}
+  }
+
+  async function replyToTicket() {
+    if (!replyText.trim()) return;
+    setSending(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/tickets/admin/${selectedTicket.id}/messages`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ content: replyText })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setReplyText('');
+        loadTicketDetail(selectedTicket.id);
+        notify.success('回复成功');
+      }
+    } catch {}
+    setSending(false);
+  }
+
+  async function updateTicketStatus(id, status) {
+    try {
+      const res = await fetch(`${API_BASE}/api/tickets/admin/${id}/status`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ status })
+      });
+      if (res.ok) {
+        loadTickets();
+        loadStats();
+        if (selectedTicket) loadTicketDetail(selectedTicket.id);
+        notify.success(`工单状态已更新为${status}`);
+      }
+    } catch {}
+  }
+
+  const statusLabels = { open: '待处理', in_progress: '处理中', resolved: '已解决', closed: '已关闭' };
+  const statusColors = { open: '#f9ff72', in_progress: '#42e6ff', resolved: '#78ffb9', closed: '#73859f' };
+  const categoryLabels = { bug: 'Bug反馈', feature: '功能建议', question: '使用疑问', account: '账号问题', payment: '支付问题', other: '其他' };
+
+  if (selectedTicket) {
+    return (
+      <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <h2 className="adminPageTitle" style={{ marginBottom: 0 }}>工单 #{selectedTicket.id}: {selectedTicket.title}</h2>
+          <button className="adminActionBtn" onClick={() => setSelectedTicket(null)}>返回列表</button>
+        </div>
+        <div style={{ marginBottom: '12px', display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <span style={{ color: statusColors[selectedTicket.status], fontSize: '12px', padding: '2px 8px', borderRadius: '10px', background: statusColors[selectedTicket.status] + '18' }}>
+            {statusLabels[selectedTicket.status]}
+          </span>
+          <span style={{ color: '#73859f', fontSize: '12px' }}>{categoryLabels[selectedTicket.category] || selectedTicket.category}</span>
+          <span style={{ color: '#73859f', fontSize: '12px' }}>用户: {selectedTicket.user?.nickname || selectedTicket.user?.email}</span>
+        </div>
+        <div style={{ maxHeight: '400px', overflowY: 'auto', marginBottom: '16px', padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px' }}>
+          {(selectedTicket.messages || []).map(msg => (
+            <div key={msg.id} style={{ marginBottom: '12px', display: 'flex', justifyContent: msg.senderType === 'admin' ? 'flex-end' : 'flex-start' }}>
+              <div style={{ maxWidth: '70%', padding: '10px 14px', borderRadius: '12px', background: msg.senderType === 'admin' ? 'rgba(66,230,255,0.15)' : 'rgba(255,255,255,0.06)', color: '#e0e6ed', fontSize: '14px' }}>
+                <div style={{ fontSize: '11px', color: '#73859f', marginBottom: '4px' }}>{msg.senderType === 'admin' ? '客服' : '用户'} · {new Date(msg.createdAt).toLocaleString('zh-CN')}</div>
+                {msg.content}
+              </div>
+            </div>
+          ))}
+        </div>
+        {selectedTicket.status !== 'closed' && (
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+            <input className="adminInput" value={replyText} onChange={e => setReplyText(e.target.value)} placeholder="输入回复内容..." style={{ flex: 1 }} onKeyDown={e => e.key === 'Enter' && replyToTicket()} />
+            <button className="adminPrimaryBtn" onClick={replyToTicket} disabled={sending}><Send size={14} /></button>
+          </div>
+        )}
+        <div style={{ display: 'flex', gap: '8px' }}>
+          {selectedTicket.status === 'open' && <button className="adminActionBtn" onClick={() => updateTicketStatus(selectedTicket.id, 'in_progress')}>开始处理</button>}
+          {selectedTicket.status === 'in_progress' && <button className="adminActionBtn" onClick={() => updateTicketStatus(selectedTicket.id, 'resolved')}>标记已解决</button>}
+          {selectedTicket.status !== 'closed' && <button className="adminActionBtn danger" onClick={() => updateTicketStatus(selectedTicket.id, 'closed')}>关闭工单</button>}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <h2 className="adminPageTitle">客服管理</h2>
+      <div className="adminStatGrid" style={{ marginBottom: '16px' }}>
+        <div className="adminStatCard"><div className="adminStatLabel">待处理</div><div className="adminStatValue" style={{ color: '#f9ff72' }}>{stats.open}</div></div>
+        <div className="adminStatCard"><div className="adminStatLabel">处理中</div><div className="adminStatValue" style={{ color: '#42e6ff' }}>{stats.inProgress}</div></div>
+        <div className="adminStatCard"><div className="adminStatLabel">已解决</div><div className="adminStatValue" style={{ color: '#78ffb9' }}>{stats.resolved}</div></div>
+        <div className="adminStatCard"><div className="adminStatLabel">已关闭</div><div className="adminStatValue" style={{ color: '#73859f' }}>{stats.closed}</div></div>
+      </div>
+      {loading ? <div style={{ color: '#73859f', padding: '20px' }}>加载中...</div> : (
+        <div className="adminTableWrap">
+          <table className="adminTable">
+            <thead>
+              <tr>{['ID', '标题', '用户', '分类', '状态', '消息数', '创建时间', '操作'].map(h => <th key={h}>{h}</th>)}</tr>
+            </thead>
+            <tbody>
+              {tickets.map(t => (
+                <tr key={t.id}>
+                  <td className="adminCellId">{t.id}</td>
+                  <td>{t.title}</td>
+                  <td className="adminCellMuted">{t.user?.nickname || t.user?.email}</td>
+                  <td className="adminCellMuted">{categoryLabels[t.category] || t.category}</td>
+                  <td><span style={{ color: statusColors[t.status] }}>{statusLabels[t.status]}</span></td>
+                  <td className="adminCellMuted">{t._count?.messages || 0}</td>
+                  <td className="adminCellMuted">{new Date(t.createdAt).toLocaleString('zh-CN')}</td>
+                  <td><button className="adminActionBtn" onClick={() => loadTicketDetail(t.id)}>查看</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function NotificationsAdminTab() {
+  const notify = useNotification();
+  const { getAuthHeaders } = useAuth();
+  const [form, setForm] = useState({ title: '', content: '', type: 'system', targetRole: 'all' });
+  const [history, setHistory] = useState([]);
+  const [stats, setStats] = useState({ total: 0, today: 0, thisWeek: 0 });
+  const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
+
+  useEffect(() => { loadHistory(); loadStats(); }, []);
+
+  async function loadHistory() {
+    setLoading(true);
+    try {
+      const res = await apiCall('/notifications/admin/history');
+      const data = await res.json();
+      if (data.success) setHistory(data.data?.notifications || []);
+    } catch {}
+    setLoading(false);
+  }
+
+  async function loadStats() {
+    try {
+      const res = await apiCall('/notifications/admin/stats');
+      const data = await res.json();
+      if (data.success) setStats(data.data);
+    } catch {}
+  }
+
+  async function sendNotification() {
+    if (!form.title || !form.content) {
+      notify.error('标题和内容不能为空');
+      return;
+    }
+    setSending(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/notifications/admin/send`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(form)
+      });
+      const data = await res.json();
+      if (data.success) {
+        notify.success('通知发送成功');
+        setForm({ title: '', content: '', type: 'system', targetRole: 'all' });
+        loadHistory();
+        loadStats();
+      } else {
+        notify.error(data.error || '发送失败');
+      }
+    } catch { notify.error('网络错误'); }
+    setSending(false);
+  }
+
+  const typeLabels = { system: '系统通知', activity: '活动通知', maintenance: '维护通知', payment: '支付通知' };
+  const roleLabels = { all: '所有人', user: '普通用户', admin: '管理员' };
+
+  return (
+    <div>
+      <h2 className="adminPageTitle">通知管理</h2>
+      <div className="adminStatGrid" style={{ marginBottom: '16px' }}>
+        <div className="adminStatCard"><div className="adminStatLabel">总通知数</div><div className="adminStatValue" style={{ color: '#42e6ff' }}>{stats.total}</div></div>
+        <div className="adminStatCard"><div className="adminStatLabel">今日发送</div><div className="adminStatValue" style={{ color: '#78ffb9' }}>{stats.today}</div></div>
+        <div className="adminStatCard"><div className="adminStatLabel">本周发送</div><div className="adminStatValue" style={{ color: '#f9ff72' }}>{stats.thisWeek}</div></div>
+      </div>
+      <div className="adminGrid2">
+        <div className="adminCard">
+          <h3 className="adminCardTitle">发送通知</h3>
+          <div className="adminFormField">
+            <label className="adminLabel">通知类型</label>
+            <select className="adminInput" value={form.type} onChange={e => setForm(p => ({ ...p, type: e.target.value }))}>
+              {Object.entries(typeLabels).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+            </select>
+          </div>
+          <div className="adminFormField">
+            <label className="adminLabel">目标受众</label>
+            <select className="adminInput" value={form.targetRole} onChange={e => setForm(p => ({ ...p, targetRole: e.target.value }))}>
+              {Object.entries(roleLabels).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+            </select>
+          </div>
+          <div className="adminFormField">
+            <label className="adminLabel">标题</label>
+            <input className="adminInput" value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} placeholder="通知标题" />
+          </div>
+          <div className="adminFormField">
+            <label className="adminLabel">内容</label>
+            <textarea className="adminInput" value={form.content} onChange={e => setForm(p => ({ ...p, content: e.target.value }))} placeholder="通知内容" rows={4} style={{ resize: 'vertical' }} />
+          </div>
+          <button className="adminPrimaryBtn" onClick={sendNotification} disabled={sending}>
+            <Send size={14} /> {sending ? '发送中...' : '发送通知'}
+          </button>
+        </div>
+        <div className="adminCard">
+          <h3 className="adminCardTitle">通知历史</h3>
+          {loading ? <div style={{ color: '#73859f' }}>加载中...</div> : (
+            history.length > 0 ? (
+              <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                {history.map(n => (
+                  <div key={n.id} style={{ padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <strong style={{ color: '#e0e6ed', fontSize: '14px' }}>{n.title}</strong>
+                      <span style={{ color: '#73859f', fontSize: '11px' }}>{new Date(n.createdAt).toLocaleString('zh-CN')}</span>
+                    </div>
+                    <div style={{ color: '#73859f', fontSize: '13px', marginTop: '4px' }}>{n.content}</div>
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '4px', fontSize: '11px', color: '#5a6a80' }}>
+                      <span>{typeLabels[n.type] || n.type}</span>
+                      <span>·</span>
+                      <span>{roleLabels[n.targetRole] || '所有人'}</span>
+                      <span>·</span>
+                      <span>已读率 {n.readRate}%</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : <div style={{ color: '#73859f', fontSize: '14px' }}>暂无通知历史</div>
+          )}
+        </div>
       </div>
     </div>
   );

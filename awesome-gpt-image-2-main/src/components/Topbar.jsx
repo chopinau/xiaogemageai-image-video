@@ -1,6 +1,6 @@
-﻿﻿﻿﻿﻿﻿import React, { useState, useEffect, useRef } from 'react';
+﻿﻿﻿﻿﻿import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { WandSparkles, Menu, X, User, CreditCard, Crown, Share2, LogOut, Shield } from 'lucide-react';
+import { WandSparkles, Menu, X, User, CreditCard, Crown, Share2, LogOut, Shield, Bell } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useCredits } from '../contexts/CreditsContext';
 import { useMember } from '../contexts/MemberContext';
@@ -12,7 +12,26 @@ export function Topbar({ language, setLanguage }) {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const userMenuRef = useRef(null);
+  const notifRef = useRef(null);
+
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const fetchUnread = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/notifications/unread-count`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` } });
+        const data = await res.json();
+        if (data.success) setUnreadCount(data.data.count);
+      } catch {}
+    };
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 60000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
 
   const handleLogout = async () => {
     await logout();
@@ -63,6 +82,32 @@ export function Topbar({ language, setLanguage }) {
           <div className="topbarCredits" onClick={() => navigate('/credits')} style={{ cursor: 'pointer' }}>
             <CreditCard size={14} />
             <span>{balance} 算力</span>
+          </div>
+        )}
+
+        {isAuthenticated && (
+          <div ref={notifRef} style={{ position: 'relative' }}>
+            <button onClick={() => setNotifOpen(!notifOpen)} style={{ background: 'none', border: 'none', color: '#73859f', cursor: 'pointer', position: 'relative', padding: '4px' }}>
+              <Bell size={18} />
+              {unreadCount > 0 && (
+                <span style={{ position: 'absolute', top: '-2px', right: '-4px', background: '#ff6b8a', color: '#fff', fontSize: '10px', fontWeight: 700, minWidth: '16px', height: '16px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
+            </button>
+            {notifOpen && (
+              <div style={{ position: 'absolute', right: 0, top: '100%', marginTop: '8px', width: '320px', background: '#0d1b2a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', boxShadow: '0 8px 32px rgba(0,0,0,0.4)', zIndex: 1000, overflow: 'hidden' }}>
+                <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: '#e0e6ed', fontWeight: 700, fontSize: '14px' }}>通知</span>
+                  <NavLink to="/dashboard" onClick={() => setNotifOpen(false)} style={{ color: '#42e6ff', fontSize: '12px', textDecoration: 'none' }}>查看全部</NavLink>
+                </div>
+                <div style={{ maxHeight: '300px', overflowY: 'auto', padding: '8px' }}>
+                  <div style={{ textAlign: 'center', padding: '20px', color: '#73859f', fontSize: '13px' }}>
+                    {unreadCount > 0 ? `${unreadCount} 条未读通知` : '暂无新通知'}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
