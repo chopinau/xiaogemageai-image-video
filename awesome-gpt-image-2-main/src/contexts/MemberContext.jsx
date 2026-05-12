@@ -1,10 +1,10 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { getPlanById, canUseFeature, getAvailableModels } from '../config/membership';
 
 const MemberContext = createContext(null);
 
-const IS_DEMO = !import.meta.env.VITE_API_URL;
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 
 export function MemberProvider({ children }) {
   const { user, getAuthHeaders } = useAuth();
@@ -16,6 +16,15 @@ export function MemberProvider({ children }) {
       return { planId: 'free', expiresAt: null, status: 'active' };
     }
   });
+
+  useEffect(() => {
+    if (user?.membership) {
+      const planId = user.membership || 'free';
+      const expiresAt = user.membershipExpire || null;
+      setMembership({ planId, status: 'active', expiresAt });
+      localStorage.setItem('membership_status', JSON.stringify({ planId, status: 'active', expiresAt }));
+    }
+  }, [user]);
 
   const currentPlan = getPlanById(membership.planId);
   const isExpired = membership.expiresAt && new Date(membership.expiresAt) < new Date();
@@ -39,23 +48,18 @@ export function MemberProvider({ children }) {
 
   const subscribe = useCallback(async (planId, paymentMethod) => {
     try {
-      if (IS_DEMO) {
-        await new Promise(r => setTimeout(r, 800));
-        const plan = getPlanById(planId);
-        const expiresAt = new Date();
-        expiresAt.setMonth(expiresAt.getMonth() + 1);
-        updateMembership({ planId, status: 'active', expiresAt: expiresAt.toISOString() });
-        return { success: true, data: { planId, expiresAt: expiresAt.toISOString() } };
-      }
-      const response = await fetch('/api/membership/subscribe', {
+      const response = await fetch(`${API_BASE}/api/payments/recharge/create`, {
         method: 'POST',
         headers: getAuthHeaders(),
-        body: JSON.stringify({ planId, paymentMethod })
+        body: JSON.stringify({ type: 'membership', planId, paymentMethod })
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message || '订阅失败');
-      updateMembership({ planId, status: 'active', expiresAt: data.expiresAt });
-      return { success: true, data };
+      if (!data.success) throw new Error(data.error || '订阅失败');
+      const plan = getPlanById(planId);
+      const expiresAt = new Date();
+      expiresAt.setMonth(expiresAt.getMonth() + 1);
+      updateMembership({ planId, status: 'active', expiresAt: expiresAt.toISOString() });
+      return { success: true, data: { planId, expiresAt: expiresAt.toISOString() } };
     } catch (err) {
       return { success: false, error: err.message };
     }
@@ -63,23 +67,12 @@ export function MemberProvider({ children }) {
 
   const cancelSubscription = useCallback(async () => {
     try {
-      if (IS_DEMO) {
-        await new Promise(r => setTimeout(r, 500));
-        updateMembership({ status: 'cancelled', cancelAtPeriodEnd: true });
-        return { success: true };
-      }
-      const response = await fetch('/api/membership/cancel', {
-        method: 'POST',
-        headers: getAuthHeaders()
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || '取消失败');
       updateMembership({ status: 'cancelled', cancelAtPeriodEnd: true });
       return { success: true };
     } catch (err) {
       return { success: false, error: err.message };
     }
-  }, [getAuthHeaders, updateMembership]);
+  }, [updateMembership]);
 
   const value = {
     membership,

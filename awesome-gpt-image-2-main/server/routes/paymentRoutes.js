@@ -2,114 +2,135 @@ import express from 'express';
 import WechatPayService from '../services/wechatPayService.js';
 import AlipayService from '../services/alipayService.js';
 import * as PricingEngine from '../services/pricingEngine.js';
-import CreditsManager from '../services/creditsManager.js';
-import PaymentOrderManager from '../services/paymentOrderManager.js';
+import * as CreditsService from '../services/creditsService.js';
+import * as OrderService from '../services/orderService.js';
+import { authMiddleware, optionalAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
 const wechatPay = new WechatPayService();
 const alipayService = new AlipayService();
 
-const userCreditsStore = {
-  data: {},
-  async get(userId) { return this.data[userId] || { balance: 0, monthlyCredits: 0, bonusCredits: 0, pendingDeductions: [] }; },
-  async set(userId, data) { this.data[userId] = data; },
-  async update(userId, updates) {
-    if (!this.data[userId]) this.data[userId] = { balance: 0, monthlyCredits: 0, bonusCredits: 0, pendingDeductions: [] };
-    this.data[userId] = { ...this.data[userId], ...updates };
-  }
-};
-
-const orderStore = {
-  data: {},
-  async get(orderId) { return this.data[orderId] || null; },
-  async set(orderId, data) { this.data[orderId] = data; },
-  async getAll() { return { ...this.data }; }
-};
-
-const creditsManager = new CreditsManager(userCreditsStore);
-const paymentOrderManager = new PaymentOrderManager(orderStore);
-
-router.post('/recharge/create', async (req, res) => {
+router.post('/recharge/create', authMiddleware, async (req, res) => {
   try {
-    const { packId, paymentMethod, userId } = req.body;
-    if (!packId || !paymentMethod || !userId) return res.status(400).json({ error: '缺少必要参数' });
+    const { packId, paymentMethod, amount, credits, type, planId } = req.body;
+    const userId = req.user.id;
 
-    const pack = PricingEngine.getPackById(packId);
-    if (!pack) return res.status(400).json({ error: '积分包不存在' });
+    if (!paymentMethod) return res.status(400).json({ success: false, error: '请选择支付方式' });
 
-    const totalCredits = pack.credits + (pack.bonus || 0);
+    let orderAmount = amount;
+    let orderCredits = credits || 0;
+    let product = '算力充值';
 
-    const orderResult = await paymentOrderManager.createOrder(userId, {
-      type: 'recharge', paymentMethod, amount: pack.price, credits: totalCredits,
-      bonus: pack.bonus || 0, description: pack.label, metadata: { packId }
-    });
+    if (packId) {
+      const packs = [
+        { id: 'pack-10', credits: 10, price: 10, bonus: 0, label: '10算力包' },
+        { id: 'pack-50', credits: 50, price: 50, bonus: 2, label: '50算力包' },
+        { id: 'pack-200', credits: 200, price: 200, bonus: 10, label: '200算力包' },
+        { id: 'pack-500', credits: 500, price: 500, bonus: 30, label: '500算力包' }
+      ];
+      const pack = packs.find(p => p.id === packId);
+      if (!pack) return res.status(400).json({ success: false, error: '算力包不存在' });
+      orderAmount = pack.price;
+      orderCredits = pack.credits + pack.bonus;
+      product = pack.label;
+    } else if (type === 'membership' && planId) {
+      const plans = { basic: 29, pro: 99, enterprise: 299 };
+      orderAmount = plans[planId] || 0;
+      orderCredits = 0;
+      product = `${planId}会员订阅`;
+    }
 
-    if (!orderResult.success) return res.status(500).json({ error: '创建订单失败' });
+    if (!orderAmount || orderAmount <= 0) {
+      return res.status(400).json({ success: false, error: '订单金额无效' });
+    }
+
+    const order = await OrderService.createOrder(userId, type || 'recharge', product, orderAmount, orderCredits, paymentMethod);
 
     let payResult;
     if (paymentMethod === 'wechat') {
-      payResult = await wechatPay.createOrder({ outTradeNo: orderResult.outTradeNo, description: pack.label, amount: pack.price, clientIp: req.ip });
+      payResult = await wechatPay.createOrder({
+        outTradeNo: order.orderId,
+        description: product,
+        amount: orderAmount,
+        clientIp: req.ip
+      });
     } else if (paymentMethod === 'alipay') {
-      payResult = await alipayService.createWebOrder({ outTradeNo: orderResult.outTradeNo, amount: pack.price, subject: pack.label, body: `充值 ${totalCredits} 积分`, userId });
+      payResult = await alipayService.createWebOrder({
+        outTradeNo: order.orderId,
+        amount: orderAmount,
+        subject: product,
+        body: `充值 ${orderCredits} 算力`,
+        userId
+      });
     } else {
-      return res.status(400).json({ error: '不支持的支付方式' });
+      return res.status(400).json({ success: false, error: '不支持的支付方式' });
     }
 
     if (payResult.success) {
-      await paymentOrderManager.updateOrderStatus(orderResult.orderId, 'pending', { payUrl: payResult.payUrl, qrCode: payResult.qrCode });
-      res.json({ success: true, orderId: orderResult.orderId, outTradeNo: orderResult.outTradeNo, payUrl: payResult.payUrl, qrCode: payResult.qrCode, pack, totalCredits });
+      res.json({
+        success: true,
+        data: {
+          orderId: order.orderId,
+          payUrl: payResult.payUrl,
+          qrCode: payResult.qrCode,
+          amount: orderAmount,
+          credits: orderCredits
+        }
+      });
     } else {
-      res.status(500).json({ error: '创建支付订单失败', detail: payResult.error });
+      await OrderService.updateOrderStatus(order.orderId, 'failed');
+      res.status(500).json({ success: false, error: '创建支付订单失败', detail: payResult.error });
     }
   } catch (error) {
     console.error('[PaymentRoutes] Create recharge error:', error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
-router.post('/generation/pre-deduct', async (req, res) => {
+router.post('/generation/pre-deduct', authMiddleware, async (req, res) => {
   try {
-    const { userId, type, model, params } = req.body;
-    if (!userId || !type || !model) return res.status(400).json({ error: '缺少必要参数' });
+    const { type, model, params } = req.body;
+    const userId = req.user.id;
+    if (!type || !model) return res.status(400).json({ success: false, error: '缺少必要参数' });
 
     const cost = PricingEngine.calculateCost(type, model, params);
-    if (cost <= 0) return res.status(400).json({ error: '无法计算费用' });
+    if (cost <= 0) return res.status(400).json({ success: false, error: '无法计算费用' });
 
-    const userCredits = await creditsManager.getUserCredits(userId);
-    if (userCredits.total < cost) {
-      return res.json({ success: false, error: '积分不足', currentBalance: userCredits.total, requiredAmount: cost, needRecharge: true });
+    const balance = await CreditsService.getBalance(userId);
+    if (balance < cost) {
+      return res.json({ success: false, error: '积分不足', currentBalance: balance, requiredAmount: cost, needRecharge: true });
     }
 
-    const result = await creditsManager.preDeduct(userId, cost, `${type}生成 - ${model}`, `${type}_${model}_${Date.now()}`);
-    res.json(result);
+    const result = await CreditsService.preDeduct(userId, cost);
+    res.json({ success: true, ...result });
   } catch (error) {
     console.error('[PaymentRoutes] Pre-deduct error:', error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
-router.post('/generation/confirm', async (req, res) => {
+router.post('/generation/confirm', authMiddleware, async (req, res) => {
   try {
     const { deductionId } = req.body;
-    if (!deductionId) return res.status(400).json({ error: '缺少预扣费ID' });
-    const result = await creditsManager.confirmDeduct(deductionId);
-    res.json(result);
+    if (!deductionId) return res.status(400).json({ success: false, error: '缺少预扣费ID' });
+    const result = await CreditsService.confirmDeduct(deductionId);
+    res.json({ success: true, ...result });
   } catch (error) {
     console.error('[PaymentRoutes] Confirm deduct error:', error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
-router.post('/generation/rollback', async (req, res) => {
+router.post('/generation/rollback', authMiddleware, async (req, res) => {
   try {
     const { deductionId } = req.body;
-    if (!deductionId) return res.status(400).json({ error: '缺少预扣费ID' });
-    const result = await creditsManager.rollbackDeduct(deductionId);
-    res.json(result);
+    if (!deductionId) return res.status(400).json({ success: false, error: '缺少预扣费ID' });
+    const result = await CreditsService.rollbackDeduct(deductionId);
+    res.json({ success: true, ...result });
   } catch (error) {
     console.error('[PaymentRoutes] Rollback deduct error:', error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
@@ -117,21 +138,15 @@ router.post('/wechat/notify', async (req, res) => {
   try {
     const body = req.body;
     const headers = req.headers;
-
     const isValid = wechatPay.verifyNotify(JSON.stringify(body), headers);
     if (!isValid) return res.status(400).json({ code: 'FAIL', message: '签名验证失败' });
 
     const decrypted = wechatPay.decryptNotify(body.resource.associated_data, body.resource.nonce, body.resource.ciphertext);
-    const { out_trade_no, trade_state, amount } = decrypted;
+    const { out_trade_no, trade_state } = decrypted;
 
     if (trade_state === 'SUCCESS') {
-      const order = await paymentOrderManager.getOrderByOutTradeNo(out_trade_no);
-      if (order && order.status === 'pending') {
-        await paymentOrderManager.updateOrderStatus(order.id, 'paid', { transactionId: decrypted.transaction_id, paidAmount: amount.total / 100 });
-        await creditsManager.addCredits(order.userId, order.credits, `支付成功 - ${order.description}`, 'recharge');
-      }
+      await OrderService.handlePaymentSuccess(out_trade_no, decrypted.transaction_id);
     }
-
     res.json({ code: 'SUCCESS', message: '成功' });
   } catch (error) {
     console.error('[PaymentRoutes] Wechat notify error:', error);
@@ -146,15 +161,9 @@ router.post('/alipay/notify', async (req, res) => {
     if (!isValid) return res.status(400).send('fail');
 
     const { out_trade_no, trade_status } = body;
-
     if (trade_status === 'TRADE_SUCCESS' || trade_status === 'TRADE_FINISHED') {
-      const order = await paymentOrderManager.getOrderByOutTradeNo(out_trade_no);
-      if (order && order.status === 'pending') {
-        await paymentOrderManager.updateOrderStatus(order.id, 'paid', { tradeNo: body.trade_no, paidAmount: parseFloat(body.total_amount) });
-        await creditsManager.addCredits(order.userId, order.credits, `支付成功 - ${order.description}`, 'recharge');
-      }
+      await OrderService.handlePaymentSuccess(out_trade_no, body.trade_no);
     }
-
     res.send('success');
   } catch (error) {
     console.error('[PaymentRoutes] Alipay notify error:', error);
@@ -162,20 +171,20 @@ router.post('/alipay/notify', async (req, res) => {
   }
 });
 
-router.get('/credits/:userId', async (req, res) => {
+router.get('/credits/:userId', authMiddleware, async (req, res) => {
   try {
-    const credits = await creditsManager.getUserCredits(req.params.userId);
-    res.json({ success: true, data: credits });
-  } catch (error) { res.status(500).json({ error: error.message }); }
+    const balance = await CreditsService.getBalance(req.user.id);
+    res.json({ success: true, data: { balance } });
+  } catch (error) { res.status(500).json({ success: false, error: error.message }); }
 });
 
-router.get('/orders/:userId', async (req, res) => {
+router.get('/orders/:userId', authMiddleware, async (req, res) => {
   try {
-    const orders = await paymentOrderManager.getUserOrders(req.params.userId, {
-      page: parseInt(req.query.page) || 1, limit: parseInt(req.query.limit) || 20, status: req.query.status
-    });
-    res.json({ success: true, data: orders });
-  } catch (error) { res.status(500).json({ error: error.message }); }
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const result = await OrderService.getUserOrders(req.user.id, page, limit);
+    res.json({ success: true, data: result });
+  } catch (error) { res.status(500).json({ success: false, error: error.message }); }
 });
 
 router.get('/pricing', async (req, res) => {
@@ -190,25 +199,16 @@ router.get('/pricing', async (req, res) => {
       const models = PricingEngine.getAllModels();
       res.json({ success: true, data: models });
     }
-  } catch (error) { res.status(500).json({ error: error.message }); }
+  } catch (error) { res.status(500).json({ success: false, error: error.message }); }
 });
 
-router.post('/pricing/update', async (req, res) => {
+router.get('/transaction-history/:userId', authMiddleware, async (req, res) => {
   try {
-    const { category, modelId, resolution, price } = req.body;
-    const success = PricingEngine.updateModelPrice(category, modelId, resolution, price);
-    if (success) res.json({ success: true, message: '价格更新成功' });
-    else res.status(400).json({ error: '更新失败' });
-  } catch (error) { res.status(500).json({ error: error.message }); }
-});
-
-router.get('/transaction-history/:userId', async (req, res) => {
-  try {
-    const history = await creditsManager.getTransactionHistory(req.params.userId, {
-      page: parseInt(req.query.page) || 1, limit: parseInt(req.query.limit) || 20, type: req.query.type
-    });
-    res.json({ success: true, data: history });
-  } catch (error) { res.status(500).json({ error: error.message }); }
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const result = await CreditsService.getHistory(req.user.id, page, limit);
+    res.json({ success: true, data: result });
+  } catch (error) { res.status(500).json({ success: false, error: error.message }); }
 });
 
 export default router;

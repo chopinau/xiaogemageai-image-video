@@ -16,6 +16,9 @@ import uploadRoutes from './routes/uploadRoutes.js';
 import psdLayerRoutes from './routes/psdLayerRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import pricingAdminRoutes from './routes/pricingAdminRoutes.js';
+import authRoutes from './routes/authRoutes.js';
+import creditsRoutes from './routes/creditsRoutes.js';
+import usageRoutes from './routes/usageRoutes.js';
 import { rateLimitMiddleware } from './middleware/rateLimit.js';
 import { errorHandler } from './utils/errorHandler.js';
 import apiProtection from './services/apiProtectionService.js';
@@ -53,6 +56,9 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/psd-layer', psdLayerRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/pricing-admin', pricingAdminRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/credits', creditsRoutes);
+app.use('/api/usage', usageRoutes);
 
 app.get('/api/models', (req, res) => {
   res.json({

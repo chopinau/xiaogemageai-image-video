@@ -6,24 +6,9 @@ const TOKEN_KEY = 'auth_token';
 const REFRESH_TOKEN_KEY = 'auth_refresh_token';
 const USER_KEY = 'auth_user';
 
-const DEMO_ACCOUNTS = {
-  'admin@ai.com': {
-    password: 'admin123',
-    user: { id: 1, email: 'admin@ai.com', nickname: '管理员', role: 'admin', avatar: null, phone: '138****8888', registeredAt: '2024-01-01' }
-  },
-  'test@ai.com': {
-    password: 'test123',
-    user: { id: 2, email: 'test@ai.com', nickname: '测试用户', role: 'user', avatar: null, phone: '139****6666', registeredAt: '2024-03-15' },
-    initialCredits: 100.00
-  },
-  'demo@ai.com': {
-    password: 'demo123',
-    user: { id: 3, email: 'demo@ai.com', nickname: '演示体验用户', role: 'user', avatar: null, phone: '137****1234', registeredAt: '2024-05-01' },
-    initialCredits: 50.00
-  }
-};
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 
-const IS_DEMO = !import.meta.env.VITE_API_URL;
+const HAS_BACKEND = true;
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
@@ -67,46 +52,17 @@ export function AuthProvider({ children }) {
     setIsLoading(true);
     setError(null);
     try {
-      if (IS_DEMO) {
-        await new Promise(r => setTimeout(r, 600));
-
-        const demoAccount = DEMO_ACCOUNTS[email.toLowerCase()];
-        if (demoAccount) {
-          if (demoAccount.password !== password) {
-            throw new Error('密码错误');
-          }
-          const demoToken = 'demo_token_' + Date.now();
-          saveAuth(demoAccount.user, demoToken, 'demo_refresh_' + Date.now());
-
-          const hasCredits = localStorage.getItem('credits_balance');
-          if (!hasCredits && demoAccount.initialCredits) {
-            localStorage.setItem('credits_balance', String(demoAccount.initialCredits));
-          }
-
-          return { success: true, user: demoAccount.user };
-        }
-
-        if (email && password.length >= 4) {
-          const newUser = { id: Date.now(), email, nickname: email.split('@')[0], role: 'user', avatar: null, registeredAt: new Date().toISOString().split('T')[0] };
-          const demoToken = 'demo_token_' + Date.now();
-          saveAuth(newUser, demoToken, 'demo_refresh_' + Date.now());
-          localStorage.setItem('credits_balance', '2.00');
-          return { success: true, user: newUser };
-        }
-
-        throw new Error('邮箱或密码错误');
-      }
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch(`${API_BASE}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });
       const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || '登录失败');
+      if (!data.success) {
+        throw new Error(data.error || '登录失败');
       }
-      saveAuth(data.user, data.token, data.refreshToken);
-      return { success: true, user: data.user };
+      saveAuth(data.data.user, data.data.accessToken, data.data.refreshToken);
+      return { success: true, user: data.data.user };
     } catch (err) {
       setError(err.message);
       return { success: false, error: err.message };
@@ -119,33 +75,21 @@ export function AuthProvider({ children }) {
     setIsLoading(true);
     setError(null);
     try {
-      if (IS_DEMO) {
-        await new Promise(r => setTimeout(r, 600));
-        const newUser = {
-          id: Date.now(),
-          email: userData.email,
-          nickname: userData.nickname || userData.email.split('@')[0],
-          phone: userData.phone,
-          role: 'user',
-          avatar: null,
-          registeredAt: new Date().toISOString().split('T')[0]
-        };
-        const demoToken = 'demo_token_' + Date.now();
-        saveAuth(newUser, demoToken, 'demo_refresh_' + Date.now());
-        localStorage.setItem('credits_balance', '2.00');
-        return { success: true, user: newUser };
-      }
-      const response = await fetch('/api/auth/register', {
+      const response = await fetch(`${API_BASE}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userData)
+        body: JSON.stringify({
+          email: userData.email,
+          password: userData.password,
+          nickname: userData.nickname || userData.email?.split('@')[0]
+        })
       });
       const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || '注册失败');
+      if (!data.success) {
+        throw new Error(data.error || '注册失败');
       }
-      saveAuth(data.user, data.token, data.refreshToken);
-      return { success: true, user: data.user };
+      saveAuth(data.data.user, data.data.accessToken, data.data.refreshToken);
+      return { success: true, user: data.data.user };
     } catch (err) {
       setError(err.message);
       return { success: false, error: err.message };
@@ -155,42 +99,55 @@ export function AuthProvider({ children }) {
   }, [saveAuth]);
 
   const logout = useCallback(async () => {
-    if (!IS_DEMO) {
-      try {
-        await fetch('/api/auth/logout', {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-      } catch { /* ignore */ }
-    }
     clearAuth();
-  }, [token, clearAuth]);
+  }, [clearAuth]);
 
   const refreshTokenFn = useCallback(async () => {
-    if (IS_DEMO) return true;
     const rt = localStorage.getItem(REFRESH_TOKEN_KEY);
     if (!rt) {
       clearAuth();
       return false;
     }
     try {
-      const response = await fetch('/api/auth/refresh', {
+      const response = await fetch(`${API_BASE}/api/auth/refresh`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ refreshToken: rt })
       });
       const data = await response.json();
-      if (!response.ok) {
+      if (!data.success) {
         clearAuth();
         return false;
       }
-      saveAuth(data.user, data.token, data.refreshToken);
+      localStorage.setItem(TOKEN_KEY, data.data.accessToken);
+      if (data.data.refreshToken) {
+        localStorage.setItem(REFRESH_TOKEN_KEY, data.data.refreshToken);
+      }
+      setToken(data.data.accessToken);
       return true;
     } catch {
       clearAuth();
       return false;
     }
-  }, [saveAuth, clearAuth]);
+  }, [clearAuth]);
+
+  const fetchMe = useCallback(async () => {
+    if (!token) return null;
+    try {
+      const response = await fetch(`${API_BASE}/api/auth/me`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (data.success) {
+        setUser(data.data);
+        localStorage.setItem(USER_KEY, JSON.stringify(data.data));
+        return data.data;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }, [token]);
 
   const updateProfile = useCallback((updates) => {
     setUser((prev) => {
@@ -214,11 +171,11 @@ export function AuthProvider({ children }) {
     register,
     logout,
     refreshToken: refreshTokenFn,
+    fetchMe,
     updateProfile,
     getAuthHeaders,
     clearError: () => setError(null),
-    isDemo: IS_DEMO,
-    demoAccounts: DEMO_ACCOUNTS
+    hasBackend: HAS_BACKEND
   };
 
   return (
