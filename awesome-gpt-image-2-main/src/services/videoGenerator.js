@@ -32,11 +32,12 @@ export class VideoGenerator {
         body: JSON.stringify(params)
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
       const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        const errorMsg = result.error || result.message || `HTTP error! status: ${response.status}`;
+        throw new Error(errorMsg);
+      }
 
       if (result.taskId) {
         return {
@@ -92,11 +93,12 @@ export class VideoGenerator {
         })
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
       const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        const errorMsg = result.error || result.message || `HTTP error! status: ${response.status}`;
+        throw new Error(errorMsg);
+      }
 
       if (result.taskId) {
         return {

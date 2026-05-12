@@ -1,10 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Send, Paperclip, X, Settings2, User, SlidersHorizontal, Wand2, Minus, Plus, DollarSign } from 'lucide-react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { ChevronDown, Send, Paperclip, X, User, Minus, Plus, DollarSign } from 'lucide-react';
 import { getModelById, getModelsByCategory } from '../config/models';
 import { calculateComputeCost, formatCredits } from '../config/modelPricing';
-import { DynamicParamPanel } from './DynamicParamPanel';
-import { getModelParams, getModelParamDefaults } from '../config/modelParams';
-import { getActiveProfile, API_KEY_PROFILES } from '../config/apiKeys';
+import { getModelParams, getModelParamDefaults, getModelGroups } from '../config/modelParams';
+import { getActiveProfile } from '../config/apiKeys';
 
 export function ModelSelector({ currentModel, currentCategory, onModelChange }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -46,110 +45,111 @@ export function ModelSelector({ currentModel, currentCategory, onModelChange }) 
   );
 }
 
-function QuickParamChip({ param, value, onChange }) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef(null);
-
-  useEffect(() => {
-    const handler = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
-
-  const currentOption = param.options?.find(o => o.value === value);
-  const label = currentOption?.label || value || param.label;
-
+function ParamSelectRow({ param, value, onChange }) {
   return (
-    <div className="paramChipWrap" ref={ref}>
-      <button
-        className={`paramChip ${value !== param.default ? 'tweaked' : ''} ${open ? 'open' : ''}`}
-        onClick={() => setOpen(!open)}
-        title={param.label}
-      >
-        <span className="paramChipIcon">
-          <SlidersHorizontal size={10} />
-        </span>
-        <span className="paramChipLabel">{label}</span>
-        <ChevronDown size={8} className={`paramChipChevron ${open ? 'flip' : ''}`} />
-      </button>
-      {open && param.options && (
-        <div className="paramChipDropdown">
-          {param.options.map(opt => (
-            <button
-              key={String(opt.value)}
-              className={`paramChipOption ${value === opt.value ? 'selected' : ''}`}
-              onClick={() => { onChange(param.id, opt.value); setOpen(false); }}
-            >
-              <span>{opt.label}</span>
-              {opt.detail && <span className="paramChipOptionDetail">{opt.detail}</span>}
-            </button>
-          ))}
-        </div>
-      )}
+    <div className="npField">
+      <div className="npFieldLabel">
+        <span>{param.label}</span>
+        {param.help && <span className="npFieldHelp" title={param.help}>ⓘ</span>}
+      </div>
+      <div className="npOptionGrid">
+        {param.options.map(opt => (
+          <button
+            key={String(opt.value)}
+            className={`npOptionBtn ${value === opt.value ? 'selected' : ''}`}
+            onClick={() => onChange(param.id, opt.value)}
+            title={opt.detail || opt.label}
+          >
+            <span className="npOptLabel">{opt.label}</span>
+            {opt.detail && <span className="npOptDetail">{opt.detail}</span>}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
 
-function QuickToggleChip({ param, value, onChange }) {
+function ParamToggleRow({ param, value, onChange }) {
   return (
-    <button
-      className={`paramChip paramChipToggle ${value ? 'tweaked on' : ''}`}
-      onClick={() => onChange(param.id, !value)}
-      title={param.help || param.label}
-    >
-      <span className="paramChipIcon">
-        <Wand2 size={10} />
-      </span>
-      <span className="paramChipLabel">{param.label}</span>
-    </button>
+    <div className="npField npFieldRow">
+      <div className="npFieldLabel">
+        <span>{param.label}</span>
+        {param.help && <span className="npFieldHelp" title={param.help}>ⓘ</span>}
+      </div>
+      <button
+        className={`npToggle ${value ? 'on' : ''}`}
+        onClick={() => onChange(param.id, !value)}
+      >
+        <span className="npToggleKnob" />
+      </button>
+    </div>
   );
 }
 
-function CounterChip({ param, value, onChange }) {
+function ParamCounterRow({ param, value, onChange }) {
   const val = value ?? param.default;
   const min = param.range?.min || 1;
   const max = param.range?.max || 4;
-
   return (
-    <div className="paramChip counterChip">
-      <button
-        className="counterChipBtn"
-        onClick={() => onChange(param.id, Math.max(min, val - 1))}
-        disabled={val <= min}
-      >
-        <Minus size={10} />
-      </button>
-      <span className="counterChipValue">×{val}</span>
-      <button
-        className="counterChipBtn"
-        onClick={() => onChange(param.id, Math.min(max, val + 1))}
-        disabled={val >= max}
-      >
-        <Plus size={10} />
-      </button>
+    <div className="npField npFieldRow">
+      <div className="npFieldLabel">
+        <span>{param.label}</span>
+        {param.help && <span className="npFieldHelp" title={param.help}>ⓘ</span>}
+      </div>
+      <div className="npCounter">
+        <button className="npCounterBtn" onClick={() => onChange(param.id, Math.max(min, val - 1))} disabled={val <= min}>
+          <Minus size={12} />
+        </button>
+        <span className="npCounterVal">{val}</span>
+        <button className="npCounterBtn" onClick={() => onChange(param.id, Math.min(max, val + 1))} disabled={val >= max}>
+          <Plus size={12} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function ParamSliderRow({ param, value, onChange }) {
+  const { min, max, step } = param.range;
+  return (
+    <div className="npField">
+      <div className="npFieldLabel">
+        <span>{param.label}</span>
+        <span className="npFieldValue">{value}</span>
+      </div>
+      <input
+        type="range" className="npSlider"
+        min={min} max={max} step={step} value={value}
+        onChange={(e) => onChange(param.id, parseFloat(e.target.value))}
+      />
+    </div>
+  );
+}
+
+function ParamInputRow({ param, value, onChange }) {
+  return (
+    <div className="npField">
+      <div className="npFieldLabel">
+        <span>{param.label}</span>
+      </div>
+      <input
+        type="text" className="npInput"
+        value={value || ''}
+        placeholder={param.placeholder || ''}
+        onChange={(e) => onChange(param.id, e.target.value)}
+      />
     </div>
   );
 }
 
 export function FloatingCommandBar({
-  prompt,
-  onPromptChange,
-  onSend,
-  onFileUpload,
-  currentModel,
-  currentCategory,
-  onModelChange,
-  modelParams,
-  onParamChange,
-  isGenerating,
-  refImageUrl,
-  onRemoveRef,
-  canSend,
-  onOpenPricing
+  prompt, onPromptChange, onSend, onFileUpload,
+  currentModel, currentCategory, onModelChange,
+  modelParams, onParamChange, isGenerating,
+  refImageUrl, onRemoveRef, canSend, onOpenPricing
 }) {
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [panelOpen, setPanelOpen] = useState(true);
+  const [activeGroup, setActiveGroup] = useState(null);
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
 
@@ -157,6 +157,15 @@ export function FloatingCommandBar({
   const cost = calculateComputeCost(currentModel, modelParams);
   const paramConfig = getModelParams(currentModel);
   const activeProfile = getActiveProfile();
+
+  const groups = paramConfig ? getModelGroups(currentModel) : [];
+  const allParams = paramConfig?.params || [];
+
+  useEffect(() => {
+    if (groups.length > 0 && !activeGroup) {
+      setActiveGroup(groups[0].id);
+    }
+  }, [currentModel, groups, activeGroup]);
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -172,24 +181,26 @@ export function FloatingCommandBar({
     }
   };
 
-  const renderQuickParam = (param) => {
-    const value = modelParams?.[param.id];
-    if (param.type === 'toggle') {
-      return <QuickToggleChip key={param.id} param={param} value={!!value} onChange={onParamChange} />;
+  const handleChange = useCallback((paramId, value) => {
+    if (onParamChange) onParamChange(paramId, value);
+  }, [onParamChange]);
+
+  const renderParam = (param) => {
+    const value = modelParams?.[param.id] !== undefined ? modelParams[param.id] : param.default;
+    const props = { param, value, onChange: handleChange };
+    switch (param.type) {
+      case 'select': return <ParamSelectRow key={param.id} {...props} />;
+      case 'toggle': return <ParamToggleRow key={param.id} {...props} />;
+      case 'counter': return <ParamCounterRow key={param.id} {...props} />;
+      case 'slider': return <ParamSliderRow key={param.id} {...props} />;
+      case 'input': return <ParamInputRow key={param.id} {...props} />;
+      default: return null;
     }
-    if (param.type === 'counter') {
-      return <CounterChip key={param.id} param={param} value={value} onChange={onParamChange} />;
-    }
-    if (param.type === 'select' && param.options?.length > 0) {
-      return <QuickParamChip key={param.id} param={param} value={value ?? param.default} onChange={onParamChange} />;
-    }
-    return null;
   };
 
-  const quickParams = paramConfig?.params?.filter(p =>
-    p.type === 'select' || p.type === 'toggle' || p.type === 'counter'
-  ) || [];
-  const hasAdvanced = paramConfig?.params?.some(p => p.type === 'slider' || p.type === 'input') || quickParams.length > 4;
+  const activeGroupParams = activeGroup
+    ? allParams.filter(p => p.group === activeGroup)
+    : allParams;
 
   return (
     <div className="floatingCommandBar">
@@ -203,32 +214,46 @@ export function FloatingCommandBar({
         </div>
       )}
 
-      <div className="fcbParamsBar">
-        <div className="fcbQuickParams">
-          {quickParams.slice(0, 4).map(renderQuickParam)}
-          {hasAdvanced && (
-            <button
-              className={`paramChip paramChipMore ${showAdvanced ? 'tweaked' : ''}`}
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              title="高级参数"
-            >
-              <span className="paramChipIcon">
-                <Settings2 size={10} />
-              </span>
-              <span className="paramChipLabel">高级</span>
-              <ChevronDown size={8} className={`paramChipChevron ${showAdvanced ? 'flip' : ''}`} />
+      {paramConfig && panelOpen && (
+        <div className="npPanel">
+          <div className="npHeader">
+            <div className="npTabs">
+              {groups.map(g => (
+                <button
+                  key={g.id}
+                  className={`npTab ${activeGroup === g.id ? 'active' : ''}`}
+                  onClick={() => setActiveGroup(g.id)}
+                >
+                  <span className="npTabIcon">{g.icon}</span>
+                  <span className="npTabLabel">{g.label}</span>
+                </button>
+              ))}
+            </div>
+            <button className="npCollapseBtn" onClick={() => setPanelOpen(false)} title="收起参数">
+              <ChevronDown size={14} />
             </button>
-          )}
+          </div>
+          <div className="npBody">
+            {activeGroupParams.map(renderParam)}
+          </div>
         </div>
-      </div>
+      )}
 
-      {showAdvanced && paramConfig && (
-        <div className="fcbAdvancedPanel">
-          <DynamicParamPanel
-            modelId={currentModel}
-            values={modelParams}
-            onChange={onParamChange}
-          />
+      {!panelOpen && paramConfig && (
+        <div className="npCollapsedBar">
+          {allParams.slice(0, 3).map(p => {
+            const val = modelParams?.[p.id] !== undefined ? modelParams[p.id] : p.default;
+            const opt = p.options?.find(o => o.value === val);
+            const display = opt?.label || (p.type === 'toggle' ? (val ? '开' : '关') : val);
+            return (
+              <span key={p.id} className="npCollapsedTag" onClick={() => setPanelOpen(true)}>
+                {p.label}: {display}
+              </span>
+            );
+          })}
+          <button className="npExpandBtn" onClick={() => setPanelOpen(true)} title="展开参数">
+            <ChevronDown size={12} style={{ transform: 'rotate(180deg)' }} />
+          </button>
         </div>
       )}
 
@@ -236,7 +261,6 @@ export function FloatingCommandBar({
         <div className="fcbAvatar">
           <User size={16} />
         </div>
-
         <textarea
           ref={textareaRef}
           className="fcbInput"
@@ -253,34 +277,13 @@ export function FloatingCommandBar({
           placeholder={`描述你想生成的${currentCategory === 'video' ? '视频画面' : '图片内容'}...`}
           rows={1}
         />
-
         <div className="fcbActions">
-          <button
-            className="fcbBtn fcbAttachBtn"
-            onClick={() => fileInputRef.current?.click()}
-            title="上传参考图"
-          >
+          <button className="fcbBtn fcbAttachBtn" onClick={() => fileInputRef.current?.click()} title="上传参考图">
             <Paperclip size={16} />
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={handleFileChange}
-              style={{ display: 'none' }}
-            />
+            <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFileChange} style={{ display: 'none' }} />
           </button>
-
-          <ModelSelector
-            currentModel={currentModel}
-            currentCategory={currentCategory}
-            onModelChange={onModelChange}
-          />
-
-          <button
-            className={`fcbSendBtn ${isGenerating ? 'loading' : ''} ${!canSend ? 'disabled' : ''}`}
-            onClick={onSend}
-            disabled={!canSend || isGenerating}
-          >
+          <ModelSelector currentModel={currentModel} currentCategory={currentCategory} onModelChange={onModelChange} />
+          <button className={`fcbSendBtn ${isGenerating ? 'loading' : ''} ${!canSend ? 'disabled' : ''}`} onClick={onSend} disabled={!canSend || isGenerating}>
             <Send size={16} />
           </button>
         </div>

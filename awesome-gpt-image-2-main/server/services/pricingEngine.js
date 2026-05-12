@@ -200,7 +200,7 @@ function updateModelPrice(category, modelId, resolution, newPrice, reason = '手
   data.lastUpdated = new Date().toISOString();
 
   const changePercent = oldPrice ? Math.round(((newPrice - oldPrice) / oldPrice) * 10000) / 100 : 0;
-  const notifications = data.priceChangeNotifications;
+  const notifications = data.priceChangeNotifications || { enabled: false, thresholds: { percent: 20, absolute: 0.01 } };
   let shouldNotify = false;
   if (notifications.enabled) {
     if (Math.abs(changePercent) >= notifications.thresholds.percent || Math.abs(newPrice - oldPrice) >= notifications.thresholds.absolute) {
@@ -275,14 +275,34 @@ function setModelMarkup(modelId, markupPercent) {
   return { success: true, modelId, markupPercent };
 }
 
-function getEffectiveMarkup(modelId) {
+const STRATEGY_MARKUP = {
+  economy: 0,
+  balanced: 15,
+  premium: 30
+};
+
+function getEffectiveMarkup(modelId, strategy) {
+  if (strategy && STRATEGY_MARKUP[strategy] !== undefined) {
+    return STRATEGY_MARKUP[strategy];
+  }
   const config = getMarkupConfig();
   return config.perModel?.[modelId] ?? config.defaultPercent;
 }
 
-function calculateSellingPrice(upstreamPrice, modelId) {
-  const markup = getEffectiveMarkup(modelId);
+function calculateSellingPrice(upstreamPrice, modelId, strategy) {
+  const markup = getEffectiveMarkup(modelId, strategy);
   return Math.round(upstreamPrice * (1 + markup / 100) * 10000) / 10000;
+}
+
+function getStrategyPricing(upstreamPrice, modelId) {
+  const result = {};
+  for (const [strategy, markup] of Object.entries(STRATEGY_MARKUP)) {
+    result[strategy] = {
+      markupPercent: markup,
+      sellingPrice: Math.round(upstreamPrice * (1 + markup / 100) * 10000) / 10000
+    };
+  }
+  return result;
 }
 
 function batchUpdatePrices(updates, reason = '批量调整') {
@@ -326,5 +346,6 @@ export {
   updateModelPrice, getDefaultPricing, loadPricingData,
   getPriceHistory, getPriceAlerts, recordPriceChange,
   getMarkupConfig, setMarkupConfig, setModelMarkup, getEffectiveMarkup,
-  calculateSellingPrice, batchUpdatePrices, getAllPricing, getModelPricing
+  calculateSellingPrice, batchUpdatePrices, getAllPricing, getModelPricing,
+  getStrategyPricing, STRATEGY_MARKUP
 };

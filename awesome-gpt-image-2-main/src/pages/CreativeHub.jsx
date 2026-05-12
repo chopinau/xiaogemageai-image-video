@@ -19,6 +19,75 @@ import { calculateComputeCost } from '../config/modelPricing';
 
 const IS_DEMO = !import.meta.env.VITE_API_BASE_URL;
 
+function classifyError(err) {
+  const msg = (err.message || '').toLowerCase();
+  const errStr = (err.error || '').toLowerCase();
+  const combined = `${msg} ${errStr}`;
+
+  // 余额/配额不足相关错误 - 优先级最高
+  if (combined.includes('quota') || 
+      combined.includes('余额') || 
+      combined.includes('积分不足') ||
+      combined.includes('insufficient') || 
+      combined.includes('user quota is not enough') ||
+      combined.includes('balance')) {
+    return { type: 'error', category: 'quota', message: '余额不足，请前往充值页面补充算力后继续使用', action: 'recharge' };
+  }
+  // 频率限制相关
+  if (combined.includes('rate_limit') || 
+      combined.includes('too many') || 
+      combined.includes('频率') ||
+      combined.includes('429')) {
+    return { type: 'warning', category: 'rate', message: '请求过于频繁，请稍等片刻后重试', action: 'wait' };
+  }
+  // 图片URL无效
+  if (combined.includes('invalid url') || combined.includes('invail url')) {
+    return { type: 'error', category: 'url', message: '参考图片地址无效，请重新上传图片或使用已生成的图片', action: 'reupload' };
+  }
+  // 内容安全相关
+  if (combined.includes('content_policy') || 
+      combined.includes('safety') || 
+      combined.includes('不合规') || 
+      combined.includes('违规') || 
+      combined.includes('blocked') ||
+      combined.includes('拒绝')) {
+    return { type: 'error', category: 'content', message: '提示词内容不符合安全规范，请修改后重试', action: 'edit_prompt' };
+  }
+  // 模型不可用
+  if (combined.includes('model_not_found') || 
+      combined.includes('not available') || 
+      combined.includes('不支持') ||
+      combined.includes('model not found')) {
+    return { type: 'error', category: 'model', message: '当前模型暂不可用，请切换其他模型重试', action: 'switch_model' };
+  }
+  // 网络相关
+  if (combined.includes('network') || 
+      combined.includes('fetch') || 
+      combined.includes('timeout') || 
+      combined.includes('超时') || 
+      combined.includes('ECONNREFUSED') ||
+      combined.includes('network error')) {
+    return { type: 'error', category: 'network', message: '网络连接异常，请检查网络后重试', action: 'retry' };
+  }
+  // 认证相关
+  if (combined.includes('authentication') || 
+      combined.includes('api key') || 
+      combined.includes('unauthorized') || 
+      combined.includes('401') ||
+      combined.includes('invalid token')) {
+    return { type: 'error', category: 'auth', message: 'API密钥无效，请检查密钥配置', action: 'check_key' };
+  }
+  // 服务器错误
+  if (combined.includes('server') || 
+      combined.includes('500') || 
+      combined.includes('internal') ||
+      combined.includes('service unavailable')) {
+    return { type: 'error', category: 'server', message: '服务器暂时异常，请稍后重试', action: 'retry' };
+  }
+  // 默认错误
+  return { type: 'error', category: 'unknown', message: `生成出错：${err.message || '未知错误'}`, action: 'retry' };
+}
+
 const DEMO_PLACEHOLDER_IMAGES = [
   'https://picsum.photos/seed/img1/800/800',
   'https://picsum.photos/seed/img2/600/900',
@@ -105,8 +174,11 @@ export function CreativeHub({ language }) {
   }, []);
 
   const handleFileUpload = useCallback((file) => {
-    const url = URL.createObjectURL(file);
-    setRefImageUrl(url);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setRefImageUrl(e.target.result);
+    };
+    reader.readAsDataURL(file);
   }, []);
 
   const handleRemoveRef = useCallback(() => {
@@ -379,7 +451,9 @@ export function CreativeHub({ language }) {
             }));
             chat.addAssistantMessage(`已生成 ${items.length} 个视频`, 'video', items);
           } else {
-            showToast('error', result.error || '视频生成失败');
+            const fallbackInfo = result.fallbackModel ? `\n\n💡 建议切换到模型：${result.fallbackModel}` : '';
+            const classified = classifyError({ message: result.error || '视频生成失败', error: result.error });
+            showToast(classified.type, classified.message + fallbackInfo);
           }
         } else {
           result = await videoGenerator.generate(currentPrompt, videoOpts);
@@ -397,7 +471,9 @@ export function CreativeHub({ language }) {
             }));
             chat.addAssistantMessage(`已生成 ${items.length} 个视频`, 'video', items);
           } else {
-            showToast('error', result.error || '视频生成失败');
+            const fallbackInfo = result.fallbackModel ? `\n\n💡 建议切换到模型：${result.fallbackModel}` : '';
+            const classified = classifyError({ message: result.error || '视频生成失败', error: result.error });
+            showToast(classified.type, classified.message + fallbackInfo);
           }
         }
       } else {
@@ -423,6 +499,12 @@ export function CreativeHub({ language }) {
             ...apiParams
           };
 
+          if (refImageUrl && refImageUrl.startsWith('data:')) {
+            imageOpts.image_url = refImageUrl;
+          } else if (refImageUrl && refImageUrl.startsWith('http')) {
+            imageOpts.image_url = refImageUrl;
+          }
+
           result = await imageGenerator.generate(currentPrompt, imageOpts);
 
           if (result.success) {
@@ -432,13 +514,16 @@ export function CreativeHub({ language }) {
             chat.addAssistantMessage(`已生成 ${items.length} 个结果`, 'image', items);
             showToast('success', `${model?.name} 返回 ${items.length} 个结果`);
           } else {
-            showToast('error', result.error || '图片生成失败，请检查API连接');
+            const fallbackInfo = result.fallbackModel ? `\n\n💡 建议切换到模型：${result.fallbackModel}` : '';
+            const classified = classifyError({ message: result.error || '图片生成失败，请检查API连接', error: result.error });
+            showToast(classified.type, classified.message + fallbackInfo);
           }
         }
       }
     } catch (err) {
       console.error('Generation error:', err);
-      showToast('error', `生成出错：${err.message || '未知错误'}`);
+      const classified = classifyError(err);
+      showToast(classified.type, classified.message);
     } finally {
       chat.setIsGenerating(false);
     }

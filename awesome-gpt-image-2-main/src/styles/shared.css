@@ -1497,3 +1497,74 @@
   border-color: rgba(66,230,255,0.4);
   color: #42e6ff;
 }
+
+.adminGrid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.adminFormField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.adminLabel {
+  font-size: 12px;
+  color: #73859f;
+  font-weight: 600;
+}
+
+.adminCellMuted {
+  color: #73859f;
+  font-size: 13px;
+}
+
+.adminCellCredits {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.adminCellId {
+  font-family: monospace;
+  font-size: 12px;
+  color: #aebcd0;
+}
+
+.adminPageTitle {
+  font-size: 20px;
+  font-weight: 800;
+  color: #eef5ff;
+  margin-bottom: 20px;
+}
+
+.adminInput {
+  padding: 8px 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.04);
+  color: #eef5ff;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.adminInput:focus {
+  border-color: rgba(66,230,255,0.5);
+}
+
+select.adminInput {
+  cursor: pointer;
+}
+
+.pricingAdminContent .adminCard {
+  margin-bottom: 16px;
+}
+
+@media (max-width: 768px) {
+  .adminGrid2 {
+    grid-template-columns: 1fr;
+  }
+}

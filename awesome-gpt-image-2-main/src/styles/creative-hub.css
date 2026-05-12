@@ -1953,6 +1953,51 @@
   color: var(--text-muted);
   margin-top: 8px;
   line-height: 1.4;
+  padding: 0 20px 16px;
+}
+
+.cgpPriceBreakdown {
+  padding: 0 20px;
+}
+
+.cgpBreakdownCard {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.cgpBreakdownRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 12px;
+}
+
+.cgpBreakdownRow.total {
+  font-weight: 600;
+  color: var(--brand-cyan);
+}
+
+.cgpBreakdownLabel {
+  color: var(--text-secondary);
+}
+
+.cgpBreakdownValue {
+  color: var(--text-primary);
+}
+
+.cgpBreakdownDivider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  margin: 6px 0;
+}
+
+.cgpStrategyPrice {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--brand-cyan);
 }
 
 .cgpPricingSection {
@@ -5421,7 +5466,7 @@
 }
 
 .fcbParams {
-  max-height: 200px;
+  max-height: 400px;
   overflow-y: auto;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   scrollbar-width: thin;
@@ -5666,3 +5711,44 @@
 .msdItem.selected .msdItemCredits {
   color: rgba(66, 230, 255, 0.5);
 }
+
+.npPanel{border-bottom:1px solid rgba(255,255,255,0.06);max-height:320px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.06) transparent}
+.npHeader{display:flex;align-items:center;justify-content:space-between;padding:6px 12px 0;border-bottom:1px solid rgba(255,255,255,0.04);position:sticky;top:0;background:rgba(18,18,24,0.95);backdrop-filter:blur(8px);z-index:2}
+.npTabs{display:flex;gap:2px}
+.npTab{display:flex;align-items:center;gap:4px;padding:5px 10px;border:none;background:transparent;color:var(--text-muted);font-size:11px;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.15s}
+.npTab:hover{color:var(--text-secondary);background:rgba(255,255,255,0.03)}
+.npTab.active{color:var(--brand-cyan);border-bottom-color:var(--brand-cyan)}
+.npTabIcon{font-size:12px}
+.npCollapseBtn{display:flex;align-items:center;justify-content:center;width:24px;height:24px;border:none;background:transparent;color:var(--text-muted);cursor:pointer;border-radius:4px;transition:all 0.15s}
+.npCollapseBtn:hover{background:rgba(255,255,255,0.06);color:var(--text-secondary)}
+.npBody{padding:8px 12px 10px;display:flex;flex-direction:column;gap:10px}
+.npField{display:flex;flex-direction:column;gap:5px}
+.npFieldRow{flex-direction:row;align-items:center;justify-content:space-between}
+.npFieldLabel{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-secondary);font-weight:500}
+.npFieldHelp{font-size:10px;color:var(--text-muted);cursor:help;opacity:0.7}
+.npFieldValue{font-size:11px;color:var(--brand-cyan);margin-left:auto}
+.npOptionGrid{display:flex;flex-wrap:wrap;gap:4px}
+.npOptionBtn{display:flex;flex-direction:column;align-items:center;gap:1px;padding:5px 10px;border:1px solid rgba(255,255,255,0.08);border-radius:6px;background:transparent;color:var(--text-secondary);cursor:pointer;transition:all 0.15s;min-width:48px}
+.npOptionBtn:hover{border-color:rgba(255,255,255,0.15);background:rgba(255,255,255,0.04)}
+.npOptionBtn.selected{border-color:rgba(66,230,255,0.4);background:rgba(66,230,255,0.08);color:var(--brand-cyan)}
+.npOptLabel{font-size:12px;font-weight:500;line-height:1.2}
+.npOptDetail{font-size:9px;opacity:0.6;line-height:1.1;white-space:nowrap}
+.npOptionBtn.selected .npOptDetail{color:rgba(66,230,255,0.5)}
+.npToggle{width:36px;height:20px;border-radius:10px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);cursor:pointer;position:relative;transition:all 0.2s}
+.npToggle.on{background:rgba(66,230,255,0.2);border-color:rgba(66,230,255,0.4)}
+.npToggleKnob{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--text-muted);transition:all 0.2s}
+.npToggle.on .npToggleKnob{left:18px;background:var(--brand-cyan)}
+.npCounter{display:flex;align-items:center;gap:6px}
+.npCounterBtn{display:flex;align-items:center;justify-content:center;width:24px;height:24px;border:1px solid rgba(255,255,255,0.1);border-radius:6px;background:transparent;color:var(--text-secondary);cursor:pointer;transition:all 0.15s}
+.npCounterBtn:hover:not(:disabled){border-color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.04)}
+.npCounterBtn:disabled{opacity:0.3;cursor:not-allowed}
+.npCounterVal{font-size:13px;font-weight:600;color:var(--text-primary);min-width:20px;text-align:center}
+.npSlider{width:100%;accent-color:var(--brand-cyan)}
+.npInput{width:100%;padding:6px 10px;border:1px solid rgba(255,255,255,0.08);border-radius:6px;background:rgba(255,255,255,0.03);color:var(--text-primary);font-size:12px;outline:none;transition:border-color 0.15s}
+.npInput:focus{border-color:rgba(66,230,255,0.3)}
+.npCollapsedBar{display:flex;align-items:center;gap:6px;padding:4px 12px;border-bottom:1px solid rgba(255,255,255,0.06);overflow-x:auto;scrollbar-width:none}
+.npCollapsedBar::-webkit-scrollbar{display:none}
+.npCollapsedTag{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);color:var(--text-secondary);font-size:10px;cursor:pointer;white-space:nowrap;transition:all 0.15s}
+.npCollapsedTag:hover{background:rgba(255,255,255,0.08);border-color:rgba(66,230,255,0.2);color:var(--brand-cyan)}
+.npExpandBtn{display:flex;align-items:center;justify-content:center;width:22px;height:22px;border:1px solid rgba(255,255,255,0.08);border-radius:4px;background:transparent;color:var(--text-muted);cursor:pointer;flex-shrink:0;transition:all 0.15s}
+.npExpandBtn:hover{background:rgba(255,255,255,0.06);color:var(--brand-cyan)}

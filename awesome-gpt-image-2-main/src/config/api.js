@@ -45,7 +45,14 @@ export const createAPIHeaders = (apiKey, extraHeaders = {}) => ({
 });
 
 export function buildURL(endpoint, params = {}) {
-  const url = new URL(`${API_CONFIG.baseURL}${endpoint}`);
+  const base = API_CONFIG.baseURL || '';
+  const path = `${base}${endpoint}`;
+  let url;
+  try {
+    url = new URL(path, window.location.origin);
+  } catch {
+    url = new URL(path, 'http://localhost:3000');
+  }
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null) {
       url.searchParams.append(key, value);

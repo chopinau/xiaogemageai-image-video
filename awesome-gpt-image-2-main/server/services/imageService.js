@@ -71,7 +71,8 @@ function mapParamsToApi(model, params) {
   if (sizeModels.includes(model)) {
     if (mapped.aspect_ratio && !mapped.size) {
       const sizeMap = {
-        '1:1': '1024x1024', '2:3': '1024x1536', '3:2': '1536x1024'
+        '1:1': '1024x1024', '2:3': '1024x1536', '3:2': '1536x1024',
+        '3:4': '960x1280', '4:3': '1280x960', '9:16': '1088x1920', '16:9': '1920x1088'
       };
       if (sizeMap[mapped.aspect_ratio]) {
         mapped.size = sizeMap[mapped.aspect_ratio];
@@ -195,6 +196,10 @@ export class ImageService {
         params[key] = value;
       }
     });
+
+    if (options.image_url) {
+      params.image_url = options.image_url;
+    }
 
     const apiParams = mapParamsToApi(model, params);
     const apiModelId = resolveApiModelId(model);

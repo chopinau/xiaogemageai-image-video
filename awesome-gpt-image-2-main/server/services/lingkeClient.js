@@ -85,6 +85,28 @@ export class LingkeClient {
 
   async mediaGenerate(model, params, apiKey) {
     const body = { model, ...params };
+    const taskBasedModels = [
+      'kling-image', 'kling-omni-image',
+      'kling-video', 'kling-omni-video', 'kling-video-extend',
+      'kling-effects', 'kling-custom-elements', 'kling-multi-elements',
+      'kling-motion-control', 'kling-avatar-image2video',
+      'veo2', 'veo2-fast', 'veo2-pro', 'veo3', 'veo3-fast', 'veo3-pro',
+      'veo3.1', 'veo3.1-fast', 'veo3.1-pro', 'veo_3_1-lite',
+      'MiniMax-Hailuo-02', 'MiniMax-Hailuo-2.3',
+      'sora-2', 'sora-2-pro',
+      'doubao-seedance-1-0-pro-250528', 'doubao-seedance-1-0-pro-fast-251015',
+      'luma_video_api',
+      'runwayml-gen4_turbo-10', 'runwayml-gen4_turbo-5',
+      'wan2.6-i2v', 'wan2.5-i2v-preview',
+      'doubao-seed-1-6-250615',
+      'mj_imagine', 'mj_variation', 'mj_reroll', 'mj_upscale', 'mj_inpaint',
+      'mj_blend', 'mj_zoom', 'mj_pan', 'mj_modal', 'mj_custom_zoom',
+      'mj_high_variation', 'mj_low_variation'
+    ];
+
+    if (taskBasedModels.includes(model)) {
+      return this.request('POST', '/v1/images/generations', { body, apiKey });
+    }
     return this.request('POST', '/v1/images/generations', { body, apiKey });
   }
 

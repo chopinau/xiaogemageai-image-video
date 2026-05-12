@@ -19,6 +19,7 @@ import pricingAdminRoutes from './routes/pricingAdminRoutes.js';
 import { rateLimitMiddleware } from './middleware/rateLimit.js';
 import { errorHandler } from './utils/errorHandler.js';
 import apiProtection from './services/apiProtectionService.js';
+import * as HealthMonitor from './services/providerHealthMonitor.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -129,9 +130,32 @@ app.get('/api/pricing/:model', async (req, res) => {
 
 app.use(errorHandler);
 
+const SYNC_INTERVAL = 6 * 60 * 60 * 1000;
+
+async function autoSyncUpstreamPrices() {
+  try {
+    console.log('[AutoSync] Starting scheduled upstream price sync...');
+    const { fetchAllProviderPrices } = await import('./services/upstreamPriceFetcher.js');
+    const result = await fetchAllProviderPrices();
+    const providerCount = Object.keys(result || {}).length;
+    const totalModels = Object.values(result || {}).reduce((sum, p) => sum + Object.keys(p.models || {}).length, 0);
+    console.log(`[AutoSync] Completed: ${providerCount} providers, ${totalModels} models synced`);
+  } catch (err) {
+    console.error('[AutoSync] Failed:', err.message);
+  }
+}
+
 app.listen(PORT, () => {
   console.log(`🚀 AI Generation API Server v2.0 running on http://localhost:${PORT}`);
   console.log(`📡 LingkeAPI: ${process.env.LINGKE_BASE_URL}`);
   console.log(`💰 Payment routes mounted at /api/payments`);
   console.log(`📚 API docs: http://localhost:${PORT}/api/health`);
+  console.log(`🔄 Auto-sync interval: every ${SYNC_INTERVAL / 3600000} hours`);
+
+  setTimeout(() => {
+    autoSyncUpstreamPrices();
+    HealthMonitor.startHealthCheckLoop();
+  }, 30000);
+
+  setInterval(autoSyncUpstreamPrices, SYNC_INTERVAL);
 });

@@ -1,9 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import { AI_MODELS } from '../../config/models';
-import { Layout, BarChart3, Users, Cpu, ShoppingCart, Coins, Share2, Settings, FileText, Menu, X, DollarSign } from 'lucide-react';
+import { Layout, BarChart3, Users, Cpu, ShoppingCart, Coins, Share2, Settings, FileText, Menu, X, DollarSign, AlertTriangle, Activity, TrendingUp, Zap } from 'lucide-react';
 import { PricingAdmin } from './PricingAdmin';
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+const ADMIN_KEY = 'admin123';
+
+function apiCall(path, options = {}) {
+  const headers = { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_KEY, ...options.headers };
+  return fetch(`${API_BASE}${path}`, { ...options, headers });
+}
 
 const ADMIN_TABS = [
   { id: 'dashboard', label: '仪表盘', icon: BarChart3 },
@@ -113,20 +121,183 @@ function StatCard({ label, value, color, prefix = '', suffix = '' }) {
 }
 
 function DashboardTab() {
-  const d = MOCK_DASHBOARD;
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadDashboard();
+  }, []);
+
+  async function loadDashboard() {
+    setLoading(true);
+    try {
+      const res = await apiCall('/pricing-admin/dashboard');
+      const data = await res.json();
+      if (data.success) {
+        setDashboardData(data.data);
+      }
+    } catch (err) {
+      console.error('Failed to load dashboard:', err);
+    }
+    setLoading(false);
+  }
+
+  if (loading) {
+    return (
+      <div>
+        <h2 className="adminPageTitle">仪表盘</h2>
+        <div style={{ textAlign: 'center', padding: '40px', color: '#73859f' }}>
+          <Activity size={24} className="spinning" style={{ marginBottom: '12px' }} />
+          <p>加载中...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const d = dashboardData || {};
+
   return (
     <div>
-      <h2 className="adminPageTitle">仪表盘</h2>
-      <div className="adminStatGrid">
-        <StatCard label="总用户数" value={d.totalUsers} color="#42e6ff" />
-        <StatCard label="活跃用户" value={d.activeUsers} color="#78ffb9" />
-        <StatCard label="总收入" value={d.totalRevenue} color="#f9ff72" prefix="¥" />
-        <StatCard label="月收入" value={d.monthlyRevenue} color="#f9ff72" prefix="¥" />
-        <StatCard label="总生成量" value={d.totalGenerations} color="#9eeeff" />
-        <StatCard label="今日生成" value={d.todayGenerations} color="#9eeeff" />
-        <StatCard label="算力发放" value={d.creditsIssued} color="#ff74a6" />
-        <StatCard label="算力消耗" value={d.creditsConsumed} color="#ff74a6" />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <h2 className="adminPageTitle" style={{ marginBottom: 0 }}>仪表盘</h2>
+        <button className="adminActionBtn" onClick={loadDashboard}>
+          <Activity size={14} /> 刷新
+        </button>
       </div>
+
+      <div className="adminStatGrid">
+        <div className="adminStatCard">
+          <div className="adminStatLabel">模型总数</div>
+          <div className="adminStatValue" style={{ color: '#42e6ff' }}>{d.totalModels || 0}</div>
+        </div>
+        <div className="adminStatCard">
+          <div className="adminStatLabel">供应商数</div>
+          <div className="adminStatValue" style={{ color: '#78ffb9' }}>{d.providers || 0}</div>
+        </div>
+        <div className="adminStatCard">
+          <div className="adminStatLabel">今日请求</div>
+          <div className="adminStatValue" style={{ color: '#9eeeff' }}>{d.totalDailyRequests || 0}</div>
+        </div>
+        <div className="adminStatCard">
+          <div className="adminStatLabel">今日消费</div>
+          <div className="adminStatValue" style={{ color: '#f9ff72' }}>¥{d.totalDailySpent || 0}</div>
+        </div>
+        <div className="adminStatCard">
+          <div className="adminStatLabel">活跃用户</div>
+          <div className="adminStatValue" style={{ color: '#78ffb9' }}>{d.activeUsers || 0}</div>
+        </div>
+        <div className="adminStatCard">
+          <div className="adminStatLabel">默认加价率</div>
+          <div className="adminStatValue" style={{ color: '#ff74a6' }}>{d.defaultMarkup || 0}%</div>
+        </div>
+        <div className="adminStatCard">
+          <div className="adminStatLabel">熔断告警</div>
+          <div className="adminStatValue" style={{ color: (d.circuitBreakerAlerts?.length || 0) > 0 ? '#ff6b8a' : '#78ffb9' }}>
+            {d.circuitBreakerAlerts?.length || 0}
+          </div>
+        </div>
+        <div className="adminStatCard">
+          <div className="adminStatLabel">价格告警</div>
+          <div className="adminStatValue" style={{ color: (d.priceAlerts || 0) > 0 ? '#f9ff72' : '#78ffb9' }}>
+            {d.priceAlerts || 0}
+          </div>
+        </div>
+      </div>
+
+      {(d.circuitBreakerAlerts?.length || 0) > 0 && (
+        <div className="adminCard" style={{ marginBottom: '16px', borderLeft: '3px solid #ff6b8a' }}>
+          <h3 className="adminCardTitle">
+            <AlertTriangle size={14} style={{ color: '#ff6b8a', marginRight: '6px' }} />
+            熔断器告警
+          </h3>
+          <div className="adminTableWrap">
+            <table className="adminTable">
+              <thead>
+                <tr>
+                  <th>模型/供应商</th>
+                  <th>状态</th>
+                  <th>失败次数</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                {d.circuitBreakerAlerts.map((alert, idx) => (
+                  <tr key={idx}>
+                    <td><strong>{alert.provider}</strong></td>
+                    <td>
+                      <span style={{
+                        color: alert.state === 'open' ? '#ff6b8a' : '#f9ff72',
+                        background: alert.state === 'open' ? 'rgba(255,106,138,0.12)' : 'rgba(249,255,114,0.12)',
+                        padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 700
+                      }}>
+                        {alert.state === 'open' ? '已熔断' : '半开'}
+                      </span>
+                    </td>
+                    <td style={{ color: '#ff6b8a', fontWeight: 700 }}>{alert.failCount}</td>
+                    <td>
+                      <button className="adminActionBtn" onClick={() => window.location.href = '/admin'}>
+                        查看
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {(d.topModels?.length || 0) > 0 && (
+        <div className="adminCard">
+          <h3 className="adminCardTitle">
+            <TrendingUp size={14} style={{ color: '#42e6ff', marginRight: '6px' }} />
+            热门模型 (今日调用排行)
+          </h3>
+          <div className="adminTableWrap">
+            <table className="adminTable">
+              <thead>
+                <tr>
+                  <th>排名</th>
+                  <th>模型</th>
+                  <th>调用次数</th>
+                  <th>占比</th>
+                </tr>
+              </thead>
+              <tbody>
+                {d.topModels.map((item, idx) => {
+                  const totalCalls = d.topModels.reduce((sum, m) => sum + m.calls, 0) || 1;
+                  const percent = Math.round((item.calls / totalCalls) * 100);
+                  return (
+                    <tr key={idx}>
+                      <td>
+                        <span style={{
+                          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                          width: '24px', height: '24px', borderRadius: '50%',
+                          background: idx === 0 ? 'rgba(120,255,185,0.2)' : idx === 1 ? 'rgba(249,255,114,0.15)' : idx === 2 ? 'rgba(66,230,255,0.15)' : 'rgba(115,133,159,0.1)',
+                          color: idx === 0 ? '#78ffb9' : idx === 1 ? '#f9ff72' : idx === 2 ? '#42e6ff' : '#73859f',
+                          fontSize: '12px', fontWeight: 800
+                        }}>
+                          {idx + 1}
+                        </span>
+                      </td>
+                      <td><strong>{item.model}</strong></td>
+                      <td style={{ color: '#42e6ff', fontWeight: 700 }}>{item.calls}</td>
+                      <td>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <div style={{ flex: 1, height: '6px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px', overflow: 'hidden' }}>
+                            <div style={{ width: `${percent}%`, height: '100%', background: idx === 0 ? '#78ffb9' : idx === 1 ? '#f9ff72' : '#42e6ff', borderRadius: '3px' }} />
+                          </div>
+                          <span style={{ color: '#73859f', fontSize: '11px', minWidth: '32px' }}>{percent}%</span>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

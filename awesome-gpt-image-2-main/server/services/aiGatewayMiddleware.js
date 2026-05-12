@@ -1,15 +1,18 @@
 import APIProtectionService from './apiProtectionService.js';
 import * as PricingEngine from './pricingEngine.js';
 import CreditsManager from './creditsManager.js';
+import * as HealthMonitor from './providerHealthMonitor.js';
 
 const FallbackModels = {
-  'gpt-image-2': ['dall-e-3', 'flux-pro', 'doubao-seedream'],
-  'dall-e-3': ['gpt-image-2', 'flux-pro'],
-  'flux-pro': ['dall-e-3', 'stable-diffusion-xl'],
-  'doubao-seedream': ['stable-diffusion-xl', 'dall-e-3'],
-  'kling': ['seedance-2.0', 'hailuo'],
-  'veo3': ['sora', 'kling'],
-  'sora': ['veo3', 'runway-gen3']
+  'gpt-image-2': ['doubao-seedream-4-5', 'kling-v3-image', 'wan2.7-image'],
+  'doubao-seedream-4-5': ['gpt-image-2', 'kling-v3-image'],
+  'kling-v3-image': ['gpt-image-2', 'doubao-seedream-4-5'],
+  'kling-v3-video': ['seedance-2.0', 'hailuo-2.3'],
+  'seedance-2.0': ['kling-v3-video', 'hailuo-2.3'],
+  'veo3.1-lite': ['kling-v3-video', 'seedance-2.0'],
+  'hailuo-2.3': ['kling-v3-video', 'seedance-2.0'],
+  'gpt-4o': ['deepseek'],
+  'deepseek': ['gpt-4o']
 };
 
 class AIGatewayMiddleware {
@@ -142,20 +145,34 @@ class AIGatewayMiddleware {
         auditEntry.steps.push({ step: 'buffer_refund', status: 'completed', amount: refundAmount });
       }
     } else {
-      // Generation failed - rollback pre-deduction
       this.protectionService.recordFailure(model);
       this.creditsManager.rollbackDeduct(deductionId);
       auditEntry.steps.push({ step: 'response', status: 'failed', reason: body.error });
 
-      // Try fallback models
       const fallbacks = FallbackModels[model] || [];
-      if (fallbacks.length > 0) {
-        auditEntry.steps.push({ step: 'fallback_available', models: fallbacks });
+      const availableFallback = this._findAvailableFallback(fallbacks);
+
+      if (availableFallback) {
+        auditEntry.steps.push({ step: 'fallback_available', originalModel: model, fallbackModel: availableFallback });
+        body.fallbackModel = availableFallback;
+        body.fallbackHint = `模型 ${model} 暂时不可用，建议切换到 ${availableFallback}`;
+      } else if (fallbacks.length > 0) {
+        auditEntry.steps.push({ step: 'fallback_listed', models: fallbacks, note: '备选模型也未通过健康检查' });
       }
     }
 
     this._logAudit(auditEntry);
     originalJson(body);
+  }
+
+  _findAvailableFallback(fallbackModels) {
+    for (const fallbackModel of fallbackModels) {
+      const cbState = this.protectionService.circuitBreakers.get(fallbackModel);
+      if (!cbState || cbState.state === 'closed') {
+        return fallbackModel;
+      }
+    }
+    return null;
   }
 
   _logAudit(entry) {

@@ -63,16 +63,17 @@ export class ImageGenerator {
 
     try {
       const response = await fetch(buildURL(API_ENDPOINTS.image.generate), {
-        method: 'POST',
-        headers: createAPIHeaders(this.apiKey),
-        body: JSON.stringify(params)
-      });
+          method: 'POST',
+          headers: createAPIHeaders(this.apiKey),
+          body: JSON.stringify(params)
+        });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+        const result = await response.json();
 
-      const result = await response.json();
+        if (!response.ok || !result.success) {
+          const errorMsg = result.error || result.message || `HTTP error! status: ${response.status}`;
+          throw new Error(errorMsg);
+        }
 
       if (result.taskId) {
         return await this._pollAsyncTask(result.taskId, prompt);

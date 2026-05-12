@@ -1,0 +1,11 @@
+[
+  {
+    "timestamp": 1778563135674,
+    "type": "imageModels",
+    "model": "gpt-image-2",
+    "oldPrice": 0.0576,
+    "newPrice": 0,
+    "changePercent": -100,
+    "reason": "上游同步: apiqik - default (上游价: 0)"
+  }
+]

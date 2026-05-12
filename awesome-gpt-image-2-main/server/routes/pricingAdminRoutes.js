@@ -1,7 +1,16 @@
 import { Router } from 'express';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import * as PricingEngine from '../services/pricingEngine.js';
 import * as UpstreamFetcher from '../services/upstreamPriceFetcher.js';
 import { lingkeClient } from '../services/lingkeClient.js';
+import * as HealthMonitor from '../services/providerHealthMonitor.js';
+import apiProtection from '../services/apiProtectionService.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const PROVIDERS_PATH = path.join(__dirname, '..', 'data', 'upstreamProviders.json');
 
 const router = Router();
 
@@ -83,6 +92,21 @@ router.get('/alerts', (req, res) => {
 router.post('/reload', requireAuth, (req, res) => {
   const data = PricingEngine.reloadPricing();
   res.json({ success: true, data });
+});
+
+router.get('/strategy-pricing/:modelId', (req, res) => {
+  const { modelId } = req.params;
+  const allPricing = PricingEngine.getAllPricing();
+  let basePrice = 0;
+  for (const category of ['imageModels', 'videoModels', 'editModels']) {
+    if (allPricing[category]?.[modelId]) {
+      const model = allPricing[category][modelId];
+      basePrice = model.prices?.[model.defaultResolution || '1k'] || model.pricePerSecond * (model.minDuration || 5) || 0;
+      break;
+    }
+  }
+  const strategyPricing = PricingEngine.getStrategyPricing(basePrice, modelId);
+  res.json({ success: true, modelId, basePrice, strategies: strategyPricing });
 });
 
 router.get('/upstream/providers', (req, res) => {
@@ -205,6 +229,141 @@ router.post('/live/fetch-all', requireAuth, async (req, res) => {
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
+});
+
+router.get('/upstream/health', async (req, res) => {
+  try {
+    const healthData = await HealthMonitor.checkAllProviders();
+    res.json({ success: true, data: healthData });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+router.get('/upstream/health/:name', async (req, res) => {
+  try {
+    const fullData = JSON.parse(fs.readFileSync(PROVIDERS_PATH, 'utf8'));
+    const provider = fullData.providers.find(p => p.name === req.params.name);
+    if (!provider) {
+      return res.status(404).json({ success: false, error: '供应商不存在' });
+    }
+    const health = await HealthMonitor.checkProviderHealth(provider);
+    res.json({ success: true, data: health });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+router.get('/upstream/compare', (req, res) => {
+  const { model } = req.query;
+  try {
+    let data;
+    if (model) {
+      data = HealthMonitor.compareModelPrices(model);
+    } else {
+      data = HealthMonitor.compareAllModels();
+    }
+    res.json({ success: true, data });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+router.get('/upstream/fallback/:provider/:model', (req, res) => {
+  const { provider, model } = req.params;
+  const fallback = HealthMonitor.getFallbackProvider(provider, model);
+  res.json({ success: true, hasFallback: !!fallback, fallback });
+});
+
+router.get('/usage/stats', (req, res) => {
+  const protectionStatus = apiProtection.getProtectionStatus();
+  const usageMap = {};
+
+  for (const [key, stats] of apiProtection.usageStats.entries()) {
+    usageMap[key] = stats;
+  }
+
+  const modelStats = {};
+  for (const [, stats] of Object.entries(usageMap)) {
+    if (stats.models) {
+      for (const [model, count] of Object.entries(stats.models)) {
+        if (!modelStats[model]) modelStats[model] = { totalCalls: 0, totalSpent: 0 };
+        modelStats[model].totalCalls += count;
+        modelStats[model].totalSpent += stats.dailySpent || 0;
+      }
+    }
+  }
+
+  const dailySummary = {};
+  for (const [key, stats] of Object.entries(usageMap)) {
+    dailySummary[key] = {
+      dailySpent: stats.dailySpent,
+      requestCount: stats.requestCount,
+      models: stats.models
+    };
+  }
+
+  res.json({
+    success: true,
+    data: {
+      modelStats: Object.entries(modelStats).sort((a, b) => b[1].totalCalls - a[1].totalCalls),
+      dailyUsage: dailySummary,
+      circuitBreakers: protectionStatus.circuitBreakers,
+      globalRateLimit: protectionStatus.globalRateLimit,
+      activeUsers: protectionStatus.activeUsers
+    }
+  });
+});
+
+router.get('/dashboard', (req, res) => {
+  const protectionStatus = apiProtection.getProtectionStatus();
+  const pricingData = PricingEngine.getAllPricing();
+  const markupConfig = PricingEngine.getMarkupConfig();
+
+  const totalModels = Object.keys(pricingData.imageModels || {}).length
+    + Object.keys(pricingData.videoModels || {}).length
+    + Object.keys(pricingData.editModels || {}).length
+    + Object.keys(pricingData.textModels || {}).length
+    + Object.keys(pricingData.psdServices || {}).length;
+
+  let totalDailySpent = 0;
+  let totalRequests = 0;
+  const modelCallCounts = {};
+
+  for (const [, stats] of apiProtection.usageStats.entries()) {
+    totalDailySpent += stats.dailySpent || 0;
+    totalRequests += stats.requestCount || 0;
+    if (stats.models) {
+      for (const [model, count] of Object.entries(stats.models)) {
+        modelCallCounts[model] = (modelCallCounts[model] || 0) + count;
+      }
+    }
+  }
+
+  const topModels = Object.entries(modelCallCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10)
+    .map(([model, calls]) => ({ model, calls }));
+
+  const cbStatuses = protectionStatus.circuitBreakers || {};
+  const activeAlerts = Object.entries(cbStatuses)
+    .filter(([, cb]) => cb.state === 'open' || cb.state === 'half-open')
+    .map(([provider, cb]) => ({ provider, state: cb.state, failCount: cb.failCount }));
+
+  res.json({
+    success: true,
+    data: {
+      totalModels,
+      activeUsers: protectionStatus.activeUsers || 0,
+      totalDailySpent: Math.round(totalDailySpent * 100) / 100,
+      totalDailyRequests: totalRequests,
+      defaultMarkup: markupConfig.defaultPercent,
+      topModels,
+      circuitBreakerAlerts: activeAlerts,
+      providers: UpstreamFetcher.getProviders().length,
+      priceAlerts: PricingEngine.getPriceAlerts().length
+    }
+  });
 });
 
 export default router;

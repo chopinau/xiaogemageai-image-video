@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNotification } from '../../contexts/NotificationContext';
 import { AI_MODELS } from '../../config/models';
-import { RefreshCw, Plus, Trash2, Download, Upload, DollarSign, TrendingUp, Link, Check, X, ChevronDown, ChevronUp, Search, Zap } from 'lucide-react';
+import { RefreshCw, Plus, Trash2, Download, DollarSign, TrendingUp, Link, Check, X, ChevronDown, ChevronUp, Search, Zap, Activity, BarChart3, AlertTriangle, Heart, Shield, ArrowRightLeft } from 'lucide-react';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 const ADMIN_KEY = 'admin123';
@@ -23,6 +23,17 @@ function formatCredits(credits) {
   return `${credits} 算力`;
 }
 
+function HealthBadge({ status }) {
+  const config = {
+    healthy: { color: '#78ffb9', bg: 'rgba(120,255,185,0.12)', label: '健康' },
+    degraded: { color: '#f9ff72', bg: 'rgba(249,255,114,0.12)', label: '降级' },
+    down: { color: '#ff6b8a', bg: 'rgba(255,106,138,0.12)', label: '故障' },
+    unknown: { color: '#73859f', bg: 'rgba(115,133,159,0.12)', label: '未知' }
+  };
+  const c = config[status] || config.unknown;
+  return <span style={{ color: c.color, background: c.bg, padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 700 }}>{c.label}</span>;
+}
+
 export function PricingAdmin() {
   const notify = useNotification();
   const [activeSubTab, setActiveSubTab] = useState('overview');
@@ -31,6 +42,7 @@ export function PricingAdmin() {
   const SUB_TABS = [
     { id: 'overview', label: '价格总览', icon: DollarSign },
     { id: 'upstream', label: '上游监控', icon: Link },
+    { id: 'compare', label: '供应商比价', icon: ArrowRightLeft },
     { id: 'adjust', label: '价格调整', icon: TrendingUp },
     { id: 'history', label: '变更记录', icon: RefreshCw }
   ];
@@ -52,6 +64,7 @@ export function PricingAdmin() {
       <div className="pricingAdminContent">
         {activeSubTab === 'overview' && <PriceOverviewTab notify={notify} />}
         {activeSubTab === 'upstream' && <UpstreamMonitorTab notify={notify} />}
+        {activeSubTab === 'compare' && <PriceCompareTab notify={notify} />}
         {activeSubTab === 'adjust' && <PriceAdjustTab notify={notify} />}
         {activeSubTab === 'history' && <PriceHistoryTab notify={notify} />}
       </div>
@@ -66,10 +79,12 @@ function PriceOverviewTab({ notify }) {
   const [expandedModel, setExpandedModel] = useState(null);
   const [livePricing, setLivePricing] = useState({});
   const [fetchingLive, setFetchingLive] = useState(false);
+  const [usageStats, setUsageStats] = useState(null);
 
   useEffect(() => {
     loadModels();
     loadMarkupConfig();
+    loadUsageStats();
   }, []);
 
   async function loadModels() {
@@ -92,6 +107,16 @@ function PriceOverviewTab({ notify }) {
       if (data.success) setMarkupConfigData(data.config);
     } catch (err) {
       console.error('Failed to load markup config:', err);
+    }
+  }
+
+  async function loadUsageStats() {
+    try {
+      const res = await apiCall('/pricing-admin/usage/stats');
+      const data = await res.json();
+      if (data.success) setUsageStats(data.data);
+    } catch (err) {
+      console.error('Failed to load usage stats:', err);
     }
   }
 
@@ -125,6 +150,13 @@ function PriceOverviewTab({ notify }) {
     m.provider.toLowerCase().includes(search.toLowerCase())
   );
 
+  const modelCallCounts = {};
+  if (usageStats?.modelStats) {
+    for (const [model, stats] of usageStats.modelStats) {
+      modelCallCounts[model] = stats.totalCalls;
+    }
+  }
+
   return (
     <div>
       <div className="pricingAdminToolbar">
@@ -136,6 +168,29 @@ function PriceOverviewTab({ notify }) {
           <RefreshCw size={14} className={fetchingLive ? 'spinning' : ''} /> 获取实时价格
         </button>
       </div>
+
+      {usageStats && (
+        <div className="adminStatGrid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', marginBottom: '16px' }}>
+          <div className="adminStatCard">
+            <div className="adminStatLabel">今日总请求</div>
+            <div className="adminStatValue" style={{ color: '#42e6ff' }}>{usageStats.activeUsers || 0}</div>
+          </div>
+          <div className="adminStatCard">
+            <div className="adminStatLabel">今日消费</div>
+            <div className="adminStatValue" style={{ color: '#f9ff72' }}>¥{usageStats.totalDailySpent || 0}</div>
+          </div>
+          <div className="adminStatCard">
+            <div className="adminStatLabel">活跃用户</div>
+            <div className="adminStatValue" style={{ color: '#78ffb9' }}>{usageStats.activeUsers || 0}</div>
+          </div>
+          <div className="adminStatCard">
+            <div className="adminStatLabel">熔断告警</div>
+            <div className="adminStatValue" style={{ color: Object.keys(usageStats.circuitBreakers || {}).length > 0 ? '#ff6b8a' : '#78ffb9' }}>
+              {Object.values(usageStats.circuitBreakers || {}).filter(cb => cb.state === 'open').length}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="pricingAdminMarkupBar">
         <span className="pricingAdminMarkupLabel">默认加价率：</span>
@@ -153,7 +208,7 @@ function PriceOverviewTab({ notify }) {
               <th>基础算力</th>
               <th>加价率</th>
               <th>上游最低价</th>
-              <th>分组数</th>
+              <th>今日调用</th>
               <th>操作</th>
             </tr>
           </thead>
@@ -166,6 +221,7 @@ function PriceOverviewTab({ notify }) {
                 : null;
               const markup = markupConfig.perModel?.[m.id] ?? markupConfig.defaultPercent;
               const isExpanded = expandedModel === m.id;
+              const callCount = modelCallCounts[m.id] || modelCallCounts[m.lingkeModel] || 0;
 
               return (
                 <React.Fragment key={m.id}>
@@ -185,7 +241,9 @@ function PriceOverviewTab({ notify }) {
                       </span>
                     </td>
                     <td className="adminCellCredits">{cheapestUpstream !== null ? formatCNY(cheapestUpstream) : '--'}</td>
-                    <td>{activeGroups.length > 0 ? <span className="pricingGroupCount">{activeGroups.length}</span> : '--'}</td>
+                    <td>
+                      {callCount > 0 ? <span style={{ color: '#42e6ff', fontWeight: 700 }}>{callCount}</span> : <span style={{ color: '#5a6a80' }}>0</span>}
+                    </td>
                     <td>
                       <button className="adminActionBtn" onClick={() => setExpandedModel(isExpanded ? null : m.id)}>
                         {isExpanded ? '收起' : '详情'}
@@ -253,6 +311,8 @@ function UpstreamMonitorTab({ notify }) {
   const [selectedModels, setSelectedModels] = useState({});
   const [applying, setApplying] = useState(false);
   const [applyResults, setApplyResults] = useState(null);
+  const [healthData, setHealthData] = useState({});
+  const [checkingHealth, setCheckingHealth] = useState(false);
 
   useEffect(() => {
     loadProviders();
@@ -277,6 +337,21 @@ function UpstreamMonitorTab({ notify }) {
     } catch (err) {
       console.error('Failed to load fetched prices:', err);
     }
+  }
+
+  async function checkHealth() {
+    setCheckingHealth(true);
+    try {
+      const res = await apiCall('/pricing-admin/upstream/health');
+      const data = await res.json();
+      if (data.success) {
+        setHealthData(data.data);
+        notify.success('健康检查完成');
+      }
+    } catch (err) {
+      notify.error('健康检查失败: ' + err.message);
+    }
+    setCheckingHealth(false);
   }
 
   async function addProvider() {
@@ -338,6 +413,20 @@ function UpstreamMonitorTab({ notify }) {
       notify.error('抓取失败: ' + err.message);
     }
     setFetching(false);
+  }
+
+  async function checkFallback(providerName, modelName) {
+    try {
+      const res = await apiCall(`/pricing-admin/upstream/fallback/${encodeURIComponent(providerName)}/${encodeURIComponent(modelName)}`);
+      const data = await res.json();
+      if (data.success && data.hasFallback) {
+        notify.success(`可切换到供应商: ${data.fallback.provider.name}`);
+      } else {
+        notify.warning('暂无可用的备选供应商');
+      }
+    } catch (err) {
+      notify.error('查询失败');
+    }
   }
 
   function toggleModelSelection(upstreamModelName) {
@@ -402,7 +491,6 @@ function UpstreamMonitorTab({ notify }) {
     ? Object.entries(fetchedPrices.providers[selectedProvider].models || {})
     : [];
   const selectedCount = Object.keys(selectedModels).length;
-
   const allLocalModels = flatLocalModels();
 
   return (
@@ -411,8 +499,11 @@ function UpstreamMonitorTab({ notify }) {
         <button className="adminPrimaryBtn" onClick={() => fetchPrices()} disabled={fetching}>
           <RefreshCw size={14} className={fetching ? 'spinning' : ''} /> 抓取全部上游价格
         </button>
+        <button className="adminActionBtn" onClick={checkHealth} disabled={checkingHealth}>
+          <Activity size={14} /> 健康检查
+        </button>
         <button className="adminActionBtn" onClick={() => setShowAddForm(!showAddForm)}>
-          <Plus size={14} /> 添加上游供应商
+          <Plus size={14} /> 添加供应商
         </button>
       </div>
 
@@ -446,31 +537,41 @@ function UpstreamMonitorTab({ notify }) {
               <th>名称</th>
               <th>URL</th>
               <th>API Key</th>
+              <th>健康状态</th>
+              <th>响应时间</th>
               <th>添加时间</th>
               <th>操作</th>
             </tr>
           </thead>
           <tbody>
-            {providers.map(p => (
-              <tr key={p.name}>
-                <td><strong>{p.name}</strong></td>
-                <td className="adminCellMuted" style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.url}</td>
-                <td className="adminCellMuted">{p.apiKey}</td>
-                <td className="adminCellMuted">{p.addedAt ? new Date(p.addedAt).toLocaleDateString() : '--'}</td>
-                <td>
-                  <div className="adminActionBtns">
-                    <button className="adminActionBtn" onClick={() => fetchPrices(p.name)} disabled={fetching}>
-                      <Download size={12} /> 抓取
-                    </button>
-                    <button className="adminActionBtn danger" onClick={() => removeProvider(p.name)}>
-                      <Trash2 size={12} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+            {providers.map(p => {
+              const health = healthData[p.name];
+              return (
+                <tr key={p.name}>
+                  <td><strong>{p.name}</strong></td>
+                  <td className="adminCellMuted" style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.url}</td>
+                  <td className="adminCellMuted">{p.apiKey}</td>
+                  <td><HealthBadge status={health?.status} /></td>
+                  <td className="adminCellMuted">{health?.responseTime ? `${health.responseTime}ms` : '--'}</td>
+                  <td className="adminCellMuted">{p.addedAt ? new Date(p.addedAt).toLocaleDateString() : '--'}</td>
+                  <td>
+                    <div className="adminActionBtns">
+                      <button className="adminActionBtn" onClick={() => fetchPrices(p.name)} disabled={fetching}>
+                        <Download size={12} /> 抓取
+                      </button>
+                      <button className="adminActionBtn" onClick={() => checkHealth()} disabled={checkingHealth}>
+                        <Heart size={12} />
+                      </button>
+                      <button className="adminActionBtn danger" onClick={() => removeProvider(p.name)}>
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
             {providers.length === 0 && (
-              <tr><td colSpan={5} style={{ textAlign: 'center', color: '#73859f', padding: '24px' }}>暂无上游供应商，请点击"添加上游供应商"</td></tr>
+              <tr><td colSpan={7} style={{ textAlign: 'center', color: '#73859f', padding: '24px' }}>暂无上游供应商，请点击"添加供应商"</td></tr>
             )}
           </tbody>
         </table>
@@ -516,6 +617,7 @@ function UpstreamMonitorTab({ notify }) {
                       <th>类型</th>
                       <th>分组数</th>
                       <th>上游最低价</th>
+                      <th>故障切换</th>
                       <th>状态</th>
                     </tr>
                   </thead>
@@ -562,6 +664,11 @@ function UpstreamMonitorTab({ notify }) {
                           <td>{activeGroups.length}</td>
                           <td className="adminCellCredits">
                             {cheapest !== null ? formatCNY(cheapest) : '--'}
+                          </td>
+                          <td>
+                            <button className="adminActionBtn" onClick={() => checkFallback(selectedProvider, modelName)} style={{ fontSize: '11px' }}>
+                              <Shield size={10} /> 切换
+                            </button>
                           </td>
                           <td>
                             {applyResult ? (
@@ -622,6 +729,198 @@ function UpstreamMonitorTab({ notify }) {
   );
 }
 
+function PriceCompareTab({ notify }) {
+  const [compareData, setCompareData] = useState([]);
+  const [selectedModel, setSelectedModel] = useState(null);
+  const [modelCompareDetail, setModelCompareDetail] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [filterType, setFilterType] = useState('all');
+
+  useEffect(() => {
+    loadCompareData();
+  }, []);
+
+  async function loadCompareData() {
+    setLoading(true);
+    try {
+      const res = await apiCall('/pricing-admin/upstream/compare');
+      const data = await res.json();
+      if (data.success) setCompareData(data.data);
+    } catch (err) {
+      console.error('Failed to load compare data:', err);
+    }
+    setLoading(false);
+  }
+
+  async function loadModelCompare(modelName) {
+    setSelectedModel(modelName);
+    try {
+      const res = await apiCall(`/pricing-admin/upstream/compare?model=${encodeURIComponent(modelName)}`);
+      const data = await res.json();
+      if (data.success) setModelCompareDetail(data.data);
+    } catch (err) {
+      console.error('Failed to load model compare:', err);
+    }
+  }
+
+  const filtered = filterType === 'all' ? compareData : compareData.filter(m => m.type === filterType);
+  const multiProviderModels = filtered.filter(m => m.providerCount > 1);
+
+  return (
+    <div>
+      <div className="pricingAdminToolbar">
+        <button className="adminPrimaryBtn" onClick={loadCompareData} disabled={loading}>
+          <RefreshCw size={14} className={loading ? 'spinning' : ''} /> 刷新比价数据
+        </button>
+        <div style={{ display: 'flex', gap: '6px' }}>
+          {['all', 'image', 'video', 'text'].map(t => (
+            <button key={t} className={`adminActionBtn ${filterType === t ? 'active' : ''}`} onClick={() => setFilterType(t)}>
+              {t === 'all' ? '全部' : t === 'image' ? '图片' : t === 'video' ? '视频' : '文本'}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {multiProviderModels.length > 0 && (
+        <div className="adminCard" style={{ marginBottom: '16px' }}>
+          <h3 className="adminCardTitle">
+            <AlertTriangle size={14} style={{ color: '#f9ff72', marginRight: '6px' }} />
+            多供应商模型比价 ({multiProviderModels.length} 个模型有多个供应商)
+          </h3>
+          <div className="adminTableWrap">
+            <table className="adminTable">
+              <thead>
+                <tr>
+                  <th>模型</th>
+                  <th>类型</th>
+                  <th>供应商数</th>
+                  <th>最低价</th>
+                  <th>最高价</th>
+                  <th>价差%</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                {multiProviderModels.map(m => (
+                  <tr key={m.model} style={{ background: selectedModel === m.model ? 'rgba(66,230,255,0.06)' : undefined }}>
+                    <td>
+                      <div className="pricingModelCell">
+                        <span className="pricingModelName">{m.displayName}</span>
+                        <span className="pricingModelId">{m.model}</span>
+                      </div>
+                    </td>
+                    <td className="adminCellMuted">{m.type}</td>
+                    <td><span style={{ color: '#42e6ff', fontWeight: 700 }}>{m.providerCount}</span></td>
+                    <td className="adminCellCredits" style={{ color: '#78ffb9' }}>{m.bestPrice !== null ? formatCNY(m.bestPrice) : '--'}</td>
+                    <td className="adminCellCredits" style={{ color: '#ff6b8a' }}>{m.worstPrice !== null ? formatCNY(m.worstPrice) : '--'}</td>
+                    <td>
+                      <span style={{ color: m.priceDiff > 20 ? '#ff6b8a' : m.priceDiff > 10 ? '#f9ff72' : '#78ffb9', fontWeight: 700 }}>
+                        {m.priceDiff > 0 ? `+${m.priceDiff}%` : '0%'}
+                      </span>
+                    </td>
+                    <td>
+                      <button className="adminActionBtn" onClick={() => loadModelCompare(m.model)}>
+                        <BarChart3 size={12} /> 详情
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {selectedModel && modelCompareDetail.length > 0 && (
+        <div className="adminCard">
+          <h3 className="adminCardTitle">
+            <ArrowRightLeft size={14} style={{ color: '#42e6ff', marginRight: '6px' }} />
+            {selectedModel} - 供应商价格对比
+          </h3>
+          <div className="adminTableWrap">
+            <table className="adminTable">
+              <thead>
+                <tr>
+                  <th>排名</th>
+                  <th>供应商</th>
+                  <th>健康状态</th>
+                  <th>最低价</th>
+                  <th>分组数</th>
+                  <th>响应时间</th>
+                  <th>推荐</th>
+                </tr>
+              </thead>
+              <tbody>
+                {modelCompareDetail.map((item, idx) => (
+                  <tr key={item.provider} style={{ background: idx === 0 ? 'rgba(120,255,185,0.06)' : undefined }}>
+                    <td>
+                      <span style={{
+                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                        width: '24px', height: '24px', borderRadius: '50%',
+                        background: idx === 0 ? 'rgba(120,255,185,0.2)' : idx === 1 ? 'rgba(249,255,114,0.15)' : 'rgba(115,133,159,0.1)',
+                        color: idx === 0 ? '#78ffb9' : idx === 1 ? '#f9ff72' : '#73859f',
+                        fontSize: '12px', fontWeight: 800
+                      }}>
+                        {idx + 1}
+                      </span>
+                    </td>
+                    <td><strong>{item.provider}</strong></td>
+                    <td><HealthBadge status={item.providerHealth} /></td>
+                    <td className="adminCellCredits" style={{ color: idx === 0 ? '#78ffb9' : '#fff' }}>
+                      {item.cheapestPrice !== null ? formatCNY(item.cheapestPrice) : '--'}
+                    </td>
+                    <td>{item.groupCount}</td>
+                    <td className="adminCellMuted">{item.responseTime ? `${item.responseTime}ms` : '--'}</td>
+                    <td>
+                      {idx === 0 && item.cheapestPrice !== null && (
+                        <span style={{ color: '#78ffb9', fontSize: '11px', fontWeight: 700 }}>
+                          ✓ 最优选择
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {modelCompareDetail.some(item => item.groups?.length > 0) && (
+            <div style={{ marginTop: '16px' }}>
+              <h4 style={{ color: '#9eeeff', fontSize: '13px', marginBottom: '8px' }}>渠道分组详情</h4>
+              <div className="pricingGroupCards">
+                {modelCompareDetail.map(item => (
+                  item.groups?.map((group, idx) => (
+                    <div key={`${item.provider}-${idx}`} className="pricingGroupCard">
+                      <div className="pricingGroupCardHeader">
+                        <span className="pricingGroupCardName">{item.provider} / {group.name}</span>
+                      </div>
+                      <div className="pricingGroupCardStats">
+                        <div>价格: <strong style={{ color: '#78ffb9' }}>{formatCNY(group.price)}</strong></div>
+                        <div>成功率: <span style={{ color: group.successRate >= 90 ? '#78ffb9' : '#f9ff72' }}>{group.successRate > 0 ? `${group.successRate.toFixed(1)}%` : '--'}</span></div>
+                        <div>耗时: {group.avgResponse > 0 ? `${Math.round(group.avgResponse)}s` : '--'}</div>
+                      </div>
+                    </div>
+                  ))
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {!selectedModel && multiProviderModels.length === 0 && (
+        <div className="adminCard">
+          <div style={{ textAlign: 'center', color: '#73859f', padding: '32px' }}>
+            <BarChart3 size={32} style={{ marginBottom: '12px', opacity: 0.5 }} />
+            <p>暂无比价数据，请先添加多个供应商并抓取价格</p>
+            <p style={{ fontSize: '12px', color: '#5a6a80' }}>当同一模型在多个供应商都有报价时，此处将展示价格对比</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function flatLocalModels() {
   const all = [];
   for (const [cat, catModels] of Object.entries(AI_MODELS)) {
@@ -636,7 +935,6 @@ function PriceAdjustTab({ notify }) {
   const [markupConfig, setMarkupConfigData] = useState({ defaultPercent: 15, perModel: {} });
   const [editingModel, setEditingModel] = useState(null);
   const [editMarkup, setEditMarkup] = useState('');
-  const [priceEdits, setPriceEdits] = useState({});
 
   useEffect(() => {
     loadMarkupConfig();
@@ -682,24 +980,6 @@ function PriceAdjustTab({ notify }) {
       }
     } catch (err) {
       notify.error('保存失败');
-    }
-  }
-
-  async function savePrice(category, modelId, resolution, newPrice) {
-    try {
-      const res = await apiCall('/pricing-admin/price', {
-        method: 'PUT',
-        body: JSON.stringify({ category, modelId, resolution, newPrice: parseFloat(newPrice), reason: '管理员手动调整' })
-      });
-      const data = await res.json();
-      if (data.success) {
-        notify.success(`价格已更新`);
-        setPriceEdits({});
-      } else {
-        notify.error(data.error || '更新失败');
-      }
-    } catch (err) {
-      notify.error('更新失败');
     }
   }
 

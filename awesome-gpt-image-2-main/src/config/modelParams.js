@@ -15,9 +15,16 @@ export const MODEL_PARAMS = {
         help: '选择生成图片的尺寸，auto自动选择最佳比例',
         options: [
           { value: 'auto', label: '自动', detail: '智能选择' },
-          { value: '1024x1024', label: '1:1', detail: '正方形' },
-          { value: '1024x1536', label: '2:3', detail: '竖版' },
-          { value: '1536x1024', label: '3:2', detail: '横版' }
+          { value: '1024x1024', label: '1:1', detail: '1K正方形' },
+          { value: '1024x1536', label: '2:3', detail: '1K竖版' },
+          { value: '1536x1024', label: '3:2', detail: '1K横版' },
+          { value: '960x1280', label: '3:4', detail: '竖版' },
+          { value: '1280x960', label: '4:3', detail: '横版' },
+          { value: '1088x1920', label: '9:16', detail: '竖屏' },
+          { value: '1920x1088', label: '16:9', detail: '横屏' },
+          { value: '2048x2048', label: '1:1', detail: '2K正方形' },
+          { value: '2048x3072', label: '2:3', detail: '2K竖版' },
+          { value: '3072x2048', label: '3:2', detail: '2K横版' }
         ]
       },
       {
