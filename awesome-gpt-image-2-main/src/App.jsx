@@ -18,6 +18,7 @@ import { UserDashboard } from './pages/UserDashboard';
 import { ProtectedRoute, AdminRoute } from './components/auth/ProtectedRoute';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { useAuth } from './contexts/AuthContext';
+import { AgencyProvider } from './contexts/AgencyContext';
 
 function AppRoutes({ language }) {
   const { isAuthenticated } = useAuth();
@@ -53,11 +54,13 @@ export function App() {
   };
 
   return (
-    <ErrorBoundary>
-      <Topbar language={language} setLanguage={handleSetLanguage} />
-      <div className="appBody">
-        <AppRoutes language={language} />
-      </div>
-    </ErrorBoundary>
+    <AgencyProvider>
+      <ErrorBoundary>
+        <Topbar language={language} setLanguage={handleSetLanguage} />
+        <div className="appBody">
+          <AppRoutes language={language} />
+        </div>
+      </ErrorBoundary>
+    </AgencyProvider>
   );
 }

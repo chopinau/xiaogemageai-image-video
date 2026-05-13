@@ -16,7 +16,8 @@ router.post('/register', async (req, res) => {
     if (password.length < 6) {
       return res.status(400).json({ success: false, error: '密码至少6位' });
     }
-    const result = await AuthService.register(email, password, nickname);
+    const agencyId = req.agency?.id || null;
+    const result = await AuthService.register(email, password, nickname, agencyId);
     res.json({ success: true, data: result });
   } catch (err) {
     res.status(400).json({ success: false, error: err.message });

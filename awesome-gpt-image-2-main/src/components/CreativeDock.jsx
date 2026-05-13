@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Search, Sparkles, User, Crown, Image, Video, Layers, Wand2 } from 'lucide-react';
 import { ModelLogo } from './ModelLogo';
 import { getModelsByCategory } from '../config/models';
+import { useAgency } from '../contexts/AgencyContext';
 
 const MAIN_CATEGORIES = [
   { key: 'image', label: '图片生成', icon: Image, color: '#42e6ff' },
@@ -12,6 +13,7 @@ const MAIN_CATEGORIES = [
 
 export function CreativeDock({ activeCategory, onCategoryChange, currentModel, onModelChange }) {
   const [searchQuery, setSearchQuery] = useState('');
+  const { agencyName, logoUrl } = useAgency();
 
   const categoryModels = useMemo(() => {
     return getModelsByCategory(activeCategory);
@@ -40,7 +42,7 @@ export function CreativeDock({ activeCategory, onCategoryChange, currentModel, o
             <Sparkles size={18} />
           </div>
           <div className="sidebarBrand">
-            <span className="brandName">小马AI</span>
+            <span className="brandName">{agencyName || '小马AI'}</span>
             <span className="brandSub">AI创作平台</span>
           </div>
         </div>

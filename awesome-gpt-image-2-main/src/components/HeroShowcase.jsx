@@ -2,6 +2,7 @@
 import { Image, Video, Wand2, Layers } from 'lucide-react';
 import { ModelLogo } from './ModelLogo';
 import { getModelsByCategory, getModelById } from '../config/models';
+import { useAgency } from '../contexts/AgencyContext';
 
 const FEATURE_CARDS = [
   {
@@ -54,6 +55,7 @@ const RECOMMEND_MODELS = [
 ];
 
 export function HeroShowcase({ onSelectFeature, onQuickPrompt }) {
+  const { heroTitle, heroSubtitle } = useAgency();
   return (
     <div className="heroShowcase">
       <div className="heroSection">
@@ -65,8 +67,8 @@ export function HeroShowcase({ onSelectFeature, onQuickPrompt }) {
           <div className="heroIconInner">✨</div>
         </div>
 
-        <h2 className="heroTitle">AI 创作工作台</h2>
-        <p className="heroSubtitle">一站式图片 & 视频创作，多模型自由切换</p>
+        <h2 className="heroTitle">{heroTitle || 'AI 创作工作台'}</h2>
+        <p className="heroSubtitle">{heroSubtitle || '一站式图片 & 视频创作，多模型自由切换'}</p>
       </div>
 
       <div className="heroFeatureGrid">

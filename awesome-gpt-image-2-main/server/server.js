@@ -23,7 +23,9 @@ import ticketRoutes from './routes/ticketRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import paymentConfigRoutes from './routes/paymentConfigRoutes.js';
 import strategyRoutes from './routes/strategyRoutes.js';
+import agencyRoutes from './routes/agencyRoutes.js';
 import { rateLimitMiddleware } from './middleware/rateLimit.js';
+import { agencyResolver } from './middleware/agencyResolver.js';
 import { errorHandler } from './utils/errorHandler.js';
 import apiProtection from './services/apiProtectionService.js';
 import * as HealthMonitor from './services/providerHealthMonitor.js';
@@ -36,6 +38,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 app.use(rateLimitMiddleware);
+app.use(agencyResolver);
 
 app.get('/api/health', (req, res) => {
   res.json({
@@ -67,6 +70,7 @@ app.use('/api/tickets', ticketRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/payment-config', paymentConfigRoutes);
 app.use('/api/strategy', strategyRoutes);
+app.use('/api/agency', agencyRoutes);
 
 app.get('/api/models', (req, res) => {
   res.json({

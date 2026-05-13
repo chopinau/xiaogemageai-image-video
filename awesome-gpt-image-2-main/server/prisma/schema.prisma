@@ -22,6 +22,7 @@ model User {
   referralCode    String?   @unique
   referredBy      String?
   status          String    @default("active")
+  agencyId        Int?
   lastLoginAt     DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -32,6 +33,9 @@ model User {
   checkIns      CheckIn[]
   tickets       Ticket[]
   notificationReads NotificationRead[]
+  agency        Agency?   @relation("UserAgency", fields: [agencyId], references: [id], onDelete: SetNull)
+  agencyLinks   AgencyUser[]
+  ownedAgency   Agency?   @relation("AgencyOwner")
 }
 
 model Order {
@@ -162,4 +166,102 @@ model PaymentConfig {
   value       String
   description String?
   updatedAt   DateTime  @updatedAt
+}
+
+model Agency {
+  id               Int       @id @default(autoincrement())
+  userId           Int       @unique
+  agencyName       String
+  agencySlug       String    @unique
+  subdomain        String    @unique
+  logoUrl          String?
+  faviconUrl       String?
+  primaryColor     String    @default("#42e6ff")
+  description      String?
+  status           String    @default("active")
+  markupType       String    @default("percent")
+  markupValue      Float     @default(0)
+  minMarkup        Float     @default(0)
+  maxMarkup        Float?
+  totalRevenue     Float     @default(0)
+  availableBalance Float     @default(0)
+  frozenBalance    Float     @default(0)
+  totalWithdrawn   Float     @default(0)
+  customDomain     String?
+  allowSignup      Boolean   @default(true)
+  maxUsers         Int       @default(1000)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  user             User      @relation("AgencyOwner", fields: [userId], references: [id], onDelete: Cascade)
+  agencyUsers      AgencyUser[]
+  withdrawals      AgencyWithdrawal[]
+  revenueRecords   AgencyRevenueRecord[]
+  brandConfig      AgencyBrandConfig?
+  memberUsers      User[]    @relation("UserAgency")
+}
+
+model AgencyUser {
+  id        Int       @id @default(autoincrement())
+  agencyId  Int
+  userId    Int
+  joinedAt  DateTime  @default(now())
+
+  agency    Agency    @relation(fields: [agencyId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+
+  @@unique([agencyId, userId])
+}
+
+model AgencyRevenueRecord {
+  id          Int       @id @default(autoincrement())
+  agencyId    Int
+  userId      Int
+  orderId     String?
+  type        String
+  basePrice   Float
+  agencyPrice Float
+  revenue     Float
+  status      String    @default("settled")
+  createdAt   DateTime  @default(now())
+
+  agency      Agency    @relation(fields: [agencyId], references: [id])
+}
+
+model AgencyWithdrawal {
+  id            Int       @id @default(autoincrement())
+  agencyId      Int
+  amount        Float
+  fee           Float     @default(0)
+  actualAmount  Float
+  method        String    @default("alipay")
+  accountInfo   String
+  accountName   String
+  status        String    @default("pending")
+  reviewedAt    DateTime?
+  reviewedBy    Int?
+  rejectReason  String?
+  completedAt   DateTime?
+  transactionId String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  agency        Agency    @relation(fields: [agencyId], references: [id])
+}
+
+model AgencyBrandConfig {
+  id               Int       @id @default(autoincrement())
+  agencyId         Int       @unique
+  heroTitle        String?
+  heroSubtitle     String?
+  footerText       String?
+  ogImage          String?
+  customCss        String?
+  hidePoweredBy    Boolean   @default(false)
+  enabledModels    String?
+  disabledFeatures String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  agency           Agency    @relation(fields: [agencyId], references: [id])
 }

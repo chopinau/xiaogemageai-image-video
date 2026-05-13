@@ -1,14 +1,16 @@
-﻿﻿﻿﻿﻿import React, { useState, useEffect, useRef } from 'react';
+﻿﻿﻿﻿import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { WandSparkles, Menu, X, User, CreditCard, Crown, Share2, LogOut, Shield, Bell } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useCredits } from '../contexts/CreditsContext';
 import { useMember } from '../contexts/MemberContext';
+import { useAgency } from '../contexts/AgencyContext';
 
 export function Topbar({ language, setLanguage }) {
   const { isAuthenticated, user, logout } = useAuth();
   const { balance } = useCredits();
   const { currentPlan } = useMember();
+  const { brand, logoUrl, agencyName } = useAgency();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -66,8 +68,8 @@ export function Topbar({ language, setLanguage }) {
   return (
     <header className="topbar">
       <NavLink className="brand" to="/">
-        <WandSparkles size={21} />
-        <span className="brandText">AI 创作平台</span>
+        {logoUrl ? <img src={logoUrl} alt={agencyName} style={{height:21,width:21,borderRadius:4,objectFit:'cover'}} /> : <WandSparkles size={21} />}
+        <span className="brandText">{agencyName || 'AI 创作平台'}</span>
       </NavLink>
 
       <nav className="topbarNav">

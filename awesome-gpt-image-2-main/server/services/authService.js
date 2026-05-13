@@ -7,7 +7,7 @@ const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 const JWT_REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || '30d';
 const INITIAL_CREDITS = 2.0;
 
-async function register(email, password, nickname = '') {
+async function register(email, password, nickname = '', agencyId = null) {
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
     throw new Error('该邮箱已注册');
@@ -16,16 +16,32 @@ async function register(email, password, nickname = '') {
   const passwordHash = await bcrypt.hash(password, 10);
   const referralCode = `REF${Date.now().toString(36).toUpperCase()}`;
 
-  const user = await prisma.user.create({
-    data: {
-      email,
-      passwordHash,
-      nickname: nickname || email.split('@')[0],
-      credits: INITIAL_CREDITS,
-      referralCode,
-      status: 'active'
+  const userData = {
+    email,
+    passwordHash,
+    nickname: nickname || email.split('@')[0],
+    credits: INITIAL_CREDITS,
+    referralCode,
+    status: 'active'
+  };
+
+  if (agencyId) {
+    const agency = await prisma.agency.findUnique({ where: { id: agencyId } });
+    if (agency && agency.allowSignup && agency.status === 'active') {
+      const userCount = await prisma.agencyUser.count({ where: { agencyId } });
+      if (userCount < agency.maxUsers) {
+        userData.agencyId = agencyId;
+      }
     }
-  });
+  }
+
+  const user = await prisma.user.create({ data: userData });
+
+  if (agencyId && userData.agencyId) {
+    await prisma.agencyUser.create({
+      data: { agencyId, userId: user.id }
+    });
+  }
 
   await prisma.transaction.create({
     data: {
