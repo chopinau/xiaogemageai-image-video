@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNotification } from '../../contexts/NotificationContext';
 import { AI_MODELS } from '../../config/models';
-import { RefreshCw, Plus, Trash2, Download, DollarSign, TrendingUp, Link, Check, X, ChevronDown, ChevronUp, Search, Zap, Activity, BarChart3, AlertTriangle, Heart, Shield, ArrowRightLeft } from 'lucide-react';
+import { RefreshCw, Plus, Trash2, Download, DollarSign, TrendingUp, Link, Check, X, ChevronDown, ChevronUp, Search, Zap, Activity, BarChart3, AlertTriangle, Heart, Shield, ArrowRightLeft, Settings2, Play, Layers } from 'lucide-react';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 const ADMIN_KEY = 'admin123';
@@ -43,6 +43,7 @@ export function PricingAdmin() {
     { id: 'overview', label: '价格总览', icon: DollarSign },
     { id: 'upstream', label: '上游监控', icon: Link },
     { id: 'compare', label: '供应商比价', icon: ArrowRightLeft },
+    { id: 'strategy', label: '策略管理', icon: Settings2 },
     { id: 'adjust', label: '价格调整', icon: TrendingUp },
     { id: 'history', label: '变更记录', icon: RefreshCw }
   ];
@@ -65,6 +66,7 @@ export function PricingAdmin() {
         {activeSubTab === 'overview' && <PriceOverviewTab notify={notify} />}
         {activeSubTab === 'upstream' && <UpstreamMonitorTab notify={notify} />}
         {activeSubTab === 'compare' && <PriceCompareTab notify={notify} />}
+        {activeSubTab === 'strategy' && <StrategyManageTab notify={notify} />}
         {activeSubTab === 'adjust' && <PriceAdjustTab notify={notify} />}
         {activeSubTab === 'history' && <PriceHistoryTab notify={notify} />}
       </div>
@@ -1159,6 +1161,279 @@ function PriceHistoryTab({ notify }) {
           <button className="adminActionBtn" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>上一页</button>
           <span className="pricingPageInfo">第 {page} 页 / 共 {Math.ceil(total / 20)} 页</span>
           <button className="adminActionBtn" disabled={page >= Math.ceil(total / 20)} onClick={() => setPage(p => p + 1)}>下一页</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StrategyManageTab({ notify }) {
+  const [strategies, setStrategies] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [activeStrategy, setActiveStrategy] = useState('economy');
+  const [providerInput, setProviderInput] = useState('');
+  const [syncing, setSyncing] = useState(false);
+  const [compareModel, setCompareModel] = useState('');
+  const [compareData, setCompareData] = useState(null);
+  const [modelMappings, setModelMappings] = useState({});
+
+  useEffect(() => { loadStrategies(); }, []);
+
+  async function loadStrategies() {
+    setLoading(true);
+    try {
+      const res = await apiCall('/strategy/strategies');
+      const data = await res.json();
+      if (data.success) {
+        setStrategies(data.data || {});
+        if (data.data?.[activeStrategy]?.modelMappings) {
+          setModelMappings(data.data[activeStrategy].modelMappings);
+        }
+      }
+    } catch {}
+    setLoading(false);
+  }
+
+  async function addProvider(strategyId) {
+    if (!providerInput.trim()) return;
+    const current = strategies[strategyId]?.providers || [];
+    if (current.includes(providerInput.trim())) {
+      notify.warning('供应商已存在');
+      return;
+    }
+    try {
+      const res = await apiCall(`/strategy/strategies/${strategyId}/providers`, {
+        method: 'PUT',
+        body: JSON.stringify({ providers: [...current, providerInput.trim()] })
+      });
+      const data = await res.json();
+      if (data.success) {
+        notify.success(`已添加供应商: ${providerInput.trim()}`);
+        setProviderInput('');
+        loadStrategies();
+      }
+    } catch {}
+  }
+
+  async function removeProvider(strategyId, providerName) {
+    const current = strategies[strategyId]?.providers || [];
+    try {
+      const res = await apiCall(`/strategy/strategies/${strategyId}/providers`, {
+        method: 'PUT',
+        body: JSON.stringify({ providers: current.filter(p => p !== providerName) })
+      });
+      const data = await res.json();
+      if (data.success) {
+        notify.success(`已移除供应商: ${providerName}`);
+        loadStrategies();
+      }
+    } catch {}
+  }
+
+  async function syncStrategy(strategyId) {
+    setSyncing(true);
+    try {
+      const res = await apiCall(`/strategy/strategies/${strategyId}/sync`, { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        notify.success(`同步完成: ${data.syncedCount} 个模型已更新`);
+        loadStrategies();
+      } else {
+        notify.error(data.error || '同步失败');
+      }
+    } catch { notify.error('同步请求失败'); }
+    setSyncing(false);
+  }
+
+  async function applyStrategy(strategyId) {
+    try {
+      const res = await apiCall(`/strategy/strategies/${strategyId}/apply`, { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        notify.success(`已应用 ${data.appliedCount} 个模型价格到定价引擎`);
+      } else {
+        notify.error(data.error || '应用失败');
+      }
+    } catch { notify.error('应用请求失败'); }
+  }
+
+  async function compareModelPrices() {
+    if (!compareModel.trim()) return;
+    try {
+      const res = await apiCall(`/strategy/compare/${compareModel.trim()}`);
+      const data = await res.json();
+      if (data.success) {
+        setCompareData(data.data);
+      }
+    } catch {}
+  }
+
+  const strategyLabels = { economy: '经济', balanced: '均衡', premium: '品质' };
+  const strategyColors = { economy: '#34d399', balanced: '#42e6ff', premium: '#fbbf24' };
+
+  const currentStrategy = strategies[activeStrategy];
+
+  return (
+    <div>
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+        {Object.entries(strategyLabels).map(([id, label]) => (
+          <button
+            key={id}
+            className={`pricingAdminTab ${activeStrategy === id ? 'active' : ''}`}
+            onClick={() => { setActiveStrategy(id); setModelMappings(strategies[id]?.modelMappings || {}); }}
+            style={activeStrategy === id ? { borderColor: strategyColors[id], color: strategyColors[id] } : {}}
+          >
+            {label}策略
+          </button>
+        ))}
+      </div>
+
+      {loading ? <div style={{ color: '#73859f', padding: '20px' }}>加载中...</div> : (
+        <div className="adminGrid2">
+          <div className="adminCard">
+            <h3 className="adminCardTitle">
+              <Settings2 size={16} style={{ color: strategyColors[activeStrategy] }} />
+              {strategyLabels[activeStrategy]}策略配置
+            </h3>
+
+            <div className="adminStatGrid" style={{ marginBottom: '16px', gridTemplateColumns: '1fr 1fr 1fr' }}>
+              <div className="adminStatCard">
+                <div className="adminStatLabel">加价率</div>
+                <div className="adminStatValue" style={{ color: strategyColors[activeStrategy] }}>{currentStrategy?.markupPercent ?? '--'}%</div>
+              </div>
+              <div className="adminStatCard">
+                <div className="adminStatLabel">供应商数</div>
+                <div className="adminStatValue" style={{ color: '#42e6ff' }}>{currentStrategy?.providerCount || (currentStrategy?.providers || []).length}</div>
+              </div>
+              <div className="adminStatCard">
+                <div className="adminStatLabel">模型映射</div>
+                <div className="adminStatValue" style={{ color: '#78ffb9' }}>{currentStrategy?.modelCount || Object.keys(currentStrategy?.modelMappings || {}).length}</div>
+              </div>
+            </div>
+
+            <div className="adminFormField">
+              <label className="adminLabel">加价百分比</label>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input
+                  className="adminInput"
+                  type="number"
+                  value={currentStrategy?.markupPercent ?? 0}
+                  onChange={e => {
+                    const val = parseInt(e.target.value) || 0;
+                    setStrategies(prev => ({
+                      ...prev,
+                      [activeStrategy]: { ...prev[activeStrategy], markupPercent: val }
+                    }));
+                  }}
+                  style={{ flex: 1 }}
+                />
+                <button className="adminPrimaryBtn" onClick={async () => {
+                  try {
+                    const res = await apiCall(`/strategy/strategies/${activeStrategy}/markup`, {
+                      method: 'PUT',
+                      body: JSON.stringify({ markupPercent: currentStrategy?.markupPercent ?? 0 })
+                    });
+                    const data = await res.json();
+                    if (data.success) notify.success('加价率已更新');
+                  } catch {}
+                }}>保存</button>
+              </div>
+            </div>
+
+            <div className="adminFormField">
+              <label className="adminLabel">关联供应商</label>
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                <input className="adminInput" value={providerInput} onChange={e => setProviderInput(e.target.value)} placeholder="输入供应商名称" style={{ flex: 1 }} />
+                <button className="adminActionBtn" onClick={() => addProvider(activeStrategy)}><Plus size={14} /></button>
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                {(currentStrategy?.providers || []).map(p => (
+                  <span key={p} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '4px 10px', borderRadius: '12px', background: 'rgba(66,230,255,0.1)', color: '#42e6ff', fontSize: '12px' }}>
+                    {p}
+                    <button style={{ background: 'none', border: 'none', color: '#ff6b8a', cursor: 'pointer', padding: 0 }} onClick={() => removeProvider(activeStrategy, p)}><X size={12} /></button>
+                  </span>
+                ))}
+                {(!currentStrategy?.providers || currentStrategy.providers.length === 0) && (
+                  <span style={{ color: '#73859f', fontSize: '12px' }}>暂未关联供应商</span>
+                )}
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+              <button className="adminPrimaryBtn" onClick={() => syncStrategy(activeStrategy)} disabled={syncing}>
+                <RefreshCw size={14} className={syncing ? 'spin' : ''} /> {syncing ? '同步中...' : '同步模型价格'}
+              </button>
+              <button className="adminActionBtn" onClick={() => applyStrategy(activeStrategy)}>
+                <Play size={14} /> 应用到定价引擎
+              </button>
+            </div>
+
+            {currentStrategy?.lastSyncAt && (
+              <div style={{ color: '#73859f', fontSize: '11px', marginTop: '8px' }}>
+                上次同步: {new Date(currentStrategy.lastSyncAt).toLocaleString('zh-CN')}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <div className="adminCard" style={{ marginBottom: '16px' }}>
+              <h3 className="adminCardTitle">
+                <Layers size={16} /> 模型映射 ({Object.keys(currentStrategy?.modelMappings || {}).length})
+              </h3>
+              <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                {Object.entries(currentStrategy?.modelMappings || {}).length > 0 ? (
+                  <table className="adminTable" style={{ fontSize: '12px' }}>
+                    <thead>
+                      <tr>{['模型', '供应商', '上游价', '售价', '操作'].map(h => <th key={h}>{h}</th>)}</tr>
+                    </thead>
+                    <tbody>
+                      {Object.entries(currentStrategy?.modelMappings || {}).map(([modelId, mapping]) => (
+                        <tr key={modelId}>
+                          <td className="adminCellId" style={{ fontSize: '11px' }}>{modelId}</td>
+                          <td className="adminCellMuted">{mapping.providerName}</td>
+                          <td>{formatCNY(mapping.upstreamPrice)}</td>
+                          <td style={{ color: strategyColors[activeStrategy] }}>{formatCNY(mapping.sellingPrice)}</td>
+                          <td>
+                            <button className="adminActionBtn danger" style={{ padding: '2px 6px', fontSize: '11px' }} onClick={async () => {
+                              try {
+                                const res = await apiCall(`/strategy/strategies/${activeStrategy}/model-mapping/${modelId}`, { method: 'DELETE' });
+                                if ((await res.json()).success) { notify.success('已删除'); loadStrategies(); }
+                              } catch {}
+                            }}><Trash2 size={10} /></button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div style={{ color: '#73859f', fontSize: '13px', textAlign: 'center', padding: '20px' }}>
+                    暂无模型映射，点击"同步模型价格"从关联供应商抓取
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="adminCard">
+              <h3 className="adminCardTitle">
+                <ArrowRightLeft size={16} /> 策略价格对比
+              </h3>
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+                <input className="adminInput" value={compareModel} onChange={e => setCompareModel(e.target.value)} placeholder="输入模型ID进行对比" style={{ flex: 1 }} />
+                <button className="adminPrimaryBtn" onClick={compareModelPrices}>对比</button>
+              </div>
+              {compareData && (
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  {Object.entries(compareData).map(([sid, data]) => (
+                    <div key={sid} style={{ flex: 1, padding: '10px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', textAlign: 'center' }}>
+                      <div style={{ color: strategyColors[sid], fontSize: '12px', fontWeight: 700, marginBottom: '4px' }}>{strategyLabels[sid]}</div>
+                      <div style={{ color: '#e0e6ed', fontSize: '16px', fontWeight: 700 }}>{data ? formatCNY(data.sellingPrice) : '--'}</div>
+                      {data && <div style={{ color: '#73859f', fontSize: '10px', marginTop: '2px' }}>上游: {formatCNY(data.upstreamPrice)} | 加价: {data.markupPercent}%</div>}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>

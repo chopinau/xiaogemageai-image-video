@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿export const CREDITS_RULES = {
+﻿export const CREDITS_RULES = {
   consumption: {
     'image:gpt-image-2:1k': 0.05,
     'image:gpt-image-2:2k': 0.10,

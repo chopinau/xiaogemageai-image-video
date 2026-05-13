@@ -1,0 +1,36 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-05-13T04:30:22.947Z",
+  "strategies": {
+    "economy": {
+      "id": "economy",
+      "label": "经济",
+      "markupPercent": 0,
+      "description": "最低价格，适合批量生成",
+      "providers": [],
+      "modelMappings": {},
+      "autoSync": false,
+      "lastSyncAt": null
+    },
+    "balanced": {
+      "id": "balanced",
+      "label": "均衡",
+      "markupPercent": 15,
+      "description": "性价比最优，成功率优先",
+      "providers": [],
+      "modelMappings": {},
+      "autoSync": false,
+      "lastSyncAt": null
+    },
+    "premium": {
+      "id": "premium",
+      "label": "品质",
+      "markupPercent": 30,
+      "description": "最高品质，速度优先",
+      "providers": [],
+      "modelMappings": {},
+      "autoSync": false,
+      "lastSyncAt": null
+    }
+  }
+}

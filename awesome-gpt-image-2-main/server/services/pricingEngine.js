@@ -281,6 +281,10 @@ const STRATEGY_MARKUP = {
   premium: 30
 };
 
+function updateStrategyMarkup(strategyId, markupPercent) {
+  STRATEGY_MARKUP[strategyId] = markupPercent;
+}
+
 function getEffectiveMarkup(modelId, strategy) {
   if (strategy && STRATEGY_MARKUP[strategy] !== undefined) {
     return STRATEGY_MARKUP[strategy];
@@ -347,5 +351,5 @@ export {
   getPriceHistory, getPriceAlerts, recordPriceChange,
   getMarkupConfig, setMarkupConfig, setModelMarkup, getEffectiveMarkup,
   calculateSellingPrice, batchUpdatePrices, getAllPricing, getModelPricing,
-  getStrategyPricing, STRATEGY_MARKUP
+  getStrategyPricing, STRATEGY_MARKUP, updateStrategyMarkup
 };

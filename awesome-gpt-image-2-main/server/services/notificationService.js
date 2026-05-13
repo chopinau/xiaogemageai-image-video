@@ -1,5 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+import prisma from './db.js';
 
 export async function createNotification(title, content, type = 'system', targetRole = null, senderId = null) {
   const notification = await prisma.notification.create({

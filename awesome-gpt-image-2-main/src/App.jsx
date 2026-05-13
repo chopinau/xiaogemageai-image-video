@@ -15,7 +15,7 @@ import { AffiliatePage } from './pages/distribution/Affiliate';
 import { ProfilePage } from './pages/member/Profile';
 import { AdminPage } from './pages/admin/Admin';
 import { UserDashboard } from './pages/UserDashboard';
-import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { ProtectedRoute, AdminRoute } from './components/auth/ProtectedRoute';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { useAuth } from './contexts/AuthContext';
 
@@ -36,7 +36,7 @@ function AppRoutes({ language }) {
       <Route path="/profile" element={<ProtectedRoute><ProfilePage language={language} /></ProtectedRoute>} />
       <Route path="/credits" element={<ProtectedRoute><CreditsCenter language={language} /></ProtectedRoute>} />
       <Route path="/affiliate" element={<ProtectedRoute><AffiliatePage language={language} /></ProtectedRoute>} />
-      <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
+      <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><UserDashboard language={language} /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

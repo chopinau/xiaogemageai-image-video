@@ -4,6 +4,7 @@ import { imageService } from '../services/imageService.js';
 import { taskManager } from '../utils/taskManager.js';
 import apiProtection from '../services/apiProtectionService.js';
 import * as PricingEngine from '../services/pricingEngine.js';
+import { optionalAuth } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -12,7 +13,7 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 }
 });
 
-router.post('/generate', upload.array('images', 10), async (req, res) => {
+router.post('/generate', optionalAuth, upload.array('images', 10), async (req, res) => {
   try {
     const { model, prompt, userId, ...options } = req.body;
     if (!prompt) {
@@ -61,7 +62,7 @@ router.post('/generate', upload.array('images', 10), async (req, res) => {
   }
 });
 
-router.post('/edit', upload.array('images', 10), async (req, res) => {
+router.post('/edit', optionalAuth, upload.array('images', 10), async (req, res) => {
   try {
     const { model, prompt, imageUrl, userId, ...options } = req.body;
     if (!prompt) {
@@ -112,7 +113,7 @@ router.post('/edit', upload.array('images', 10), async (req, res) => {
   }
 });
 
-router.post('/inpaint', upload.array('images', 2), async (req, res) => {
+router.post('/inpaint', optionalAuth, upload.array('images', 2), async (req, res) => {
   try {
     const { model, prompt, userId, ...options } = req.body;
     if (!prompt) {

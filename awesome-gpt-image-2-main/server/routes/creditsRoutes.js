@@ -1,7 +1,13 @@
 import { Router } from 'express';
 import { authMiddleware } from '../middleware/auth.js';
 import * as CreditsService from '../services/creditsService.js';
-import { CREDITS_RULES } from '../../src/config/credits.js';
+
+const CREDITS_PACKS = [
+  { id: 'pack-10', credits: 10, price: 10, bonus: 0, label: '10 算力' },
+  { id: 'pack-50', credits: 50, price: 50, bonus: 2, label: '50 算力' },
+  { id: 'pack-200', credits: 200, price: 200, bonus: 10, label: '200 算力' },
+  { id: 'pack-500', credits: 500, price: 500, bonus: 30, label: '500 算力' }
+];
 
 const router = Router();
 
@@ -49,7 +55,7 @@ router.get('/history', authMiddleware, async (req, res) => {
 });
 
 router.get('/packs', (req, res) => {
-  res.json({ success: true, data: CREDITS_RULES.packs || [] });
+  res.json({ success: true, data: CREDITS_PACKS });
 });
 
 export default router;

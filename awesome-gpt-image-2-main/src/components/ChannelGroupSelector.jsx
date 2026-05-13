@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Zap, TrendingUp, Shield, RefreshCw } from 'lucide-react';
+import { X, Zap, TrendingUp, Shield } from 'lucide-react';
 import { getAllModelPricings } from '../services/pricingService';
 import { API_KEY_PROFILES, getActiveProfile, setActiveProfile } from '../config/apiKeys';
 import { calculateComputeCost, formatCredits } from '../config/modelPricing';
@@ -16,17 +16,22 @@ export function ChannelGroupSelector({ modelName, currentParams, onClose, onProf
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
     async function load() {
       setLoading(true);
-      const data = await getAllModelPricings();
-      setPricingData(data);
-      setLoading(false);
+      try {
+        const data = await getAllModelPricings();
+        if (mounted) setPricingData(data);
+      } catch {}
+      if (mounted) setLoading(false);
     }
     load();
+    return () => { mounted = false; };
   }, []);
 
   const handleProfileChange = (profileId) => {
-    setCurrentProfile(STRATEGIES[profileId]);
+    const strategy = STRATEGIES[profileId];
+    setCurrentProfile(strategy);
     setActiveProfile(profileId);
     onProfileChange?.(profileId);
   };
@@ -43,7 +48,7 @@ export function ChannelGroupSelector({ modelName, currentParams, onClose, onProf
       <div className="channelGroupPanel" onClick={e => e.stopPropagation()}>
         <div className="cgpHeader">
           <div className="cgpTitle">
-            <span>价格策略</span>
+            <span>选择模式</span>
             <span className="cgpModelName">{modelName}</span>
           </div>
           <button className="cgpClose" onClick={onClose}>
@@ -78,26 +83,17 @@ export function ChannelGroupSelector({ modelName, currentParams, onClose, onProf
         </div>
 
         <div className="cgpPriceBreakdown">
-          <div className="cgpSectionLabel">价格明细</div>
+          <div className="cgpSectionLabel">预计消耗</div>
           <div className="cgpBreakdownCard">
-            <div className="cgpBreakdownRow">
-              <span className="cgpBreakdownLabel">供应商基础价</span>
-              <span className="cgpBreakdownValue">{formatCredits(baseCredits)} 算力</span>
-            </div>
-            <div className="cgpBreakdownRow">
-              <span className="cgpBreakdownLabel">策略加价 ({markup}%)</span>
-              <span className="cgpBreakdownValue">+{formatCredits(finalCredits - baseCredits)} 算力</span>
-            </div>
-            <div className="cgpBreakdownDivider" />
             <div className="cgpBreakdownRow total">
-              <span className="cgpBreakdownLabel">最终价格</span>
-              <span className="cgpBreakdownValue">{formatCredits(finalCredits)} 算力</span>
+              <span className="cgpBreakdownLabel">当前模式价格</span>
+              <span className="cgpBreakdownValue" style={{ color: STRATEGIES[currentStrategy]?.color || '#42e6ff', fontSize: '18px', fontWeight: 700 }}>{formatCredits(finalCredits)} 算力</span>
             </div>
           </div>
         </div>
 
         <div className="cgpStrategyNote">
-          💡 策略决定渠道选择和加价比例，系统自动匹配最优渠道
+          💡 不同模式对应不同的渠道策略，系统自动匹配最优渠道
         </div>
       </div>
     </div>

@@ -1,11 +1,9 @@
 import { Router } from 'express';
 import * as AuthService from '../services/authService.js';
 import { authMiddleware, optionalAuth } from '../middleware/auth.js';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../services/db.js';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-
-const prisma = new PrismaClient();
 
 const router = Router();
 

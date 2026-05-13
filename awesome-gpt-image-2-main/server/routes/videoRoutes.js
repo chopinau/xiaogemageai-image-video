@@ -1,10 +1,11 @@
 import { Router } from 'express';
 import { videoService } from '../services/videoService.js';
 import apiProtection from '../services/apiProtectionService.js';
+import { optionalAuth } from '../middleware/auth.js';
 
 const router = Router();
 
-router.post('/generate', async (req, res) => {
+router.post('/generate', optionalAuth, async (req, res) => {
   try {
     const { model, prompt, duration, userId, ...options } = req.body;
     if (!prompt) {
@@ -52,7 +53,7 @@ router.post('/generate', async (req, res) => {
   }
 });
 
-router.post('/from-image', async (req, res) => {
+router.post('/from-image', optionalAuth, async (req, res) => {
   try {
     const { model, imageUrl, prompt, duration, userId, ...options } = req.body;
     if (!imageUrl || !prompt) {

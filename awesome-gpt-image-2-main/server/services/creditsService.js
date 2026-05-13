@@ -36,6 +36,18 @@ async function add(userId, amount, description, relatedId = null) {
 }
 
 const pendingDeductions = new Map();
+const PENDING_DEDUCT_TIMEOUT = 10 * 60 * 1000;
+
+setInterval(() => {
+  const now = Date.now();
+  for (const [deductionId, pending] of pendingDeductions.entries()) {
+    if (now - pending.deductedAt.getTime() > PENDING_DEDUCT_TIMEOUT) {
+      pendingDeductions.delete(deductionId);
+      add(pending.userId, pending.amount, `预扣费超时自动回滚 ${deductionId}`, deductionId)
+        .catch(err => console.error(`[CreditsService] Auto-rollback failed for ${deductionId}:`, err.message));
+    }
+  }
+}, 60000);
 
 async function preDeduct(userId, amount) {
   const deductionId = `pd_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;

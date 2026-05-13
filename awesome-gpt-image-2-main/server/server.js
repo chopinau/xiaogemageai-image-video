@@ -22,6 +22,7 @@ import usageRoutes from './routes/usageRoutes.js';
 import ticketRoutes from './routes/ticketRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import paymentConfigRoutes from './routes/paymentConfigRoutes.js';
+import strategyRoutes from './routes/strategyRoutes.js';
 import { rateLimitMiddleware } from './middleware/rateLimit.js';
 import { errorHandler } from './utils/errorHandler.js';
 import apiProtection from './services/apiProtectionService.js';
@@ -65,6 +66,7 @@ app.use('/api/usage', usageRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/payment-config', paymentConfigRoutes);
+app.use('/api/strategy', strategyRoutes);
 
 app.get('/api/models', (req, res) => {
   res.json({
@@ -91,19 +93,6 @@ app.get('/api/models', (req, res) => {
         { id: 'gpt-4o', name: 'GPT-4o', provider: 'OpenAI', apiType: 'sync' },
         { id: 'deepseek', name: 'DeepSeek', provider: 'DeepSeek', apiType: 'sync' }
       ]
-    }
-  });
-});
-
-app.get('/api/usage', (req, res) => {
-  res.json({
-    success: true,
-    usage: {
-      imagesGenerated: 0,
-      videosGenerated: 0,
-      textGenerated: 0,
-      totalCost: 0,
-      thisMonth: 0
     }
   });
 });
