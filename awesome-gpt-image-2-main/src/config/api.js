@@ -6,6 +6,8 @@ export const API_CONFIG = {
   }
 };
 
+export const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+
 export const API_ENDPOINTS = {
   image: {
     generate: '/image/generate',
@@ -45,14 +47,9 @@ export const createAPIHeaders = (apiKey, extraHeaders = {}) => ({
 });
 
 export function buildURL(endpoint, params = {}) {
-  const base = API_CONFIG.baseURL || '';
+  const base = API_CONFIG.baseURL || '/api';
   const path = `${base}${endpoint}`;
-  let url;
-  try {
-    url = new URL(path, window.location.origin);
-  } catch {
-    url = new URL(path, 'http://localhost:3000');
-  }
+  const url = new URL(path, window.location.origin);
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null) {
       url.searchParams.append(key, value);
@@ -69,4 +66,35 @@ export function validateAPIKey(apiKey) {
     return { valid: false, message: 'API key seems too short' };
   }
   return { valid: true };
+}
+
+export async function safeFetch(url, options = {}) {
+  const response = await fetch(url, options);
+  const text = await response.text();
+  if (!text || text.trim() === '') {
+    throw new Error(`服务器返回空响应 (HTTP ${response.status})`);
+  }
+  if (text.startsWith('<!DOCTYPE') || text.startsWith('<html') || text.startsWith('<HTML')) {
+    throw new Error('服务器未启动或API不可用，请稍后重试');
+  }
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch (parseErr) {
+    console.error('[safeFetch] JSON parse failed. URL:', url, 'Status:', response.status, 'Response:', text.substring(0, 200));
+    throw new Error(`服务器响应格式错误 (HTTP ${response.status})`);
+  }
+  return { response, data };
+}
+
+export function createAdminApiCall() {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : '';
+  return async function apiCall(path, options = {}) {
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+      ...options.headers
+    };
+    return safeFetch(`${API_BASE}${path}`, { ...options, headers });
+  };
 }

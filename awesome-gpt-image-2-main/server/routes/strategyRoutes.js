@@ -1,11 +1,11 @@
 import express from 'express';
 import * as StrategyService from '../services/strategyConfigService.js';
 import * as PricingEngine from '../services/pricingEngine.js';
-import { authMiddleware } from '../middleware/auth.js';
+import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
 
 const router = express.Router();
 
-router.use(authMiddleware);
+router.use(authMiddleware, adminMiddleware);
 
 router.get('/config', async (req, res) => {
   try {

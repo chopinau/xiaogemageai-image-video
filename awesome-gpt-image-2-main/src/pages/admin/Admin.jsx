@@ -2,15 +2,28 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import { AI_MODELS } from '../../config/models';
+import { API_BASE, safeFetch } from '../../config/api';
 import { Layout, BarChart3, Users, Cpu, ShoppingCart, Coins, Share2, Settings, FileText, Menu, X, DollarSign, AlertTriangle, Activity, TrendingUp, Zap, Headphones, Bell, Send } from 'lucide-react';
 import { PricingAdmin } from './PricingAdmin';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
-const ADMIN_KEY = 'admin123';
-
-function apiCall(path, options = {}) {
-  const headers = { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_KEY, ...options.headers };
-  return fetch(`${API_BASE}${path}`, { ...options, headers });
+async function apiCall(path, options = {}) {
+  const token = localStorage.getItem('auth_token');
+  if (!token) {
+    throw new Error('未登录，请先登录管理员账户');
+  }
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`,
+    ...options.headers
+  };
+  const { response, data } = await safeFetch(`${API_BASE}${path}`, { ...options, headers });
+  if (response.status === 401) {
+    throw new Error(data.error || '认证已过期，请重新登录');
+  }
+  if (!response.ok && !data.error) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+  return data;
 }
 
 const ADMIN_TABS = [
@@ -135,8 +148,7 @@ function DashboardTab() {
   async function loadDashboard() {
     setLoading(true);
     try {
-      const res = await apiCall('/pricing-admin/dashboard');
-      const data = await res.json();
+      const data = await apiCall('/pricing-admin/dashboard');
       if (data.success) {
         setDashboardData(data.data);
       }
@@ -308,32 +320,57 @@ function DashboardTab() {
 
 function UsersTab() {
   const notify = useNotification();
-  const [users, setUsers] = useState(MOCK_USERS);
+  const [users, setUsers] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [roleChanging, setRoleChanging] = useState(null);
 
-  const filtered = users.filter(u =>
-    u.email.includes(search) || u.nickname.includes(search)
-  );
+  useEffect(() => { loadUsers(); }, [page, search]);
 
-  const toggleUserStatus = (userId) => {
-    setUsers(prev => prev.map(u => {
-      if (u.id === userId) {
-        const newStatus = u.status === 'active' ? 'banned' : 'active';
-        return { ...u, status: newStatus };
+  async function loadUsers() {
+    setLoading(true);
+    try {
+      const data = await apiCall(`/api/auth/users?page=${page}&limit=20&search=${encodeURIComponent(search)}`);
+      if (data.success) {
+        setUsers(data.data.users || []);
+        setTotal(data.data.total || 0);
       }
-      return u;
-    }));
-    const user = users.find(u => u.id === userId);
-    notify.success(`用户 ${userId} ${user?.status === 'active' ? '封禁' : '解封'}成功`);
-  };
+    } catch (err) {
+      notify.error('加载用户列表失败: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
 
-  const adjustCredits = (userId) => {
-    const amount = 10;
-    setUsers(prev => prev.map(u => {
-      if (u.id === userId) return { ...u, credits: u.credits + amount };
-      return u;
-    }));
-    notify.success(`用户 ${userId} 算力调整成功 (+${amount})`);
+  async function changeUserRole(userId, newRole) {
+    setRoleChanging(userId);
+    try {
+      const data = await apiCall('/api/auth/role', {
+        method: 'PUT',
+        body: JSON.stringify({ userId, role: newRole })
+      });
+      if (data.success) {
+        const roleName = newRole === 'agency' ? '代理商' : '普通用户';
+        notify.success(`用户角色已切换为${roleName}`);
+        loadUsers();
+      } else {
+        notify.error(data.error || '角色切换失败');
+      }
+    } catch (err) {
+      notify.error('角色切换失败: ' + err.message);
+    } finally {
+      setRoleChanging(null);
+    }
+  }
+
+  const roleLabel = (role) => {
+    switch (role) {
+      case 'admin': return <span style={{ color: '#ff6b8a', fontWeight: 600 }}>管理员</span>;
+      case 'agency': return <span style={{ color: '#fbbf24', fontWeight: 600 }}>代理商</span>;
+      default: return <span style={{ color: '#8888aa' }}>普通用户</span>;
+    }
   };
 
   return (
@@ -341,52 +378,80 @@ function UsersTab() {
       <h2 className="adminPageTitle">用户管理</h2>
       <div className="adminSearchBar">
         <input
-          value={search} onChange={(e) => setSearch(e.target.value)}
+          value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           placeholder="搜索用户邮箱或昵称..."
           className="adminInput"
           style={{ width: '300px' }}
         />
+        <span style={{ color: '#6666aa', fontSize: 13, marginLeft: 12 }}>共 {total} 位用户</span>
       </div>
-      <div className="adminTableWrap">
-        <table className="adminTable">
-          <thead>
-            <tr>
-              {['ID', '昵称', '邮箱', '会员', '算力', '状态', '注册时间', '操作'].map(h => (
-                <th key={h}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map(u => (
-              <tr key={u.id}>
-                <td>{u.id}</td>
-                <td>{u.nickname}</td>
-                <td className="adminCellMuted">{u.email}</td>
-                <td>
-                  <span className={`adminBadge adminBadge-${u.membership}`}>
-                    {u.membership}
-                  </span>
-                </td>
-                <td className="adminCellCredits">{u.credits}</td>
-                <td>
-                  <span style={{ color: u.status === 'active' ? '#78ffb9' : '#ff6b8a' }}>
-                    {u.status === 'active' ? '正常' : '封禁'}
-                  </span>
-                </td>
-                <td className="adminCellMuted">{u.createdAt}</td>
-                <td>
-                  <div className="adminActionBtns">
-                    <button onClick={() => adjustCredits(u.id)} className="adminActionBtn">算力</button>
-                    <button onClick={() => toggleUserStatus(u.id)} className={`adminActionBtn ${u.status === 'active' ? 'danger' : 'success'}`}>
-                      {u.status === 'active' ? '封禁' : '解封'}
-                    </button>
-                  </div>
-                </td>
+      {loading ? (
+        <div style={{ color: '#8888aa', textAlign: 'center', padding: 40 }}>加载中...</div>
+      ) : (
+        <div className="adminTableWrap">
+          <table className="adminTable">
+            <thead>
+              <tr>
+                {['ID', '昵称', '邮箱', '身份', '会员', '算力', '状态', '注册时间', '操作'].map(h => (
+                  <th key={h}>{h}</th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {users.map(u => (
+                <tr key={u.id}>
+                  <td>{u.id}</td>
+                  <td>{u.nickname || '-'}</td>
+                  <td className="adminCellMuted">{u.email}</td>
+                  <td>{roleLabel(u.role)}</td>
+                  <td>
+                    <span className={`adminBadge adminBadge-${u.membership}`}>
+                      {u.membership}
+                    </span>
+                  </td>
+                  <td className="adminCellCredits">{(u.credits || 0).toFixed(2)}</td>
+                  <td>
+                    <span style={{ color: u.status === 'active' ? '#78ffb9' : '#ff6b8a' }}>
+                      {u.status === 'active' ? '正常' : '封禁'}
+                    </span>
+                  </td>
+                  <td className="adminCellMuted">{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '-'}</td>
+                  <td>
+                    <div className="adminActionBtns">
+                      {u.role !== 'admin' && (
+                        u.role === 'agency' ? (
+                          <button onClick={() => changeUserRole(u.id, 'user')} disabled={roleChanging === u.id}
+                            className="adminActionBtn" style={{ color: '#42e6ff' }}>
+                            {roleChanging === u.id ? '...' : '设为用户'}
+                          </button>
+                        ) : (
+                          <button onClick={() => changeUserRole(u.id, 'agency')} disabled={roleChanging === u.id}
+                            className="adminActionBtn" style={{ color: '#fbbf24' }}>
+                            {roleChanging === u.id ? '...' : '设为代理商'}
+                          </button>
+                        )
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {total > 20 && (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 16 }}>
+          <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+            style={{ background: '#1a1a2e', border: '1px solid #2a2a4a', color: page === 1 ? '#444' : '#42e6ff', borderRadius: 6, padding: '6px 12px', cursor: page === 1 ? 'not-allowed' : 'pointer' }}>
+            上一页
+          </button>
+          <span style={{ color: '#8888aa', fontSize: 13, lineHeight: '30px' }}>第 {page} 页</span>
+          <button onClick={() => setPage(p => p + 1)} disabled={page * 20 >= total}
+            style={{ background: '#1a1a2e', border: '1px solid #2a2a4a', color: page * 20 >= total ? '#444' : '#42e6ff', borderRadius: 6, padding: '6px 12px', cursor: page * 20 >= total ? 'not-allowed' : 'pointer' }}>
+            下一页
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -667,8 +732,7 @@ function TicketsAdminTab() {
   async function loadTickets() {
     setLoading(true);
     try {
-      const res = await apiCall('/tickets/admin/all');
-      const data = await res.json();
+      const data = await apiCall('/tickets/admin/all');
       if (data.success) setTickets(data.data?.tickets || []);
     } catch {}
     setLoading(false);
@@ -676,16 +740,14 @@ function TicketsAdminTab() {
 
   async function loadStats() {
     try {
-      const res = await apiCall('/tickets/admin/stats');
-      const data = await res.json();
+      const data = await apiCall('/tickets/admin/stats');
       if (data.success) setStats(data.data);
     } catch {}
   }
 
   async function loadTicketDetail(id) {
     try {
-      const res = await apiCall(`/tickets/admin/${id}`);
-      const data = await res.json();
+      const data = await apiCall(`/tickets/admin/${id}`);
       if (data.success) setSelectedTicket(data.data);
     } catch {}
   }
@@ -694,12 +756,11 @@ function TicketsAdminTab() {
     if (!replyText.trim()) return;
     setSending(true);
     try {
-      const res = await fetch(`${API_BASE}/api/tickets/admin/${selectedTicket.id}/messages`, {
+      const { response, data } = await safeFetch(`${API_BASE}/api/tickets/admin/${selectedTicket.id}/messages`, {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({ content: replyText })
       });
-      const data = await res.json();
       if (data.success) {
         setReplyText('');
         loadTicketDetail(selectedTicket.id);
@@ -818,8 +879,7 @@ function NotificationsAdminTab() {
   async function loadHistory() {
     setLoading(true);
     try {
-      const res = await apiCall('/notifications/admin/history');
-      const data = await res.json();
+      const data = await apiCall('/notifications/admin/history');
       if (data.success) setHistory(data.data?.notifications || []);
     } catch {}
     setLoading(false);
@@ -827,8 +887,7 @@ function NotificationsAdminTab() {
 
   async function loadStats() {
     try {
-      const res = await apiCall('/notifications/admin/stats');
-      const data = await res.json();
+      const data = await apiCall('/notifications/admin/stats');
       if (data.success) setStats(data.data);
     } catch {}
   }
@@ -840,12 +899,11 @@ function NotificationsAdminTab() {
     }
     setSending(true);
     try {
-      const res = await fetch(`${API_BASE}/api/notifications/admin/send`, {
+      const { response, data } = await safeFetch(`${API_BASE}/api/notifications/admin/send`, {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify(form)
       });
-      const data = await res.json();
       if (data.success) {
         notify.success('通知发送成功');
         setForm({ title: '', content: '', type: 'system', targetRole: 'all' });

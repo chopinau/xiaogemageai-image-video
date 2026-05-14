@@ -68,7 +68,15 @@ export class ImageGenerator {
           body: JSON.stringify(params)
         });
 
-        const result = await response.json();
+        const text = await response.text();
+        let result;
+        try {
+          result = JSON.parse(text);
+        } catch {
+          throw new Error(text.startsWith('<!DOCTYPE') || text.startsWith('<html')
+            ? '服务器未启动或API不可用，请稍后重试'
+            : '服务器响应格式错误');
+        }
 
         if (!response.ok || !result.success) {
           const errorMsg = result.error || result.message || `HTTP error! status: ${response.status}`;

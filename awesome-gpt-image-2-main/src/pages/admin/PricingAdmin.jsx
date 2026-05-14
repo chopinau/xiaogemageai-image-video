@@ -1,14 +1,27 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNotification } from '../../contexts/NotificationContext';
 import { AI_MODELS } from '../../config/models';
+import { API_BASE, safeFetch } from '../../config/api';
 import { RefreshCw, Plus, Trash2, Download, DollarSign, TrendingUp, Link, Check, X, ChevronDown, ChevronUp, Search, Zap, Activity, BarChart3, AlertTriangle, Heart, Shield, ArrowRightLeft, Settings2, Play, Layers } from 'lucide-react';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
-const ADMIN_KEY = 'admin123';
-
-function apiCall(path, options = {}) {
-  const headers = { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_KEY, ...options.headers };
-  return fetch(`${API_BASE}${path}`, { ...options, headers });
+async function apiCall(path, options = {}) {
+  const token = localStorage.getItem('auth_token');
+  if (!token) {
+    throw new Error('未登录，请先登录管理员账户');
+  }
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`,
+    ...options.headers
+  };
+  const { response, data } = await safeFetch(`${API_BASE}${path}`, { ...options, headers });
+  if (response.status === 401) {
+    throw new Error(data.error || '认证已过期，请重新登录');
+  }
+  if (!response.ok && !data.error) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+  return data;
 }
 
 function formatCNY(price) {
@@ -91,8 +104,7 @@ function PriceOverviewTab({ notify }) {
 
   async function loadModels() {
     try {
-      const res = await apiCall('/pricing-admin/models');
-      const data = await res.json();
+      const data = await apiCall('/pricing-admin/models');
       if (data.success) {
         setModels(data.models || {});
         setMarkupConfigData(data.markupConfig || { defaultPercent: 15, perModel: {} });
@@ -104,8 +116,7 @@ function PriceOverviewTab({ notify }) {
 
   async function loadMarkupConfig() {
     try {
-      const res = await apiCall('/pricing-admin/markup');
-      const data = await res.json();
+      const data = await apiCall('/pricing-admin/markup');
       if (data.success) setMarkupConfigData(data.config);
     } catch (err) {
       console.error('Failed to load markup config:', err);
@@ -114,8 +125,7 @@ function PriceOverviewTab({ notify }) {
 
   async function loadUsageStats() {
     try {
-      const res = await apiCall('/pricing-admin/usage/stats');
-      const data = await res.json();
+      const data = await apiCall('/pricing-admin/usage/stats');
       if (data.success) setUsageStats(data.data);
     } catch (err) {
       console.error('Failed to load usage stats:', err);
@@ -125,8 +135,7 @@ function PriceOverviewTab({ notify }) {
   async function fetchLivePrices() {
     setFetchingLive(true);
     try {
-      const res = await apiCall('/pricing-admin/live/fetch-all', { method: 'POST' });
-      const data = await res.json();
+      const data = await apiCall('/pricing-admin/live/fetch-all', { method: 'POST' });
       if (data.success && data.data) {
         setLivePricing(data.data);
         notify.success('实时价格获取成功');
@@ -323,8 +332,7 @@ function UpstreamMonitorTab({ notify }) {
 
   async function loadProviders() {
     try {
-      const res = await apiCall('/pricing-admin/upstream/providers');
-      const data = await res.json();
+      const data = await apiCall('/pricing-admin/upstream/providers');
       if (data.success) setProviders(data.providers);
     } catch (err) {
       console.error('Failed to load providers:', err);
@@ -333,8 +341,7 @@ function UpstreamMonitorTab({ notify }) {
 
   async function loadFetchedPrices() {
     try {
-      const res = await apiCall('/pricing-admin/upstream/prices');
-      const data = await res.json();
+      const data = await apiCall('/pricing-admin/upstream/prices');
       if (data.success) setFetchedPrices(data.data);
     } catch (err) {
       console.error('Failed to load fetched prices:', err);
@@ -344,8 +351,7 @@ function UpstreamMonitorTab({ notify }) {
   async function checkHealth() {
     setCheckingHealth(true);
     try {
-      const res = await apiCall('/pricing-admin/upstream/health');
-      const data = await res.json();
+      const data = await apiCall('/pricing-admin/upstream/health');
       if (data.success) {
         setHealthData(data.data);
         notify.success('健康检查完成');
@@ -362,11 +368,10 @@ function UpstreamMonitorTab({ notify }) {
       return;
     }
     try {
-      const res = await apiCall('/pricing-admin/upstream/providers', {
+      const data = await apiCall('/pricing-admin/upstream/providers', {
         method: 'POST',
         body: JSON.stringify(newProvider)
       });
-      const data = await res.json();
       if (data.success) {
         notify.success(`供应商 ${newProvider.name} 添加成功`);
         setNewProvider({ name: '', url: '', apiKey: '' });
@@ -382,8 +387,7 @@ function UpstreamMonitorTab({ notify }) {
 
   async function removeProvider(name) {
     try {
-      const res = await apiCall(`/pricing-admin/upstream/providers/${encodeURIComponent(name)}`, { method: 'DELETE' });
-      const data = await res.json();
+      const data = await apiCall(`/pricing-admin/upstream/providers/${encodeURIComponent(name)}`, { method: 'DELETE' });
       if (data.success) {
         notify.success(`供应商 ${name} 已删除`);
         setSelectedProvider(null);
@@ -399,11 +403,10 @@ function UpstreamMonitorTab({ notify }) {
   async function fetchPrices(providerName) {
     setFetching(true);
     try {
-      const res = await apiCall('/pricing-admin/upstream/fetch', {
+      const data = await apiCall('/pricing-admin/upstream/fetch', {
         method: 'POST',
         body: JSON.stringify({ providerName: providerName || undefined })
       });
-      const data = await res.json();
       if (data.success) {
         notify.success('上游价格抓取成功');
         setApplyResults(null);
@@ -419,8 +422,7 @@ function UpstreamMonitorTab({ notify }) {
 
   async function checkFallback(providerName, modelName) {
     try {
-      const res = await apiCall(`/pricing-admin/upstream/fallback/${encodeURIComponent(providerName)}/${encodeURIComponent(modelName)}`);
-      const data = await res.json();
+      const data = await apiCall(`/pricing-admin/upstream/fallback/${encodeURIComponent(providerName)}/${encodeURIComponent(modelName)}`);
       if (data.success && data.hasFallback) {
         notify.success(`可切换到供应商: ${data.fallback.provider.name}`);
       } else {
@@ -471,11 +473,10 @@ function UpstreamMonitorTab({ notify }) {
     setApplying(true);
     try {
       const modelMappings = entries.map(([upstream, local]) => ({ upstreamModel: upstream, localModel: local, groupIndex: 0 }));
-      const res = await apiCall('/pricing-admin/upstream/apply', {
+      const data = await apiCall('/pricing-admin/upstream/apply', {
         method: 'POST',
         body: JSON.stringify({ providerName: selectedProvider, modelMappings })
       });
-      const data = await res.json();
       setApplyResults(data);
       const successCount = data.results?.filter(r => r.saved).length || 0;
       if (successCount > 0) {
@@ -745,8 +746,7 @@ function PriceCompareTab({ notify }) {
   async function loadCompareData() {
     setLoading(true);
     try {
-      const res = await apiCall('/pricing-admin/upstream/compare');
-      const data = await res.json();
+      const data = await apiCall('/pricing-admin/upstream/compare');
       if (data.success) setCompareData(data.data);
     } catch (err) {
       console.error('Failed to load compare data:', err);
@@ -757,8 +757,7 @@ function PriceCompareTab({ notify }) {
   async function loadModelCompare(modelName) {
     setSelectedModel(modelName);
     try {
-      const res = await apiCall(`/pricing-admin/upstream/compare?model=${encodeURIComponent(modelName)}`);
-      const data = await res.json();
+      const data = await apiCall(`/pricing-admin/upstream/compare?model=${encodeURIComponent(modelName)}`);
       if (data.success) setModelCompareDetail(data.data);
     } catch (err) {
       console.error('Failed to load model compare:', err);
@@ -944,8 +943,7 @@ function PriceAdjustTab({ notify }) {
 
   async function loadMarkupConfig() {
     try {
-      const res = await apiCall('/pricing-admin/markup');
-      const data = await res.json();
+      const data = await apiCall('/pricing-admin/markup');
       if (data.success) setMarkupConfigData(data.config);
     } catch (err) {
       console.error('Failed to load markup config:', err);
@@ -954,11 +952,10 @@ function PriceAdjustTab({ notify }) {
 
   async function saveDefaultMarkup() {
     try {
-      const res = await apiCall('/pricing-admin/markup', {
+      const data = await apiCall('/pricing-admin/markup', {
         method: 'PUT',
         body: JSON.stringify({ defaultPercent: markupConfig.defaultPercent })
       });
-      const data = await res.json();
       if (data.success) {
         notify.success(`默认加价率已更新为 ${markupConfig.defaultPercent}%`);
         loadMarkupConfig();
@@ -970,11 +967,10 @@ function PriceAdjustTab({ notify }) {
 
   async function saveModelMarkup(modelId, markup) {
     try {
-      const res = await apiCall(`/pricing-admin/markup/${encodeURIComponent(modelId)}`, {
+      const data = await apiCall(`/pricing-admin/markup/${encodeURIComponent(modelId)}`, {
         method: 'PUT',
         body: JSON.stringify({ markupPercent: parseFloat(markup) })
       });
-      const data = await res.json();
       if (data.success) {
         notify.success(`模型 ${modelId} 加价率已更新为 ${markup}%`);
         setEditingModel(null);
@@ -1108,8 +1104,7 @@ function PriceHistoryTab({ notify }) {
 
   async function loadHistory() {
     try {
-      const res = await apiCall(`/pricing-admin/history?page=${page}&limit=20`);
-      const data = await res.json();
+      const data = await apiCall(`/pricing-admin/history?page=${page}&limit=20`);
       if (data.success) {
         setHistory(data.entries || []);
         setTotal(data.total || 0);
@@ -1182,8 +1177,7 @@ function StrategyManageTab({ notify }) {
   async function loadStrategies() {
     setLoading(true);
     try {
-      const res = await apiCall('/strategy/strategies');
-      const data = await res.json();
+      const data = await apiCall('/strategy/strategies');
       if (data.success) {
         setStrategies(data.data || {});
         if (data.data?.[activeStrategy]?.modelMappings) {
@@ -1202,11 +1196,10 @@ function StrategyManageTab({ notify }) {
       return;
     }
     try {
-      const res = await apiCall(`/strategy/strategies/${strategyId}/providers`, {
+      const data = await apiCall(`/strategy/strategies/${strategyId}/providers`, {
         method: 'PUT',
         body: JSON.stringify({ providers: [...current, providerInput.trim()] })
       });
-      const data = await res.json();
       if (data.success) {
         notify.success(`已添加供应商: ${providerInput.trim()}`);
         setProviderInput('');
@@ -1218,11 +1211,10 @@ function StrategyManageTab({ notify }) {
   async function removeProvider(strategyId, providerName) {
     const current = strategies[strategyId]?.providers || [];
     try {
-      const res = await apiCall(`/strategy/strategies/${strategyId}/providers`, {
+      const data = await apiCall(`/strategy/strategies/${strategyId}/providers`, {
         method: 'PUT',
         body: JSON.stringify({ providers: current.filter(p => p !== providerName) })
       });
-      const data = await res.json();
       if (data.success) {
         notify.success(`已移除供应商: ${providerName}`);
         loadStrategies();
@@ -1233,8 +1225,7 @@ function StrategyManageTab({ notify }) {
   async function syncStrategy(strategyId) {
     setSyncing(true);
     try {
-      const res = await apiCall(`/strategy/strategies/${strategyId}/sync`, { method: 'POST' });
-      const data = await res.json();
+      const data = await apiCall(`/strategy/strategies/${strategyId}/sync`, { method: 'POST' });
       if (data.success) {
         notify.success(`同步完成: ${data.syncedCount} 个模型已更新`);
         loadStrategies();
@@ -1247,8 +1238,7 @@ function StrategyManageTab({ notify }) {
 
   async function applyStrategy(strategyId) {
     try {
-      const res = await apiCall(`/strategy/strategies/${strategyId}/apply`, { method: 'POST' });
-      const data = await res.json();
+      const data = await apiCall(`/strategy/strategies/${strategyId}/apply`, { method: 'POST' });
       if (data.success) {
         notify.success(`已应用 ${data.appliedCount} 个模型价格到定价引擎`);
       } else {
@@ -1260,8 +1250,7 @@ function StrategyManageTab({ notify }) {
   async function compareModelPrices() {
     if (!compareModel.trim()) return;
     try {
-      const res = await apiCall(`/strategy/compare/${compareModel.trim()}`);
-      const data = await res.json();
+      const data = await apiCall(`/strategy/compare/${compareModel.trim()}`);
       if (data.success) {
         setCompareData(data.data);
       }
@@ -1329,11 +1318,10 @@ function StrategyManageTab({ notify }) {
                 />
                 <button className="adminPrimaryBtn" onClick={async () => {
                   try {
-                    const res = await apiCall(`/strategy/strategies/${activeStrategy}/markup`, {
+                    const data = await apiCall(`/strategy/strategies/${activeStrategy}/markup`, {
                       method: 'PUT',
                       body: JSON.stringify({ markupPercent: currentStrategy?.markupPercent ?? 0 })
                     });
-                    const data = await res.json();
                     if (data.success) notify.success('加价率已更新');
                   } catch {}
                 }}>保存</button>
@@ -1397,7 +1385,7 @@ function StrategyManageTab({ notify }) {
                             <button className="adminActionBtn danger" style={{ padding: '2px 6px', fontSize: '11px' }} onClick={async () => {
                               try {
                                 const res = await apiCall(`/strategy/strategies/${activeStrategy}/model-mapping/${modelId}`, { method: 'DELETE' });
-                                if ((await res.json()).success) { notify.success('已删除'); loadStrategies(); }
+                                if ((await apiCall(path)).success) { notify.success('已删除'); loadStrategies(); }
                               } catch {}
                             }}><Trash2 size={10} /></button>
                           </td>

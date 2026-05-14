@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { historyManager } from '../services/historyManager';
 import { useCredits } from '../contexts/CreditsContext';
 import { useAuth } from '../contexts/AuthContext';
+import { API_BASE } from '../config/api';
 import {
   User,
-  Crown,
   Settings,
   Cpu,
   Gift,
@@ -35,8 +35,6 @@ import {
   Check
 } from 'lucide-react';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
-
 const NAV_ITEMS = [
   { id: 'works', label: '我的作品', icon: ImageIcon },
   { id: 'payments', label: '支付记录', icon: CreditCard },
@@ -44,7 +42,6 @@ const NAV_ITEMS = [
   { id: 'settings', label: '设置', icon: Settings },
   { id: 'api', label: 'API', icon: Cpu },
   { id: 'referral', label: '推荐码', icon: Gift },
-  { id: 'membership', label: '会员中心', icon: Crown },
   { id: 'help', label: '客服中心', icon: HelpCircle }
 ];
 
@@ -145,8 +142,6 @@ export function UserDashboard() {
 
   const handleGoBack = () => navigate('/');
 
-  const membershipLabel = { free: '免费版', basic: '基础版', pro: '专业版', enterprise: '企业版' }[user?.membership || 'free'] || '免费版';
-
   return (
     <div className="userDashboard">
       <div className="dashboardTopbar">
@@ -188,7 +183,6 @@ export function UserDashboard() {
           {activeTab === 'settings' && <SettingsTab />}
           {activeTab === 'api' && <ApiKeyTab />}
           {activeTab === 'referral' && <ReferralTab />}
-          {activeTab === 'membership' && <MembershipTab navigate={navigate} />}
           {activeTab === 'help' && <HelpTab />}
         </div>
 
@@ -200,7 +194,7 @@ export function UserDashboard() {
               </div>
               <div className="userInfo">
                 <h3>{user?.nickname || user?.email?.split('@')[0] || '用户'}</h3>
-                <div className="userBadge">{membershipLabel}</div>
+                <div className="userBadge">按次计费</div>
               </div>
             </div>
             <div className="userDetails">
@@ -233,24 +227,21 @@ export function UserDashboard() {
                 <div className="statLabel">作品数量</div>
                 <div className="statValue">{history.length}</div>
               </div>
-              <div className="statItem">
-                <div className="statLabel">会员等级</div>
-                <div className="statValue">{membershipLabel}</div>
-              </div>
             </div>
           </div>
 
           <div className="toolsCard">
-            <div className="toolsTitle">快捷工具</div>
+            <div className="toolsTitle">快捷工具 <span style={{ fontSize: 11, color: '#6666aa', fontWeight: 400 }}>持续开发中</span></div>
             <div className="toolsGrid">
               {SCENE_TOOLS.map(tool => {
                 const Icon = tool.icon;
                 return (
-                  <button key={tool.id} className="toolBtn" onClick={() => navigate('/')}>
+                  <button key={tool.id} className="toolBtn" onClick={() => navigate('/')} style={{ position: 'relative' }}>
                     <div className="toolIcon" style={{ backgroundColor: tool.color + '20', color: tool.color }}>
                       <Icon size={20} />
                     </div>
                     <span>{tool.label}</span>
+                    <span style={{ position: 'absolute', top: 4, right: 4, fontSize: 9, color: '#fbbf24', background: '#fbbf2422', padding: '1px 4px', borderRadius: 4 }}>开发中</span>
                   </button>
                 );
               })}
@@ -619,28 +610,6 @@ function ReferralTab() {
           <div className="adminStatCard"><div className="adminStatLabel">已推荐人数</div><div className="adminStatValue" style={{ color: '#42e6ff' }}>{stats.count}</div></div>
           <div className="adminStatCard"><div className="adminStatLabel">获得算力</div><div className="adminStatValue" style={{ color: '#78ffb9' }}>{stats.credits}</div></div>
         </div>
-      </div>
-    </div>
-  );
-}
-
-function MembershipTab({ navigate }) {
-  const { user } = useAuth();
-  const membershipLabel = { free: '免费版', basic: '基础版', pro: '专业版', enterprise: '企业版' }[user?.membership || 'free'] || '免费版';
-
-  return (
-    <div>
-      <h2 className="adminPageTitle" style={{ color: '#e0e6ed' }}>会员中心</h2>
-      <div className="adminCard" style={{ marginBottom: '16px' }}>
-        <h3 className="adminCardTitle">当前会员</h3>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-          <Crown size={24} style={{ color: '#f9ff72' }} />
-          <div>
-            <div style={{ fontSize: '18px', fontWeight: 700, color: '#e0e6ed' }}>{membershipLabel}</div>
-            {user?.membershipExpire && <div style={{ color: '#73859f', fontSize: '12px' }}>到期时间：{formatDate(user.membershipExpire)}</div>}
-          </div>
-        </div>
-        <button className="adminPrimaryBtn" onClick={() => navigate('/pricing')}>升级会员</button>
       </div>
     </div>
   );

@@ -1,10 +1,11 @@
 ﻿﻿﻿﻿import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { WandSparkles, Menu, X, User, CreditCard, Crown, Share2, LogOut, Shield, Bell } from 'lucide-react';
+import { WandSparkles, Menu, X, User, CreditCard, Crown, Share2, LogOut, Shield, Bell, Building2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useCredits } from '../contexts/CreditsContext';
 import { useMember } from '../contexts/MemberContext';
 import { useAgency } from '../contexts/AgencyContext';
+import { API_BASE } from '../config/api';
 
 export function Topbar({ language, setLanguage }) {
   const { isAuthenticated, user, logout } = useAuth();
@@ -18,8 +19,6 @@ export function Topbar({ language, setLanguage }) {
   const [unreadCount, setUnreadCount] = useState(0);
   const userMenuRef = useRef(null);
   const notifRef = useRef(null);
-
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -76,7 +75,6 @@ export function Topbar({ language, setLanguage }) {
         <NavLink to="/" end className="topbarNavItem">创作</NavLink>
         <NavLink to="/gallery" className="topbarNavItem">画廊</NavLink>
         <NavLink to="/dashboard" className="topbarNavItem">我的</NavLink>
-        <NavLink to="/pricing" className="topbarNavItem">会员</NavLink>
       </nav>
 
       <div className="topbarRight">
@@ -144,6 +142,9 @@ export function Topbar({ language, setLanguage }) {
                 <NavLink to="/pricing" onClick={() => setUserMenuOpen(false)} className="userMenuItem"><Crown size={14} /> 升级会员</NavLink>
                 {user?.role === 'admin' && (
                   <NavLink to="/admin" onClick={() => setUserMenuOpen(false)} className="userMenuItem"><Shield size={14} /> 管理后台</NavLink>
+                )}
+                {(user?.role === 'agency' || user?.role === 'admin') && (
+                  <NavLink to="/agency" onClick={() => setUserMenuOpen(false)} className="userMenuItem"><Building2 size={14} /> 代理商中心</NavLink>
                 )}
                 <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
                   <button onClick={handleLogout} className="userMenuItem" style={{ color: '#ff6b8a', width: '100%', textAlign: 'left' }}>

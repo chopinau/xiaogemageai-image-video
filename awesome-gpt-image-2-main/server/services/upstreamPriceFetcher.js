@@ -257,16 +257,21 @@ function extractPricingFromModel(model) {
 }
 
 function addProvider(name, url, apiKey) {
-  const data = loadProviders();
-  const existing = data.providers.findIndex(p => p.name === name);
-  const provider = { name, url, apiKey, addedAt: new Date().toISOString() };
-  if (existing >= 0) {
-    data.providers[existing] = provider;
-  } else {
-    data.providers.push(provider);
+  try {
+    const data = loadProviders();
+    const existing = data.providers.findIndex(p => p.name === name);
+    const provider = { name, url, apiKey, addedAt: new Date().toISOString() };
+    if (existing >= 0) {
+      data.providers[existing] = provider;
+    } else {
+      data.providers.push(provider);
+    }
+    saveProviders(data);
+    return provider;
+  } catch (err) {
+    console.error('[UpstreamFetcher] addProvider failed:', err.message);
+    return null;
   }
-  saveProviders(data);
-  return provider;
 }
 
 function removeProvider(name) {

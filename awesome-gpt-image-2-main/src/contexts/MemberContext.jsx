@@ -1,10 +1,9 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { getPlanById, canUseFeature, getAvailableModels } from '../config/membership';
+import { API_BASE } from '../config/api';
 
 const MemberContext = createContext(null);
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 
 export function MemberProvider({ children }) {
   const { user, getAuthHeaders } = useAuth();

@@ -27,6 +27,13 @@ export function adminMiddleware(req, res, next) {
   next();
 }
 
+export function agencyMiddleware(req, res, next) {
+  if (!req.user || (req.user.role !== 'agency' && req.user.role !== 'admin')) {
+    return res.status(403).json({ success: false, error: '需要代理商权限' });
+  }
+  next();
+}
+
 export function optionalAuth(req, res, next) {
   const authHeader = req.headers['authorization'];
   if (authHeader && authHeader.startsWith('Bearer ')) {

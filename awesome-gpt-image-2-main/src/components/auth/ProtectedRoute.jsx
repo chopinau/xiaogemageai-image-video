@@ -27,3 +27,18 @@ export function AdminRoute({ children }) {
 
   return children;
 }
+
+export function AgencyRoute({ children }) {
+  const { isAuthenticated, user } = useAuth();
+  const location = useLocation();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  if (user?.role !== 'agency' && user?.role !== 'admin') {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+}

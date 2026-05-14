@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+import { API_BASE } from './api.js';
 
 let dynamicPricingCache = null;
 let dynamicPricingTimestamp = 0;

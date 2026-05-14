@@ -1,4 +1,4 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -7,6 +7,7 @@ import * as UpstreamFetcher from '../services/upstreamPriceFetcher.js';
 import { lingkeClient } from '../services/lingkeClient.js';
 import * as HealthMonitor from '../services/providerHealthMonitor.js';
 import apiProtection from '../services/apiProtectionService.js';
+import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,14 +15,7 @@ const PROVIDERS_PATH = path.join(__dirname, '..', 'data', 'upstreamProviders.jso
 
 const router = Router();
 
-function requireAuth(req, res, next) {
-  const adminKey = req.headers['x-admin-key'] || req.query.adminKey;
-  const configuredKey = process.env.ADMIN_KEY || 'admin123';
-  if (adminKey !== configuredKey) {
-    return res.status(401).json({ success: false, error: '需要管理员权限' });
-  }
-  next();
-}
+const requireAdmin = [authMiddleware, adminMiddleware];
 
 router.get('/', (req, res) => {
   const data = PricingEngine.loadPricingData();
@@ -34,7 +28,7 @@ router.get('/models', (req, res) => {
   res.json({ success: true, models, markupConfig });
 });
 
-router.put('/price', requireAuth, (req, res) => {
+router.put('/price', requireAdmin, (req, res) => {
   const { category, modelId, resolution, newPrice, reason } = req.body;
   if (!category || !modelId || newPrice === undefined) {
     return res.status(400).json({ success: false, error: '缺少必要参数' });
@@ -43,7 +37,7 @@ router.put('/price', requireAuth, (req, res) => {
   res.json({ success: result.success, ...result });
 });
 
-router.put('/batch-prices', requireAuth, (req, res) => {
+router.put('/batch-prices', requireAdmin, (req, res) => {
   const { updates, reason } = req.body;
   if (!Array.isArray(updates) || updates.length === 0) {
     return res.status(400).json({ success: false, error: '缺少更新列表' });
@@ -57,7 +51,7 @@ router.get('/markup', (req, res) => {
   res.json({ success: true, config });
 });
 
-router.put('/markup', requireAuth, (req, res) => {
+router.put('/markup', requireAdmin, (req, res) => {
   const { defaultPercent, perModel } = req.body;
   const current = PricingEngine.getMarkupConfig();
   const newConfig = {
@@ -68,7 +62,7 @@ router.put('/markup', requireAuth, (req, res) => {
   res.json(result);
 });
 
-router.put('/markup/:modelId', requireAuth, (req, res) => {
+router.put('/markup/:modelId', requireAdmin, (req, res) => {
   const { modelId } = req.params;
   const { markupPercent } = req.body;
   if (markupPercent === undefined) {
@@ -89,7 +83,7 @@ router.get('/alerts', (req, res) => {
   res.json({ success: true, alerts });
 });
 
-router.post('/reload', requireAuth, (req, res) => {
+router.post('/reload', requireAdmin, (req, res) => {
   const data = PricingEngine.reloadPricing();
   res.json({ success: true, data });
 });
@@ -114,21 +108,28 @@ router.get('/upstream/providers', (req, res) => {
   res.json({ success: true, providers });
 });
 
-router.post('/upstream/providers', requireAuth, (req, res) => {
-  const { name, url, apiKey } = req.body;
-  if (!name || !url || !apiKey) {
-    return res.status(400).json({ success: false, error: '缺少 name, url 或 apiKey' });
+router.post('/upstream/providers', requireAdmin, (req, res) => {
+  try {
+    const { name, url, apiKey } = req.body;
+    if (!name || !url || !apiKey) {
+      return res.status(400).json({ success: false, error: '缺少 name, url 或 apiKey' });
+    }
+    const provider = UpstreamFetcher.addProvider(name, url, apiKey);
+    if (!provider) {
+      return res.status(500).json({ success: false, error: '供应商添加失败，请检查数据目录权限' });
+    }
+    res.json({ success: true, provider: { ...provider, apiKey: provider.apiKey.substring(0, 8) + '...' } });
+  } catch (err) {
+    res.status(500).json({ success: false, error: `添加供应商失败: ${err.message}` });
   }
-  const provider = UpstreamFetcher.addProvider(name, url, apiKey);
-  res.json({ success: true, provider: { ...provider, apiKey: provider.apiKey.substring(0, 8) + '...' } });
 });
 
-router.delete('/upstream/providers/:name', requireAuth, (req, res) => {
+router.delete('/upstream/providers/:name', requireAdmin, (req, res) => {
   const result = UpstreamFetcher.removeProvider(req.params.name);
   res.json(result);
 });
 
-router.post('/upstream/fetch', requireAuth, async (req, res) => {
+router.post('/upstream/fetch', requireAdmin, async (req, res) => {
   try {
     const { providerName } = req.body;
     let result;
@@ -162,7 +163,7 @@ router.get('/upstream/match', (req, res) => {
   res.json({ success: true, match, markup, sellingPrice });
 });
 
-router.post('/upstream/apply', requireAuth, (req, res) => {
+router.post('/upstream/apply', requireAdmin, (req, res) => {
   const { providerName, modelMappings } = req.body;
   if (!providerName || !Array.isArray(modelMappings)) {
     return res.status(400).json({ success: false, error: '缺少 providerName 或 modelMappings' });
@@ -218,7 +219,7 @@ router.get('/live/:model', async (req, res) => {
   }
 });
 
-router.post('/live/fetch-all', requireAuth, async (req, res) => {
+router.post('/live/fetch-all', requireAdmin, async (req, res) => {
   try {
     const apiKey = process.env.LINGKE_API_KEY;
     let result = await lingkeClient.getAllModelPricings(apiKey);

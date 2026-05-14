@@ -1,9 +1,10 @@
 import { Router } from 'express';
-import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
+import { authMiddleware, adminMiddleware, agencyMiddleware } from '../middleware/auth.js';
 import * as AgencyService from '../services/agencyService.js';
 import * as RevenueService from '../services/agencyRevenueService.js';
 import * as WithdrawalService from '../services/agencyWithdrawalService.js';
 import { clearAgencyCache } from '../middleware/agencyResolver.js';
+import prisma from '../services/db.js';
 
 const router = Router();
 
@@ -39,8 +40,8 @@ router.get('/config', async (req, res) => {
         heroSubtitle: brandConfig.heroSubtitle || '一站式图片 & 视频创作，多模型自由切换',
         footerText: brandConfig.footerText,
         hidePoweredBy: brandConfig.hidePoweredBy || false,
-        enabledModels: brandConfig.enabledModels ? JSON.parse(brandConfig.enabledModels) : null,
-        disabledFeatures: brandConfig.disabledFeatures ? JSON.parse(brandConfig.disabledFeatures) : null
+        enabledModels: (() => { try { return brandConfig.enabledModels ? JSON.parse(brandConfig.enabledModels) : null; } catch { return null; } })(),
+        disabledFeatures: (() => { try { return brandConfig.disabledFeatures ? JSON.parse(brandConfig.disabledFeatures) : null; } catch { return null; } })()
       }
     });
   } catch (err) {
@@ -271,6 +272,60 @@ router.get('/me/users', authMiddleware, async (req, res) => {
 
     const users = await AgencyService.getAgencyUsers(agency.id, req.query.page, req.query.limit);
     res.json({ success: true, data: users });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+router.get('/me/dashboard', authMiddleware, agencyMiddleware, async (req, res) => {
+  try {
+    const agency = await AgencyService.getAgencyByUserId(req.user.id);
+    if (!agency) return res.status(404).json({ success: false, error: '代理商信息不存在' });
+
+    const [userCount, recentUsers, revenueSummary, withdrawalSummary] = await Promise.all([
+      prisma.agencyUser.count({ where: { agencyId: agency.id } }),
+      prisma.agencyUser.findMany({
+        where: { agencyId: agency.id },
+        orderBy: { joinedAt: 'desc' },
+        take: 5,
+        include: { user: { select: { id: true, email: true, nickname: true, credits: true, totalSpent: true } } }
+      }),
+      RevenueService.getRevenueSummary(agency.id, 'month'),
+      prisma.agencyWithdrawal.aggregate({
+        where: { agencyId: agency.id, status: 'completed' },
+        _sum: { actualAmount: true }
+      })
+    ]);
+
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const newUsersThisMonth = await prisma.agencyUser.count({
+      where: { agencyId: agency.id, joinedAt: { gte: monthStart } }
+    });
+
+    res.json({
+      success: true,
+      data: {
+        agency: {
+          id: agency.id,
+          agencyName: agency.agencyName,
+          logoUrl: agency.logoUrl,
+          primaryColor: agency.primaryColor,
+          status: agency.status,
+          markupType: agency.markupType,
+          markupValue: agency.markupValue,
+          totalRevenue: agency.totalRevenue,
+          availableBalance: agency.availableBalance,
+          frozenBalance: agency.frozenBalance,
+          totalWithdrawn: agency.totalWithdrawn,
+        },
+        userCount,
+        newUsersThisMonth,
+        recentUsers,
+        revenueSummary,
+        totalWithdrawn: withdrawalSummary._sum.actualAmount || 0,
+      }
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }

@@ -17,7 +17,7 @@ import { getModelById } from '../config/models';
 import { getModelParamDefaults } from '../config/modelParams';
 import { calculateComputeCost } from '../config/modelPricing';
 
-const IS_DEMO = !import.meta.env.VITE_API_BASE_URL;
+const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true';
 
 function classifyError(err) {
   const msg = (err.message || '').toLowerCase();

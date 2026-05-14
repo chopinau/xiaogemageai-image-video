@@ -9,13 +9,13 @@ import { VideoGen } from './pages/VideoGen';
 import { Gallery } from './pages/Gallery';
 import { LoginPage } from './pages/auth/Login';
 import { RegisterPage } from './pages/auth/Register';
-import { PricingPage } from './pages/member/Pricing';
 import { CreditsCenter } from './pages/credits/CreditsCenter';
 import { AffiliatePage } from './pages/distribution/Affiliate';
 import { ProfilePage } from './pages/member/Profile';
 import { AdminPage } from './pages/admin/Admin';
+import { AgencyDashboard } from './pages/agency/AgencyDashboard';
 import { UserDashboard } from './pages/UserDashboard';
-import { ProtectedRoute, AdminRoute } from './components/auth/ProtectedRoute';
+import { ProtectedRoute, AdminRoute, AgencyRoute } from './components/auth/ProtectedRoute';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { useAuth } from './contexts/AuthContext';
 import { AgencyProvider } from './contexts/AgencyContext';
@@ -33,11 +33,11 @@ function AppRoutes({ language }) {
       <Route path="/psd-layer" element={<PsdLayer language={language} />} />
       <Route path="/video-gen" element={<VideoGen language={language} />} />
       <Route path="/gallery" element={<Gallery language={language} />} />
-      <Route path="/pricing" element={<PricingPage language={language} />} />
       <Route path="/profile" element={<ProtectedRoute><ProfilePage language={language} /></ProtectedRoute>} />
       <Route path="/credits" element={<ProtectedRoute><CreditsCenter language={language} /></ProtectedRoute>} />
       <Route path="/affiliate" element={<ProtectedRoute><AffiliatePage language={language} /></ProtectedRoute>} />
       <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
+      <Route path="/agency" element={<AgencyRoute><AgencyDashboard /></AgencyRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><UserDashboard language={language} /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
+import { API_BASE, safeFetch } from '../config/api';
 
 const AuthContext = createContext(null);
 
@@ -6,9 +7,25 @@ const TOKEN_KEY = 'auth_token';
 const REFRESH_TOKEN_KEY = 'auth_refresh_token';
 const USER_KEY = 'auth_user';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
-
 const HAS_BACKEND = true;
+
+const DEMO_ACCOUNTS = {
+  'admin@ai.com': {
+    password: 'admin123',
+    user: { id: 1, email: 'admin@ai.com', nickname: '管理员', role: 'admin', membership: 'enterprise', credits: 9999 },
+    initialCredits: 9999
+  },
+  'test@ai.com': {
+    password: 'test123',
+    user: { id: 2, email: 'test@ai.com', nickname: '测试用户', role: 'user', membership: 'pro', credits: 100 },
+    initialCredits: 100
+  },
+  'demo@ai.com': {
+    password: 'demo123',
+    user: { id: 3, email: 'demo@ai.com', nickname: '演示体验用户', role: 'user', membership: 'free', credits: 50 },
+    initialCredits: 50
+  }
+};
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
@@ -24,6 +41,7 @@ export function AuthProvider({ children }) {
   const [error, setError] = useState(null);
 
   const isAuthenticated = !!token && !!user;
+  const isDemo = !token;
 
   const saveAuth = useCallback((userData, accessToken, refreshToken) => {
     setUser(userData);
@@ -52,15 +70,16 @@ export function AuthProvider({ children }) {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${API_BASE}/api/auth/login`, {
+      const { response, data } = await safeFetch(`${API_BASE}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });
-      const data = await response.json();
-      if (!data.success) {
+
+      if (!response.ok || !data.success) {
         throw new Error(data.error || '登录失败');
       }
+
       saveAuth(data.data.user, data.data.accessToken, data.data.refreshToken);
       return { success: true, user: data.data.user };
     } catch (err) {
@@ -75,7 +94,7 @@ export function AuthProvider({ children }) {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${API_BASE}/api/auth/register`, {
+      const { response, data } = await safeFetch(`${API_BASE}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -84,10 +103,11 @@ export function AuthProvider({ children }) {
           nickname: userData.nickname || userData.email?.split('@')[0]
         })
       });
-      const data = await response.json();
-      if (!data.success) {
+
+      if (!response.ok || !data.success) {
         throw new Error(data.error || '注册失败');
       }
+
       saveAuth(data.data.user, data.data.accessToken, data.data.refreshToken);
       return { success: true, user: data.data.user };
     } catch (err) {
@@ -175,7 +195,9 @@ export function AuthProvider({ children }) {
     updateProfile,
     getAuthHeaders,
     clearError: () => setError(null),
-    hasBackend: HAS_BACKEND
+    hasBackend: HAS_BACKEND,
+    isDemo,
+    demoAccounts: DEMO_ACCOUNTS
   };
 
   return (

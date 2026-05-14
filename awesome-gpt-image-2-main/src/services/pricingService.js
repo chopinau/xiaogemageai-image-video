@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+import { API_BASE } from '../config/api';
 
 const PRICING_CACHE = {};
 const CACHE_TTL = 5 * 60 * 1000;
@@ -11,7 +11,7 @@ export async function getModelPricing(modelName) {
   }
 
   try {
-    const response = await fetch(`${API_BASE}/pricing/${modelName}`);
+    const response = await fetch(`${API_BASE}/api/pricing/${modelName}`);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const result = await response.json();
 
@@ -34,7 +34,7 @@ export async function getAllModelPricings() {
   }
 
   try {
-    const response = await fetch(`${API_BASE}/pricing`);
+    const response = await fetch(`${API_BASE}/api/pricing`);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const result = await response.json();
 

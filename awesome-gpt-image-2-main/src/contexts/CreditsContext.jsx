@@ -1,10 +1,9 @@
 ﻿import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
 import { useAuth } from './AuthContext';
 import { calculateCreditsCost, CREDITS_RULES } from '../config/credits';
+import { API_BASE, safeFetch } from '../config/api';
 
 const CreditsContext = createContext(null);
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 
 function roundToCents(amount) {
   return Math.round(amount * 100) / 100;

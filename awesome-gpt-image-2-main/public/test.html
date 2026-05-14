@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API测试页面</title>
+    <script>
+        async function testLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const text = await response.text();
+                console.log('Response:', text);
+                
+                try {
+                    const data = JSON.parse(text);
+                    resultDiv.innerHTML = `<pre style="color: green;">成功！\n${JSON.stringify(data, null, 2)}</pre>`;
+                } catch (e) {
+                    resultDiv.innerHTML = `<pre style="color: red;">返回了非JSON数据：\n${text}</pre>`;
+                }
+            } catch (err) {
+                resultDiv.innerHTML = `<pre style="color: red;">请求失败：${err.message}</pre>`;
+            }
+        }
+        
+        async function testHealth() {
+            const resultDiv = document.getElementById('healthResult');
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                resultDiv.innerHTML = `<pre style="color: green;">健康检查成功！\n${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (err) {
+                resultDiv.innerHTML = `<pre style="color: red;">健康检查失败：${err.message}</pre>`;
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>API 测试页面</h1>
+    
+    <h2>1. 健康检查</h2>
+    <button onclick="testHealth()">测试健康检查</button>
+    <div id="healthResult"></div>
+    
+    <h2>2. 登录测试</h2>
+    <input type="email" id="email" placeholder="邮箱" value="admin@ai.com" style="width: 200px;">
+    <input type="password" id="password" placeholder="密码" value="admin123" style="width: 200px;">
+    <button onclick="testLogin()">登录</button>
+    <div id="result"></div>
+    
+    <h3>可用账号：</h3>
+    <ul>
+        <li>admin@ai.com / admin123 (管理员)</li>
+        <li>test@ai.com / test123 (测试用户)</li>
+        <li>demo@ai.com / demo123 (演示用户)</li>
+    </ul>
+</body>
+</html>
